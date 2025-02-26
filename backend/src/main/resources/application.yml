@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/sofbiblio_db
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: noreply.sofbiblio@gmail.com
+    password: qvvgymsbqcghmbwr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
