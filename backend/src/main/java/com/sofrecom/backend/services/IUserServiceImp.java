@@ -3,10 +3,13 @@ package com.sofrecom.backend.services;
 import com.sofrecom.backend.config.JwtService;
 import com.sofrecom.backend.dtos.AuthenticationResponse;
 import com.sofrecom.backend.dtos.RegisterRequest;
+import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +50,11 @@ public class IUserServiceImp implements IUserService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .build();
+    }
+
+    @Override
+    public Page<UserDto> getUsers(Pageable pageable) {
+        return userRepository.findAllUsers(pageable);
     }
 
     private String getPassword() {
