@@ -5,6 +5,7 @@ import com.sofrecom.backend.dtos.AuthenticationResponse;
 import com.sofrecom.backend.dtos.RegisterRequest;
 import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.User;
+import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
 import com.sofrecom.backend.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,9 @@ public class IUserServiceImp implements IUserService {
 
     @Override
     public AuthenticationResponse addUser(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already exists in the database");
+        }
         String password = getPassword();
         var user = User.builder()
                 .firstname(request.getFirstname())
@@ -55,6 +59,11 @@ public class IUserServiceImp implements IUserService {
     @Override
     public Page<UserDto> getUsers(Pageable pageable) {
         return userRepository.findAllUsers(pageable);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        this.userRepository.deleteById(id);
     }
 
     private String getPassword() {

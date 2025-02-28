@@ -5,6 +5,7 @@ import com.sofrecom.backend.dtos.AuthenticationResponse;
 import com.sofrecom.backend.dtos.RegisterRequest;
 import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.User;
+import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
 import com.sofrecom.backend.services.AuthenticationService;
 import com.sofrecom.backend.services.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +33,9 @@ public class UserController {
 
     @Operation(summary = "Add user", description = "Add new user")
     @PostMapping("")
-    public ResponseEntity<AuthenticationResponse> addUser(
-            @RequestBody RegisterRequest request
-    ) {
-        return ResponseEntity.ok(this.userService.addUser(request));
+    public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {
+        AuthenticationResponse response = userService.addUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Login", description = "Login")

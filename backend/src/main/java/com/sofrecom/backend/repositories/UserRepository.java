@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job) from User u")
     Page<UserDto> findAllUsers(Pageable pageable);
 
+    boolean existsByEmail(String email);
 }

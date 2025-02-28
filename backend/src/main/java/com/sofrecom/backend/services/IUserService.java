@@ -13,4 +13,6 @@ public interface IUserService {
     public List<User> getAllUsers();
     public AuthenticationResponse addUser(RegisterRequest registerRequest);
     public Page<UserDto> getUsers(Pageable pageable);
+    public void deleteUser(Long id);
+
 }
