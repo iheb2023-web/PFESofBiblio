@@ -1,0 +1,52 @@
+version: '3'
+services:
+  db:
+    container_name: softbiblio_database
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: sofbiblio_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - db
+    restart: unless-stopped
+  backend:
+    container_name: backend
+    image: backend/backend:1.0.0
+    ports:
+      - 8081:8081
+    networks:
+      - db
+    depends_on:
+      - db
+  frontend:
+    container_name: frontend
+    image : collab/collab-ui:1.0.0
+    ports:
+      - 8080:80
+    networks:
+      - db
+    depends_on:
+      - backend
+  app:
+    container_name: flutter_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    depends_on:
+      - backend
+    networks:
+      - db
+
+networks:
+  db:
+    driver: bridge
+volumes:
+  db:
