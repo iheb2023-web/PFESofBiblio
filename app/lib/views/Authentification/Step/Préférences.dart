@@ -52,9 +52,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     onPressed: () {
                       Get.to(() => const PageCountPreference());
                     },
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    child: Text(
+                      'skip'.tr,
+                      style: const TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
                 ],
@@ -63,9 +63,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
               const SizedBox(height: 20),
 
               // Titre
-              const Text(
-                'Complétez votre profil',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                'complete_profile'.tr,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 20),
@@ -99,17 +99,17 @@ class _PreferencesPageState extends State<PreferencesPage> {
               const SizedBox(height: 40),
 
               // Question
-              const Text(
-                "C'est quoi votre intérêt ?",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                'what_interests'.tr,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
 
               // Sous-titre
-              const Text(
-                'Vous pouvez choisir plusieurs options',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+              Text(
+                'select_multiple'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 30),
@@ -195,9 +195,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Continuer',
-                    style: TextStyle(
+                  child: Text(
+                    'continue'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

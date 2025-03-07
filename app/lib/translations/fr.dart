@@ -1,0 +1,172 @@
+const Map<String, String> fr = {
+  // Auth
+  'login': 'Connexion',
+  'email': 'Email',
+  'password': 'Mot de passe',
+  'forgot_password': 'Mot de passe oublié ?',
+  'sign_in': 'Se connecter',
+  'or': 'ou',
+  'sign_in_with_fingerprint': 'Utiliser votre empreinte pour vous connecter',
+  'sign_in_with_google': 'Se connecter avec Google',
+  'no_account': 'Pas de compte ? Créer un',
+  'back': 'Retour',
+  'next': 'Suivant',
+  'skip': 'Passer',
+  'finish': 'Terminer',
+  'complete_profile': 'Complétez votre profil',
+  'unauthorized': 'Non autorisé',
+  'scan_fingerprint': 'Scannez votre empreinte pour vous connecter',
+  'authentication_successful': 'Authentification réussie !',
+
+  // Validation messages
+  'email_required': 'Email est requis',
+  'password_required': 'Mot de passe est requis',
+  'invalid_credentials': 'Identifiants incorrects',
+  'fill_all_fields': 'Veuillez remplir tous les champs',
+
+  // Error messages
+  'error': 'Erreur',
+  'loading': 'Chargement...',
+
+  // Success messages
+  'success': 'Succès',
+  'welcome': 'Bienvenue',
+  'thank_you': 'Merci !',
+  'review_added': 'Votre avis a été ajouté avec succès',
+
+  // Navigation
+  'home': 'Accueil',
+  'explore': 'Explorer',
+  'my_library': 'Ma Bibliothèque',
+  'profile': 'Profil',
+
+  // Library
+  'my_books': 'Mes Livres',
+  'borrowed': 'Emprunts',
+  'add_book': 'Ajouter un livre',
+  'book_details': 'Détails du livre',
+  'available': 'Disponible',
+  'unavailable': 'Indisponible',
+  'borrowed_times': 'Emprunté {count} fois',
+  'about_book': 'À propos du livre',
+  'category': 'Catégorie',
+  'pages': 'Pages',
+  'reviews': 'Avis',
+  'add_review': 'Ajouter un avis',
+  'borrow': 'Emprunter',
+  'return': 'Retourner',
+  'extend': 'Prolonger',
+  'due_date': 'Date de retour',
+  'author': 'Auteur',
+  'publisher': 'Éditeur',
+  'publication_date': 'Date de publication',
+  'isbn': 'ISBN',
+  'language': 'Langue',
+  'description': 'Description',
+  'no_description': 'Aucune description disponible',
+
+  // Book Categories
+  'all': 'Tous',
+  'fiction': 'Fiction',
+  'non_fiction': 'Non-Fiction',
+  'science': 'Science',
+  'technology': 'Technologie',
+  'business': 'Business',
+  'art': 'Art',
+  'history': 'Histoire',
+  'biography': 'Biographie',
+  'children': 'Jeunesse',
+  'comics': 'BD',
+  'education': 'Éducation',
+
+  // Reviews
+  'your_rating': 'Votre note',
+  'your_review': 'Votre avis',
+  'write_review': 'Écrivez votre avis ici...',
+  'publish': 'Publier',
+  'cancel': 'Annuler',
+  'reader_reviews': 'Avis des lecteurs',
+  'no_reviews': 'Aucun avis pour le moment',
+  'days_ago': 'il y a {days} jours',
+
+  // Onboarding
+  'find_book': 'Trouvez votre lecture en un clic !',
+  'find_book_desc': 'Découvrez et partagez facilement des ouvrages pour enrichir votre bibliothèque en un seul clic.',
+  'dive_reading': 'Plongez dans un univers de lecture !',
+  'dive_reading_desc': 'Laissez-vous inspirer par une collection de livres variée et trouvez celui qui vous transportera dans une nouvelle aventure.',
+  'reserve_instant': 'Réservez votre livre en un instant !',
+  'reserve_instant_desc': 'Trouvez le livre qui vous passionne et réservez-le en toute simplicité pour en profiter sans attendre.',
+
+  // Profile
+  'edit_profile': 'Modifier le profil',
+  'settings': 'Paramètres',
+  'notifications': 'Notifications',
+  //'language': 'Langue',
+  'dark_mode': 'Mode sombre',
+  'help': 'Aide',
+  'about': 'À propos',
+  'logout': 'Déconnexion',
+  'account_settings': 'Paramètres du compte',
+  'privacy': 'Confidentialité',
+  'terms': 'Conditions générales',
+
+  // Add Book
+  'book_title': 'Titre du livre',
+  'enter_title': 'Saisir le titre',
+  'enter_author': "Nom de l'auteur",
+  'generated_content': 'Contenu généré',
+  'availability': 'Disponibilité',
+  'availability_date': 'Date de disponibilité',
+  'select_date': 'Sélectionner une date',
+  'max_borrow_duration': "Durée maximale d'emprunt",
+  'add': 'Ajouter',
+
+  // Active Members
+  'active_members': 'Membres actifs',
+  'member': 'Membre',
+  'loans': 'Emprunts',
+
+  // Search
+  'search': 'Rechercher',
+  'search_book': 'Rechercher un livre...',
+  'no_results': 'Aucun résultat trouvé',
+  'popular_books': 'Livres populaires',
+  'recommended': 'Recommandés pour vous',
+  'trending': 'Tendances',
+  'new_arrivals': 'Nouveautés',
+
+  // Steps
+  'what_interests': 'Quels sont vos intérêts ?',
+  'select_multiple': 'Vous pouvez sélectionner plusieurs options',
+  'continue': 'Continuer',
+  'how_many_pages': 'Combien de pages aimez-vous lire ?',
+  'choose_reading_length': 'Choisissez votre longueur de lecture préférée',
+  'last_step': 'Dernière étape !',
+  
+  // Page counts
+  'less_100_pages': 'Moins de 100 pages',
+  'quick_reads': 'Lectures courtes et rapides',
+  '150_250_pages': 'Entre 150 et 250 pages',
+  'medium_reads': 'Lectures de taille moyenne',
+  '300_400_pages': 'Entre 300 et 400 pages',
+  'longer_reads': 'Lectures plus approfondies',
+  'more_400_pages': 'Plus de 400 pages',
+  'extensive_reads': 'Lectures longues et détaillées',
+
+  // Reading habits
+  'when_prefer_read': 'Quand préférez-vous lire ?',
+  'morning': 'Le matin',
+  'afternoon': 'L\'après-midi',
+  'evening': 'Le soir',
+  'anytime': 'À tout moment',
+  'where_like_read': 'Où aimez-vous lire ?',
+  'at_home': 'À la maison',
+  'in_transport': 'Dans les transports',
+  'in_cafe': 'Dans un café',
+  'in_nature': 'Dans la nature',
+  'how_choose_books': 'Comment choisissez-vous vos livres ?',
+  'recommendations': 'Recommandations',
+  'cover_summary': 'Couverture/Résumé',
+  'preferred_genre': 'Genre préféré',
+  'random': 'Au hasard',
+}; 

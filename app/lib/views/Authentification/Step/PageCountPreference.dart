@@ -14,23 +14,23 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
 
   final List<Map<String, dynamic>> pageRanges = [
     {
-      'title': 'Moins de 100 pages',
-      'subtitle': 'Lectures courtes et rapides',
+      'title': 'less_100_pages'.tr,
+      'subtitle': 'quick_reads'.tr,
       'range': '< 100',
     },
     {
-      'title': 'Entre 150 et 250 pages',
-      'subtitle': 'Lectures de taille moyenne',
+      'title': '150_250_pages'.tr,
+      'subtitle': 'medium_reads'.tr,
       'range': '150-250',
     },
     {
-      'title': 'Entre 300 et 400 pages',
-      'subtitle': 'Lectures plus approfondies',
+      'title': '300_400_pages'.tr,
+      'subtitle': 'longer_reads'.tr,
       'range': '300-400',
     },
     {
-      'title': 'Plus de 400 pages',
-      'subtitle': 'Lectures longues et détaillées',
+      'title': 'more_400_pages'.tr,
+      'subtitle': 'extensive_reads'.tr,
       'range': '400+',
     },
   ];
@@ -56,9 +56,9 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
                     onPressed: () {
                       Get.to(() => const ReadingHabits());
                     },
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    child: Text(
+                      'skip'.tr,
+                      style: const TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
                 ],
@@ -67,9 +67,9 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
               const SizedBox(height: 20),
 
               // Titre
-              const Text(
-                'Complétez votre profil',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                'complete_profile'.tr,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 20),
@@ -103,17 +103,17 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
               const SizedBox(height: 40),
 
               // Question
-              const Text(
-                'Combien de pages aimez-vous lire ?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                'how_many_pages'.tr,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
 
               // Sous-titre
-              const Text(
-                'Choisissez votre longueur de lecture préférée',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+              Text(
+                'choose_reading_length'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 30),
@@ -214,9 +214,9 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Continuer',
-                    style: TextStyle(
+                  child: Text(
+                    'continue'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

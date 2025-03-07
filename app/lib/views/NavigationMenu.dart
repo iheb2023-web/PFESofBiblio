@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:app/views/Accueil/AccueilPage.dart';
+import 'package:app/views/Ma_Biblio/ma_biblio_page.dart';
+import 'package:get/get.dart';
+
 
 class NavigationMenu extends StatefulWidget {
   const NavigationMenu({super.key});
@@ -13,9 +16,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   final List<Widget> _pages = [
     const AccueilPage(),
-    const Center(child: Text('Page Explore')),
-    const Center(child: Text('Page Ma Biblio')),
-    const Center(child: Text('Page Profile')),
+    Center(child: Text('explore'.tr)),
+    const MaBiblioPage(), 
+    Center(child: Text('profile'.tr)),
   ];
 
   @override
@@ -32,14 +35,11 @@ class _NavigationMenuState extends State<NavigationMenu> {
             _selectedIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_books),
-            label: 'Ma Biblio',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: 'home'.tr),
+          BottomNavigationBarItem(icon: const Icon(Icons.explore), label: 'explore'.tr),
+          BottomNavigationBarItem(icon: const Icon(Icons.library_books), label: 'my_library'.tr),
+          BottomNavigationBarItem(icon: const Icon(Icons.person), label: 'profile'.tr),
         ],
       ),
     );

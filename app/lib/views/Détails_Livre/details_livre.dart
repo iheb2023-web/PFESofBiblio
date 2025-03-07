@@ -66,17 +66,14 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Ajouter un avis'),
+          title: Text('add_review'.tr),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Note',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              Text(
+                'your_rating'.tr,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               // Étoiles interactives
@@ -124,34 +121,20 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _rating = 0;
-                _commentController.clear();
-              },
-              child: const Text('Annuler'),
+              onPressed: () => Navigator.pop(context),
+              child: Text('cancel'.tr),
             ),
             ElevatedButton(
-              onPressed: _rating == 0 || _commentController.text.isEmpty
-                  ? null
-                  : () {
-                      // TODO: Implémenter l'ajout de l'avis
-                      Get.snackbar(
-                        'Merci !',
-                        'Votre avis a été ajouté avec succès',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.green,
-                        colorText: Colors.white,
-                      );
-                      Navigator.of(context).pop();
-                      _rating = 0;
-                      _commentController.clear();
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Publier'),
+              onPressed: () {
+                // ... logique d'ajout d'avis
+                Get.back();
+                Get.snackbar(
+                  'thank_you'.tr,
+                  'review_added'.tr,
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+              },
+              child: Text('publish'.tr),
             ),
           ],
         );
@@ -439,13 +422,13 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               const SizedBox(height: 24),
 
               // À propos du livre
-              const Padding(
+               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "À propos du livre",
+                      'about_book'.tr,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -496,9 +479,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Avis des lecteurs",
-                          style: TextStyle(
+                        Text(
+                          'reader_reviews'.tr,
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
