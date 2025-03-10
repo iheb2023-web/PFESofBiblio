@@ -2,12 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/models/user_model.dart';
 import 'package:app/services/auth_service.dart';
+import 'package:app/services/storage_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
+  final StorageService _storageService = StorageService();
   final Rx<User?> currentUser = Rx<User?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    checkAuthStatus();
+  }
+
+  Future<void> checkAuthStatus() async {
+    final userData = _storageService.getUserSession();
+    if (userData != null) {
+      currentUser.value = User.fromJson(userData);
+    }
+  }
 
   Future<void> login(String email, String password) async {
     try {
@@ -16,6 +31,9 @@ class AuthController extends GetxController {
 
       final user = await _authService.login(email, password);
       currentUser.value = user;
+
+      // Sauvegarder la session
+      await _storageService.saveUserSession(user.toJson());
 
       Get.snackbar(
         'Succès',
@@ -76,6 +94,7 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       await _authService.logout();
+      await _storageService.clearSession();
       currentUser.value = null;
       // Supprimer les informations stockées si nécessaire
       // await storage.delete(key: 'user');
@@ -94,7 +113,7 @@ class AuthController extends GetxController {
       errorMessage.value = e.toString();
       Get.snackbar(
         'Erreur',
-        e.toString(),
+        'Erreur lors de la déconnexion',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

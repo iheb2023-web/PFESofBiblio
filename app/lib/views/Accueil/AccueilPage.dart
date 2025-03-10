@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:app/views/Détails_Livre/details_livre.dart';
+import 'package:app/controllers/theme_controller.dart';
+import 'package:app/theme/app_theme.dart';
 
 // Déplacer la classe Member au niveau supérieur, avant AccueilPage
 class Member {
@@ -28,7 +30,7 @@ class _AccueilPageState extends State<AccueilPage>
     'history'.tr,
   ];
 
-  int selectedCategoryIndex = 0;
+  String? selectedCategory;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -93,13 +95,17 @@ class _AccueilPageState extends State<AccueilPage>
       vsync: this,
     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    _animation = Tween<double>(begin: 0, end: 5).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
     );
   }
 
   @override
   void dispose() {
+    _animationController.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -163,51 +169,7 @@ class _AccueilPageState extends State<AccueilPage>
 
               // Catégories
               const SizedBox(height: 20),
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedCategoryIndex = index;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color:
-                              selectedCategoryIndex == index
-                                  ? Colors.blue
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color:
-                                selectedCategoryIndex == index
-                                    ? Colors.blue
-                                    : Colors.grey,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            categories[index],
-                            style: TextStyle(
-                              color:
-                                  selectedCategoryIndex == index
-                                      ? Colors.white
-                                      : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              _buildCategoryChips(),
 
               // Membres actifs
               const SizedBox(height: 20),
@@ -303,6 +265,11 @@ class _AccueilPageState extends State<AccueilPage>
                 child: Lottie.asset(
                   'assets/lottie/chatbot.json',
                   fit: BoxFit.cover,
+                  frameRate: FrameRate(60),
+                  repeat: true,
+                  options: LottieOptions(
+                    enableMergePaths: true,
+                  ),
                 ),
               ),
             ),
@@ -310,6 +277,78 @@ class _AccueilPageState extends State<AccueilPage>
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    return GetBuilder<ThemeController>(
+      builder: (controller) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            for (String category in categories)
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedCategory = selectedCategory == category ? null : category;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(25),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selectedCategory == category
+                            ? AppTheme.primaryColor
+                            : (controller.isDarkMode 
+                                ? AppTheme.darkSurfaceColor 
+                                : AppTheme.lightSurfaceColor),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color: selectedCategory == category
+                              ? AppTheme.primaryColor
+                              : controller.isDarkMode
+                                  ? Colors.white24
+                                  : Colors.grey[300]!,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          if (selectedCategory == category)
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                        ],
+                      ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: selectedCategory == category
+                              ? Colors.white
+                              : (controller.isDarkMode 
+                                  ? Colors.white70
+                                  : AppTheme.lightTextColor),
+                          fontWeight: selectedCategory == category
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/theme/app_theme.dart';
-import 'package:app/theme/theme_controller.dart';
+import 'package:app/controllers/theme_controller.dart';
 import 'package:app/views/Authentification/onBoardingScreen.dart';
 import 'package:app/controllers/auth_controller.dart';
 import 'package:app/translations/app_translations.dart';
+import 'package:app/services/storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialiser le service de stockage
+  final storageService = StorageService();
+  await storageService.init();
+
   // Initialiser le contrôleur de thème
-  await Get.putAsync(() async => ThemeController());
+  Get.put(ThemeController());
 
   // Initialiser le contrôleur d'authentification
   Get.put(AuthController());

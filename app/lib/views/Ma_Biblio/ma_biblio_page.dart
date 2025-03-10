@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:app/themeData.dart' as theme_data;
 import 'mes_livres.dart';
 import 'mes_emprunts.dart';
 import '../Ajouter_livre/ajouter_livre.dart';
-import 'package:app/theme/theme_controller.dart';
+import 'package:app/controllers/theme_controller.dart';
+import 'package:app/theme/app_theme.dart';
 
 class MaBiblioPage extends StatefulWidget {
   const MaBiblioPage({super.key});
@@ -14,7 +16,6 @@ class MaBiblioPage extends StatefulWidget {
 
 class _MaBiblioPageState extends State<MaBiblioPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -30,59 +31,73 @@ class _MaBiblioPageState extends State<MaBiblioPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: colorScheme.onBackground),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          'my_library'.tr,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: colorScheme.onBackground,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: colorScheme.background,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add, color: colorScheme.onBackground),
-            onPressed: () => Get.to(() => const AddBookScreen()),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: colorScheme.surface,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: colorScheme.primary,
-              unselectedLabelColor: theme.hintColor,
-              indicatorColor: colorScheme.primary,
-              labelStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-              unselectedLabelStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-              tabs: [
-                Tab(text: 'my_books'.tr),
-                Tab(text: 'borrowed'.tr),
-              ],
+    return GetBuilder<ThemeController>(
+      builder: (themeController) => Theme(
+        data: themeController.isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              onPressed: () => Get.back(),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: const [
-                MesLivresPage(),
-                MesEmpruntsPage(),
-              ],
+            title: Text(
+              'my_library'.tr,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.add,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                onPressed: () => Get.to(() => const AddBookScreen()),
+              ),
+            ],
           ),
-        ],
+          body: Column(
+            children: [
+              Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: TabBar(
+                  controller: _tabController,
+                  labelColor: Theme.of(context).primaryColor,
+                  unselectedLabelColor: Theme.of(context).textTheme.bodyMedium?.color,
+                  indicatorColor: Theme.of(context).primaryColor,
+                  dividerColor: Colors.transparent,
+                  labelStyle: const TextStyle(
+                    // fontFamily: "Sora",  // Commenté temporairement
+                    fontWeight: FontWeight.w600,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    // fontFamily: "Sora",  // Commenté temporairement
+                    fontWeight: FontWeight.w500,
+                  ),
+                  tabs: [
+                    Tab(text: 'my_books'.tr),
+                    Tab(text: 'borrowed'.tr),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: const [
+                    MesLivresPage(),
+                    MesEmpruntsPage(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

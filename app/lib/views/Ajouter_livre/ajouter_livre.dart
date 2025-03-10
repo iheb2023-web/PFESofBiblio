@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:app/themeData.dart';
-import 'package:app/theme/theme_controller.dart';
+import 'package:app/themeData.dart' as theme_data;
+import 'package:app/controllers/theme_controller.dart';
+import 'package:app/theme/app_theme.dart';
+import 'package:app/services/book_service.dart';
+import 'dart:async';
+import 'package:app/services/api_service.dart';
+import 'package:app/models/book.dart';
 
 class BookData {
   final String title;
@@ -56,6 +61,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
   final TextEditingController durationController = TextEditingController(text: '7 jours');
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController isbnController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
+  final TextEditingController pageCountController = TextEditingController();
+  final TextEditingController languageController = TextEditingController();
 
   BookData? bookData;
   bool isLoading = false;
@@ -63,193 +73,148 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   void initState() {
     super.initState();
-    authorController.addListener(_onAuthorChanged);
+    titleController.addListener(_onFieldsChanged);
+    authorController.addListener(_onFieldsChanged);
   }
 
   @override
   void dispose() {
-    authorController.removeListener(_onAuthorChanged);
+    titleController.removeListener(_onFieldsChanged);
+    authorController.removeListener(_onFieldsChanged);
     titleController.dispose();
     authorController.dispose();
     durationController.dispose();
+    descriptionController.dispose();
+    isbnController.dispose();
+    categoryController.dispose();
+    pageCountController.dispose();
+    languageController.dispose();
     super.dispose();
   }
 
-  // Fonction pour chercher le livre après un délai quand l'auteur est modifié
-  Future<void> _onAuthorChanged() async {
-    if (authorController.text.length > 3 && titleController.text.isNotEmpty) {
-      // Attendre que l'utilisateur arrête de taper
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (authorController.text.length > 3) {
-        _searchBook(titleController.text, authorController.text);
-      }
+  void _onFieldsChanged() {
+    if (bookData != null) {
+      setState(() {
+        bookData = null;
+      });
+    }
+    
+    if (titleController.text.isNotEmpty) {
+      _debounceSearch();
     }
   }
 
+  Timer? _debounceTimer;
+
+  void _debounceSearch() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 800), () {
+      _searchBook(titleController.text, authorController.text);
+    });
+  }
+
   Future<void> _searchBook(String title, String author) async {
-    if (title.isEmpty || author.isEmpty) return;
+    if (title.isEmpty) return;
 
     setState(() {
       isLoading = true;
     });
 
     try {
-      // Détecter si le titre est en anglais ou en français
-      bool isEnglish = RegExp(r'^[a-zA-Z\s.,!?-]+$').hasMatch(title);
-      String language = isEnglish ? 'en' : 'fr';
-      
-      // Construire la requête avec le titre et l'auteur
-      String query = 'intitle:${Uri.encodeComponent(title)} inauthor:${Uri.encodeComponent(author)}';
-      
-      // Construire l'URL avec les paramètres appropriés
-      final response = await http.get(
-        Uri.parse('https://www.googleapis.com/books/v1/volumes?q=$query&langRestrict=$language&maxResults=1')
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data['items'] != null && data['items'].isNotEmpty) {
-          final item = data['items'][0]['volumeInfo'];
-
-          String isbn = '';
-          if (item['industryIdentifiers'] != null) {
-            for (var identifier in item['industryIdentifiers']) {
-              if (identifier['type'] == 'ISBN_13') {
-                isbn = identifier['identifier'];
-                break;
-              } else if (identifier['type'] == 'ISBN_10' && isbn.isEmpty) {
-                isbn = identifier['identifier'];
-                break;
-              }
-            }
-          }
-
-          String coverUrl = '';
-          if (item['imageLinks'] != null) {
-            coverUrl = item['imageLinks']['thumbnail'] ?? '';
-            // Convertir l'URL http en https et augmenter la taille de l'image
-            coverUrl = coverUrl.replaceAll('http://', 'https://').replaceAll('zoom=1', 'zoom=2');
-          }
-
-          // Génération d'une description plus complète dans la langue appropriée
-          String description = '';
-          if (isEnglish) {
-            if (item['publishedDate'] != null) {
-              description += 'Published in ${item['publishedDate']}. ';
-            }
-            if (item['authors']?.isNotEmpty == true) {
-              description += 'Written by ${item['authors'][0]}. ';
-            }
-            if (item['pageCount'] != null) {
-              description += '${item['pageCount']} pages. ';
-            }
-            if (item['categories']?.isNotEmpty == true) {
-              description += 'Category: ${item['categories'][0]}. ';
-            }
-            if (item['language'] != null) {
-              description += 'Language: ${item['language'].toUpperCase()}. ';
-            }
-            if (item['description'] != null) {
-              description += '\n\n${item['description']}';
-            }
-          } else {
-            if (item['publishedDate'] != null) {
-              description += 'Publié en ${item['publishedDate']}. ';
-            }
-            if (item['authors']?.isNotEmpty == true) {
-              description += 'Écrit par ${item['authors'][0]}. ';
-            }
-            if (item['pageCount'] != null) {
-              description += '${item['pageCount']} pages. ';
-            }
-            if (item['categories']?.isNotEmpty == true) {
-              description += 'Catégorie : ${item['categories'][0]}. ';
-            }
-            if (item['language'] != null) {
-              description += 'Langue : ${item['language'].toUpperCase()}. ';
-            }
-            if (item['description'] != null) {
-              description += '\n\n${item['description']}';
-            }
-          }
-          
-          if (description.isEmpty) {
-            description = isEnglish ? 'No description available' : 'Aucune description disponible';
-          }
-
-          final bookInfo = BookData(
-            title: item['title'] ?? '',
-            author: item['authors']?.isNotEmpty == true ? item['authors'][0] : (isEnglish ? 'Unknown author' : 'Auteur inconnu'),
-            description: description,
-            coverUrl: coverUrl,
-            publishedDate: item['publishedDate'] ?? '',
-            isbn: isbn,
-            category: item['categories']?.isNotEmpty == true ? item['categories'][0] : '',
-            pageCount: item['pageCount'] ?? 0,
-            language: item['language'] ?? '',
+      final bookInfo = await BookService.searchBook(title, author: author);
+      if (bookInfo != null) {
+        if (!mounted) return;
+        setState(() {
+          bookData = BookData(
+            title: bookInfo['title'] ?? '',
+            author: bookInfo['author'] ?? 'Auteur inconnu',
+            description: bookInfo['description'] ?? 'Aucune description disponible',
+            coverUrl: bookInfo['coverUrl'] ?? '',
+            publishedDate: bookInfo['publishedDate'] ?? '',
+            isbn: bookInfo['isbn'] ?? '',
+            category: bookInfo['category'] ?? '',
+            pageCount: bookInfo['pageCount'] ?? 0,
+            language: bookInfo['language'] ?? '',
           );
-
-          setState(() {
-            bookData = bookInfo;
-          });
-        }
+          authorController.text = bookInfo['author'] ?? '';
+        });
+      } else {
+        if (!mounted) return;
+        Get.snackbar(
+          'Information',
+          'Aucun livre trouvé avec ces critères',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Theme.of(context).cardColor,
+          colorText: Theme.of(context).textTheme.bodyLarge?.color,
+        );
       }
     } catch (e) {
-      debugPrint('Erreur lors de la recherche du livre: $e');
+      if (!mounted) return;
+      Get.snackbar(
+        'Erreur',
+        'Une erreur est survenue lors de la recherche',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      print('Erreur: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ThemeController>(
-      builder: (controller) => Scaffold(
-        backgroundColor: controller.isDarkMode ? darkBackgroundColor : whiteSmokeColor,
-        appBar: AppBar(
-          title: Text(
-            'add_book'.tr,
-            style: TextStyle(
-              color: controller.isDarkMode ? whiteColor : blackColor,
-              fontWeight: FontWeight.bold,
+      builder: (controller) => Theme(
+        data: controller.isDarkMode ? AppTheme.darkTheme : AppTheme.lightTheme,
+        child: Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          appBar: AppBar(
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+            title: Text(
+              'add_book'.tr,
+              style: Theme.of(context).appBarTheme.titleTextStyle,
             ),
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).appBarTheme.iconTheme?.color,
+              ),
+              onPressed: () => Get.back(),
+            ),
+            elevation: 0,
           ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, 
-              color: controller.isDarkMode ? whiteColor : blackColor),
-            onPressed: () => Get.back(),
-          ),
-          backgroundColor: controller.isDarkMode ? darkBackgroundColor : whiteColor,
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildLabel('book_title'.tr, controller),
-              const SizedBox(height: 8),
-              _buildTextField(titleController, 'enter_title'.tr, controller),
-              const SizedBox(height: 16),
-              _buildLabel('author'.tr, controller),
-              const SizedBox(height: 8),
-              _buildTextField(authorController, 'enter_author'.tr, controller),
-              
-              if (bookData != null) ...[
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLabel('book_title'.tr, controller),
+                const SizedBox(height: 8),
+                _buildTextField(titleController, 'enter_title'.tr, controller),
                 const SizedBox(height: 16),
-                _buildBookDetails(controller),
-              ],
+                _buildLabel('author'.tr, controller),
+                const SizedBox(height: 8),
+                _buildTextField(authorController, 'enter_author'.tr, controller),
+                
+                if (bookData != null) ...[
+                  const SizedBox(height: 16),
+                  _buildBookDetails(controller),
+                ],
 
-              const SizedBox(height: 24),
-              _buildGeneratedContent(controller),
-              const SizedBox(height: 24),
-              _buildAvailabilitySection(controller),
-              const SizedBox(height: 24),
-              _buildAddButton(controller),
-            ],
+                const SizedBox(height: 24),
+                _buildGeneratedContent(controller),
+                const SizedBox(height: 24),
+                _buildAvailabilitySection(controller),
+                const SizedBox(height: 24),
+                _buildAddButton(controller),
+              ],
+            ),
           ),
         ),
       ),
@@ -259,43 +224,46 @@ class _AddBookScreenState extends State<AddBookScreen> {
   Widget _buildLabel(String text, ThemeController controller) {
     return Text(
       text,
-      style: TextStyle(
-        color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
-      ),
+      style: Theme.of(context).textTheme.bodyLarge,
     );
   }
 
   Widget _buildTextField(TextEditingController textController, String hint, ThemeController controller) {
-    return TextField(
-      controller: textController,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        TextField(
+          controller: textController,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+            border: Theme.of(context).inputDecorationTheme.border,
+            enabledBorder: Theme.of(context).inputDecorationTheme.enabledBorder,
+            focusedBorder: Theme.of(context).inputDecorationTheme.focusedBorder,
+            fillColor: Theme.of(context).inputDecorationTheme.fillColor,
+            filled: true,
+            contentPadding: EdgeInsets.only(
+              left: 16,
+              right: isLoading ? 48 : 16,
+              top: 16,
+              bottom: 16,
+            ),
           ),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+        if (isLoading)
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+              ),
+            ),
           ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: blueColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fillColor: controller.isDarkMode ? Colors.grey[900] : whiteColor,
-        filled: true,
-      ),
-      style: TextStyle(
-        color: controller.isDarkMode ? whiteColor : blackColor,
-      ),
+      ],
     );
   }
 
@@ -305,49 +273,102 @@ class _AddBookScreenState extends State<AddBookScreen> {
       children: [
         Row(
           children: [
-            _buildBookInfo('ISBN', bookData!.isbn, controller),
-            _buildBookInfo('Date de Publication', bookData!.publishedDate, controller),
+            Expanded(
+              child: _buildEditableField(
+                'ISBN',
+                isbnController..text = bookData?.isbn ?? '',
+                controller,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildEditableField(
+                'Date de Publication',
+                TextEditingController(text: bookData?.publishedDate ?? ''),
+                controller,
+                readOnly: true,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
         Row(
           children: [
-            _buildBookInfo('Nombre de pages', 
-              bookData!.pageCount > 0 ? bookData!.pageCount.toString() : 'Non disponible', 
-              controller),
-            _buildBookInfo('Langue', 
-              bookData!.language.isNotEmpty ? bookData!.language.toUpperCase() : 'Non disponible', 
-              controller),
+            Expanded(
+              child: _buildEditableField(
+                'Nombre de pages',
+                pageCountController..text = bookData?.pageCount.toString() ?? '',
+                controller,
+                keyboardType: TextInputType.number,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildEditableField(
+                'Langue',
+                languageController..text = bookData?.language.toUpperCase() ?? '',
+                controller,
+              ),
+            ),
           ],
         ),
-        if (bookData!.category.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          _buildBookInfo('Catégorie', bookData!.category, controller),
-        ],
+        const SizedBox(height: 16),
+        _buildEditableField(
+          'Catégorie',
+          categoryController..text = bookData?.category ?? '',
+          controller,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Description',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: descriptionController..text = bookData?.description ?? '',
+          maxLines: 5,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+            fillColor: Theme.of(context).cardColor,
+          ),
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
       ],
     );
   }
 
-  Widget _buildBookInfo(String label, String value, ThemeController controller) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
+  Widget _buildEditableField(
+    String label,
+    TextEditingController controller,
+    ThemeController themeController, {
+    bool readOnly = false,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          readOnly: readOnly,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            filled: true,
+            fillColor: Theme.of(context).cardColor,
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              color: controller.isDarkMode ? whiteColor : blackColor,
-            ),
-          ),
-        ],
-      ),
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
     );
   }
 
@@ -357,8 +378,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       children: [
         Text(
           'Contenu généré',
-          style: TextStyle(
-            color: controller.isDarkMode ? whiteColor : blackColor,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -366,10 +386,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+              color: Theme.of(context).cardColor,
             ),
           ),
           child: Row(
@@ -391,8 +411,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       children: [
         Text(
           'Disponibilité',
-          style: TextStyle(
-            color: controller.isDarkMode ? whiteColor : blackColor,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -408,7 +427,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () => Get.back(),
+        onPressed: _addBook,
         icon: const Icon(Icons.add),
         label: Text(
           'add'.tr,
@@ -418,7 +437,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: blueColor,
+          backgroundColor: theme_data.blueColor,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -428,14 +447,87 @@ class _AddBookScreenState extends State<AddBookScreen> {
     );
   }
 
+  Future<void> _addBook() async {
+    if (titleController.text.isEmpty || authorController.text.isEmpty) {
+      Get.snackbar(
+        'Erreur',
+        'Le titre et l\'auteur sont requis',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    final book = Book(
+      title: titleController.text,
+      author: authorController.text,
+      description: descriptionController.text,
+      coverUrl: bookData?.coverUrl ?? '',
+      publishedDate: bookData?.publishedDate ?? '',
+      isbn: isbnController.text,
+      category: categoryController.text,
+      pageCount: int.tryParse(pageCountController.text) ?? 0,
+      language: languageController.text,
+    );
+
+    try {
+      final success = await ApiService.addBook(book);
+      if (success) {
+        titleController.clear();
+        authorController.clear();
+        descriptionController.clear();
+        isbnController.clear();
+        categoryController.clear();
+        pageCountController.clear();
+        languageController.clear();
+        durationController.text = '7 jours';
+        
+        setState(() {
+          selectedDate = null;
+          bookData = null;
+        });
+
+        Get.snackbar(
+          'Success',
+          'Book added successfully',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+
+        await Future.delayed(const Duration(seconds: 2));
+        if (mounted) Get.back();
+      } else {
+        Get.snackbar(
+          'Erreur',
+          'Impossible d\'ajouter le livre',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Une erreur est survenue',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      print('Erreur lors de l\'ajout du livre: $e');
+    }
+  }
+
   Widget _buildBookCover(ThemeController controller) {
     return Container(
       width: 80,
       height: 120,
       decoration: BoxDecoration(
-        color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+        border: Border.all(color: Theme.of(context).cardColor),
         image: bookData != null && bookData!.coverUrl.isNotEmpty
             ? DecorationImage(
           image: NetworkImage(bookData!.coverUrl),
@@ -446,7 +538,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       child: bookData == null || bookData!.coverUrl.isEmpty
           ? Icon(
               Icons.image,
-              color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+              color: Theme.of(context).iconTheme.color,
               size: 32,
             )
           : null,
@@ -460,8 +552,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         children: [
           Text(
             'Résumé',
-            style: TextStyle(
-              color: controller.isDarkMode ? whiteColor : const Color.fromARGB(255, 17, 17, 17),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -470,16 +561,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
             bookData != null && bookData!.description.isNotEmpty
                 ? bookData!.description
                 : 'Le résumé sera généré automatiquement...',
-            style: TextStyle(
-              color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
-            ),
+            style: Theme.of(context).textTheme.bodyLarge,
             maxLines: 5,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
           Icon(
             Icons.keyboard_arrow_down,
-            color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+            color: Theme.of(context).iconTheme.color,
           ),
         ],
       ),
@@ -498,7 +587,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             return Theme(
               data: Theme.of(context).copyWith(
                 colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: blueColor,
+                  primary: theme_data.blueColor,
                 ),
               ),
               child: child!,
@@ -514,8 +603,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
-          border: Border.all(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+          color: Theme.of(context).cardColor,
+          border: Border.all(color: Theme.of(context).cardColor),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -525,16 +614,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
               selectedDate != null
                   ? DateFormat('dd/MM/yyyy').format(selectedDate!)
                   : 'Sélectionner une date',
-              style: TextStyle(
-                color: selectedDate != null 
-                    ? controller.isDarkMode ? whiteColor : blackColor
-                    : controller.isDarkMode ? Colors.grey[500] : Colors.grey,
-              ),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
             Icon(
               Icons.calendar_today,
               size: 20,
-              color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+              color: Theme.of(context).iconTheme.color,
             ),
           ],
         ),
@@ -548,23 +633,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+          borderSide: BorderSide(color: Theme.of(context).cardColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+          borderSide: BorderSide(color: Theme.of(context).cardColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: blueColor),
+          borderSide: BorderSide(color: theme_data.blueColor),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fillColor: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+        fillColor: Theme.of(context).cardColor,
         filled: true,
       ),
-      style: TextStyle(
-        color: controller.isDarkMode ? whiteColor : blackColor,
-      ),
+      style: Theme.of(context).textTheme.bodyLarge,
     );
   }
 }
