@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:app/themeData.dart';
+import 'package:app/theme/theme_controller.dart';
 
 class BookData {
   final String title;
@@ -205,417 +206,364 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Scaffold(
-      backgroundColor: whiteSmokeColor,
-      appBar: AppBar(
-        title: Text(
-          'add_book'.tr,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: blackColor,
-            fontWeight: FontWeight.bold,
+    return GetBuilder<ThemeController>(
+      builder: (controller) => Scaffold(
+        backgroundColor: controller.isDarkMode ? darkBackgroundColor : whiteSmokeColor,
+        appBar: AppBar(
+          title: Text(
+            'add_book'.tr,
+            style: TextStyle(
+              color: controller.isDarkMode ? whiteColor : blackColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, 
+              color: controller.isDarkMode ? whiteColor : blackColor),
+            onPressed: () => Get.back(),
+          ),
+          backgroundColor: controller.isDarkMode ? darkBackgroundColor : whiteColor,
+          elevation: 0,
         ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: blackColor),
-          onPressed: () => Navigator.pop(context),
-        ),
-        backgroundColor: whiteColor,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'book_title'.tr,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: const Color.fromARGB(255, 63, 62, 62),
-                ),
-              ),
+              _buildLabel('book_title'.tr, controller),
               const SizedBox(height: 8),
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                  hintText: 'enter_title'.tr,
-                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
-                  suffixIcon: isLoading
-                      ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: CircularProgressIndicator(strokeWidth: 2.0),
-                    ),
-                  )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: blueColor),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  fillColor: whiteColor,
-                  filled: true,
-                ),
-                style: theme.textTheme.bodyMedium,
-              ),
+              _buildTextField(titleController, 'enter_title'.tr, controller),
               const SizedBox(height: 16),
-
-              Text(
-                'author'.tr,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: const Color.fromARGB(255, 63, 62, 62),
-                ),
-              ),
+              _buildLabel('author'.tr, controller),
               const SizedBox(height: 8),
-              TextField(
-                controller: authorController,
-                decoration: InputDecoration(
-                  hintText: 'enter_author'.tr,
-                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: blueColor),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  fillColor: whiteColor,
-                  filled: true,
-                ),
-                style: theme.textTheme.bodyMedium,
-              ),
-
+              _buildTextField(authorController, 'enter_author'.tr, controller),
+              
               if (bookData != null) ...[
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'ISBN',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            bookData!.isbn.isNotEmpty ? bookData!.isbn : 'Non disponible',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Date de Publication',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            bookData!.publishedDate.isNotEmpty ? bookData!.publishedDate : 'Non disponible',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Nombre de pages',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            bookData!.pageCount > 0 ? bookData!.pageCount.toString() : 'Non disponible',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Langue',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            bookData!.language.isNotEmpty
-                                ? bookData!.language.toUpperCase()
-                                : 'Non disponible',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 16),
-
-                if (bookData!.category.isNotEmpty) ...[
-                  Text(
-                    'Catégorie',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    bookData!.category,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                _buildBookDetails(controller),
               ],
 
               const SizedBox(height: 24),
-
-              Text(
-                'Contenu généré',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: const Color.fromARGB(255, 17, 17, 17),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: whiteColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: whiteColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey),
-                        image: bookData != null && bookData!.coverUrl.isNotEmpty
-                            ? DecorationImage(
-                          image: NetworkImage(bookData!.coverUrl),
-                          fit: BoxFit.cover,
-                        )
-                            : null,
-                      ),
-                      child: bookData == null || bookData!.coverUrl.isEmpty
-                          ? Center(
-                        child: Icon(
-                          Icons.image,
-                          color: Colors.grey,
-                          size: 32,
-                        ),
-                      )
-                          : null,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Résumé',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: blueColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            bookData != null && bookData!.description.isNotEmpty
-                                ? bookData!.description
-                                : 'Le résumé sera généré automatiquement...',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey,
-                            ),
-                            maxLines: 5,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 16),
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.grey,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
+              _buildGeneratedContent(controller),
               const SizedBox(height: 24),
-
-              Text(
-                'Disponibilité',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: const Color.fromARGB(255, 22, 22, 24),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              Text(
-                'Date de disponibilité',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: const Color.fromARGB(255, 58, 57, 57),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              GestureDetector(
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      selectedDate = pickedDate;
-                    });
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: whiteColor,
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        selectedDate != null
-                            ? DateFormat('dd/MM/yyyy').format(selectedDate!)
-                            : 'Sélectionner une date',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: selectedDate != null ? blackColor : Colors.grey,
-                        ),
-                      ),
-                      Icon(
-                        Icons.calendar_today,
-                        size: 20,
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              Text(
-                "Durée maximale d'emprunt",
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: const Color.fromARGB(255, 63, 62, 62),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              TextField(
-                controller: durationController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: blueColor),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  fillColor: whiteColor,
-                  filled: true,
-                ),
-                style: theme.textTheme.bodyMedium,
-              ),
-
+              _buildAvailabilitySection(controller),
               const SizedBox(height: 24),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // Logique pour ajouter le livre
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.add),
-                  label: Text(
-                    'add'.tr,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: whiteColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: blueColor,
-                    foregroundColor: whiteColor,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
+              _buildAddButton(controller),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text, ThemeController controller) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController textController, String hint, ThemeController controller) {
+    return TextField(
+      controller: textController,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: blueColor),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+        filled: true,
+      ),
+      style: TextStyle(
+        color: controller.isDarkMode ? whiteColor : blackColor,
+      ),
+    );
+  }
+
+  Widget _buildBookDetails(ThemeController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildBookInfo('ISBN', bookData!.isbn, controller),
+            _buildBookInfo('Date de Publication', bookData!.publishedDate, controller),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            _buildBookInfo('Nombre de pages', 
+              bookData!.pageCount > 0 ? bookData!.pageCount.toString() : 'Non disponible', 
+              controller),
+            _buildBookInfo('Langue', 
+              bookData!.language.isNotEmpty ? bookData!.language.toUpperCase() : 'Non disponible', 
+              controller),
+          ],
+        ),
+        if (bookData!.category.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          _buildBookInfo('Catégorie', bookData!.category, controller),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBookInfo(String label, String value, ThemeController controller) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: controller.isDarkMode ? whiteColor : blackColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGeneratedContent(ThemeController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Contenu généré',
+          style: TextStyle(
+            color: controller.isDarkMode ? whiteColor : blackColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBookCover(controller),
+              const SizedBox(width: 16),
+              _buildBookDescription(controller),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAvailabilitySection(ThemeController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Disponibilité',
+          style: TextStyle(
+            color: controller.isDarkMode ? whiteColor : blackColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildDatePicker(controller),
+        const SizedBox(height: 16),
+        _buildDurationField(controller),
+      ],
+    );
+  }
+
+  Widget _buildAddButton(ThemeController controller) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => Get.back(),
+        icon: const Icon(Icons.add),
+        label: Text(
+          'add'.tr,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: blueColor,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookCover(ThemeController controller) {
+    return Container(
+      width: 80,
+      height: 120,
+      decoration: BoxDecoration(
+        color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+        image: bookData != null && bookData!.coverUrl.isNotEmpty
+            ? DecorationImage(
+          image: NetworkImage(bookData!.coverUrl),
+          fit: BoxFit.cover,
+        )
+            : null,
+      ),
+      child: bookData == null || bookData!.coverUrl.isEmpty
+          ? Icon(
+              Icons.image,
+              color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+              size: 32,
+            )
+          : null,
+    );
+  }
+
+  Widget _buildBookDescription(ThemeController controller) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Résumé',
+            style: TextStyle(
+              color: controller.isDarkMode ? whiteColor : const Color.fromARGB(255, 17, 17, 17),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            bookData != null && bookData!.description.isNotEmpty
+                ? bookData!.description
+                : 'Le résumé sera généré automatiquement...',
+            style: TextStyle(
+              color: controller.isDarkMode ? Colors.grey[300] : const Color.fromARGB(255, 63, 62, 62),
+            ),
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 16),
+          Icon(
+            Icons.keyboard_arrow_down,
+            color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDatePicker(ThemeController controller) {
+    return GestureDetector(
+      onTap: () async {
+        final DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2100),
+          builder: (context, child) {
+            return Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: blueColor,
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (pickedDate != null) {
+          setState(() {
+            selectedDate = pickedDate;
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+          border: Border.all(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedDate != null
+                  ? DateFormat('dd/MM/yyyy').format(selectedDate!)
+                  : 'Sélectionner une date',
+              style: TextStyle(
+                color: selectedDate != null 
+                    ? controller.isDarkMode ? whiteColor : blackColor
+                    : controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+              ),
+            ),
+            Icon(
+              Icons.calendar_today,
+              size: 20,
+              color: controller.isDarkMode ? Colors.grey[500] : Colors.grey,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDurationField(ThemeController controller) {
+    return TextField(
+      controller: durationController,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: controller.isDarkMode ? Colors.grey[700]! : Colors.grey),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: blueColor),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: controller.isDarkMode ? Colors.grey[900] : whiteColor,
+        filled: true,
+      ),
+      style: TextStyle(
+        color: controller.isDarkMode ? whiteColor : blackColor,
       ),
     );
   }

@@ -118,10 +118,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.4,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.1,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
                   ),
                   itemCount: interests.length,
                   itemBuilder: (context, index) {
@@ -139,13 +139,13 @@ class _PreferencesPageState extends State<PreferencesPage> {
                               interest['selected']
                                   ? Colors.blue.withOpacity(0.1)
                                   : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color:
                                 interest['selected']
                                     ? Colors.blue
                                     : Colors.transparent,
-                            width: 2,
+                            width: 1.5,
                           ),
                         ),
                         child: Column(
@@ -157,9 +157,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                   interest['selected']
                                       ? Colors.blue
                                       : Colors.grey,
-                              size: 32,
+                              size: 24,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Text(
                               interest['name'],
                               style: TextStyle(
@@ -168,7 +168,11 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                         ? Colors.blue
                                         : Colors.black,
                                 fontWeight: FontWeight.w500,
+                                fontSize: 12,
                               ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),

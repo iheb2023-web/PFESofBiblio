@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'mes_livres.dart';
 import 'mes_emprunts.dart';
 import '../Ajouter_livre/ajouter_livre.dart';
-import 'package:app/themeData.dart';
+import 'package:app/theme/theme_controller.dart';
 
 class MaBiblioPage extends StatefulWidget {
   const MaBiblioPage({super.key});
@@ -31,47 +31,42 @@ class _MaBiblioPageState extends State<MaBiblioPage> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: whiteSmokeColor,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: blackColor),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onBackground),
           onPressed: () => Get.back(),
         ),
         title: Text(
           'my_library'.tr,
           style: theme.textTheme.titleLarge?.copyWith(
-            color: blackColor,
+            color: colorScheme.onBackground,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: whiteColor,
+        backgroundColor: colorScheme.background,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: blackColor),
-            onPressed: () {
-              Get.to(() => const AddBookScreen());
-            },
+            icon: Icon(Icons.add, color: colorScheme.onBackground),
+            onPressed: () => Get.to(() => const AddBookScreen()),
           ),
         ],
       ),
       body: Column(
         children: [
           Container(
-            color: whiteColor,
+            color: colorScheme.surface,
             child: TabBar(
               controller: _tabController,
-              labelColor: blueColor,
-              unselectedLabelColor: grayColor,
-              indicatorColor: blueColor,
-              labelStyle: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              unselectedLabelStyle: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: theme.hintColor,
+              indicatorColor: colorScheme.primary,
+              labelStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              unselectedLabelStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
               tabs: [
                 Tab(text: 'my_books'.tr),
                 Tab(text: 'borrowed'.tr),
@@ -91,4 +86,4 @@ class _MaBiblioPageState extends State<MaBiblioPage> with SingleTickerProviderSt
       ),
     );
   }
-} 
+}
