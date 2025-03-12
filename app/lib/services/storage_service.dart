@@ -38,7 +38,7 @@ class StorageService {
     await _prefs.remove('user_session');
   }
 
-  // Stockage des données utilisateur
+  // Stockage des données utilisateur sous form de json
   Future<void> saveUser(String userJson) async {
     await _prefs.setString('user_data', userJson);
   }

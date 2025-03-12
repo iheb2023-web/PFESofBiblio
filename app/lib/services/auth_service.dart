@@ -54,43 +54,6 @@ class AuthService {
     }
   }
 
-  Future<User> register(User user) async {
-    try {
-      print('Tentative d\'inscription avec email: ${user.email}');
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/users/register'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: json.encode(user.toJson()),
-      );
-
-      print('Réponse du serveur: ${response.statusCode}');
-      print('Corps de la réponse: ${response.body}');
-
-      if (response.statusCode == 201) {
-        final data = json.decode(response.body);
-        return User.fromJson(data);
-      } else if (response.statusCode == 400) {
-        throw Exception('Données invalides');
-      } else if (response.statusCode == 409) {
-        throw Exception('Cet email est déjà utilisé');
-      } else {
-        throw Exception(
-          'Erreur serveur: ${response.statusCode} - ${response.body}',
-        );
-      }
-    } on http.ClientException catch (e) {
-      throw Exception('Erreur de connexion au serveur: $e');
-    } on FormatException catch (e) {
-      throw Exception('Erreur de format de réponse: $e');
-    } catch (e) {
-      throw Exception('Erreur inattendue: $e');
-    }
-  }
-
   Future<void> logout() async {
     try {
       final response = await http.post(

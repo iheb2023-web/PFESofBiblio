@@ -34,7 +34,7 @@ class AuthController extends GetxController {
 
       // Sauvegarder la session
       await _storageService.saveUserSession(user.toJson());
-
+      // message de succès est affiché
       Get.snackbar(
         'Succès',
         'Connexion réussie',
@@ -59,38 +59,6 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> register(User user) async {
-    try {
-      isLoading.value = true;
-      errorMessage.value = '';
-
-      final newUser = await _authService.register(user);
-      currentUser.value = newUser;
-
-      Get.snackbar(
-        'Succès',
-        'Inscription réussie',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
-      // Navigation vers la page d'accueil
-      Get.offAllNamed('/home');
-    } catch (e) {
-      errorMessage.value = e.toString();
-      Get.snackbar(
-        'Erreur',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<void> logout() async {
     try {
       await _authService.logout();
@@ -98,7 +66,7 @@ class AuthController extends GetxController {
       currentUser.value = null;
       // Supprimer les informations stockées si nécessaire
       // await storage.delete(key: 'user');
-
+      // message de succès est affiché
       Get.snackbar(
         'Succès',
         'Déconnexion réussie',
@@ -152,7 +120,9 @@ class AuthController extends GetxController {
     }
   }
 
+//vérifie si un utilisateur est connecté en fonction de currentUser
   bool get isLoggedIn => currentUser.value != null;
+  //renvoie le nom complet de l'utilisateur si l'utilisateur est connecté.
   String get userFullName =>
       currentUser.value != null
           ? '${currentUser.value!.firstname} ${currentUser.value!.lastname}'

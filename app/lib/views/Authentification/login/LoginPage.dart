@@ -187,30 +187,30 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundColor: Colors.blue,
                 ),
                 onPressed: () async {
-                      Get.to(() => const PreferencesPage());
+                      //Get.to(() => const PreferencesPage());
 
-                  // if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-                  //   Get.snackbar(
-                  //     'error'.tr,
-                  //     'fill_all_fields'.tr,
-                  //     snackPosition: SnackPosition.BOTTOM,
-                  //     backgroundColor: Colors.red,
-                  //     colorText: Colors.white,
-                  //   );
-                  //   return;
-                  // }
-                  // try {
-                  //   await authController.login(emailController.text, passwordController.text);
-                  //   Get.to(() => const PreferencesPage());
-                  // } catch (e) {
-                  //   Get.snackbar(
-                  //     'error'.tr,
-                  //     'incorrect_credentials'.tr,
-                  //     snackPosition: SnackPosition.BOTTOM,
-                  //     backgroundColor: Colors.red,
-                  //     colorText: Colors.white,
-                  //   );
-                  // }
+                  if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                    Get.snackbar(
+                      'error'.tr,
+                      'fill_all_fields'.tr,
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                    return;
+                  }
+                  try {
+                    await authController.login(emailController.text, passwordController.text);
+                    Get.to(() => const PreferencesPage());
+                  } catch (e) {
+                    Get.snackbar(
+                      'error'.tr,
+                      'incorrect_credentials'.tr,
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red,
+                      colorText: Colors.white,
+                    );
+                  }
                 },
                 child: Text(
                   'sign_in'.tr,

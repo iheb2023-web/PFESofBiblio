@@ -283,7 +283,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: _buildEditableField(
-                'Date de Publication',
+                'Publication_date'.tr,
                 TextEditingController(text: bookData?.publishedDate ?? ''),
                 controller,
                 readOnly: true,
@@ -296,7 +296,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           children: [
             Expanded(
               child: _buildEditableField(
-                'Nombre de pages',
+                'Number_of_pages'.tr,
                 pageCountController..text = bookData?.pageCount.toString() ?? '',
                 controller,
                 keyboardType: TextInputType.number,
@@ -305,7 +305,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: _buildEditableField(
-                'Langue',
+                'language'.tr,
                 languageController..text = bookData?.language.toUpperCase() ?? '',
                 controller,
               ),
@@ -314,13 +314,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
         ),
         const SizedBox(height: 16),
         _buildEditableField(
-          'Catégorie',
+          'Category'.tr,
           categoryController..text = bookData?.category ?? '',
           controller,
         ),
         const SizedBox(height: 16),
         Text(
-          'Description',
+          'Description'.tr,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -377,7 +377,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Contenu généré',
+          'Generated_content'.tr,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -410,7 +410,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Disponibilité',
+          'Availability'.tr,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -551,7 +551,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Résumé',
+            'Summary'.tr,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -628,26 +628,36 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Widget _buildDurationField(ThemeController controller) {
-    return TextField(
-      controller: durationController,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).cardColor),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Durée du prêt'.tr,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).cardColor),
+        const SizedBox(height: 8),
+        TextField(
+          controller: durationController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).cardColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).cardColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: theme_data.blueColor),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            fillColor: Theme.of(context).cardColor,
+            filled: true,
+          ),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: theme_data.blueColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        fillColor: Theme.of(context).cardColor,
-        filled: true,
-      ),
-      style: Theme.of(context).textTheme.bodyLarge,
+      ],
     );
   }
 }
