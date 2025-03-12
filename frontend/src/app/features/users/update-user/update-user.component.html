@@ -1,11 +1,7 @@
-
 <app-sidebar></app-sidebar>
 <div class="page-content">
 <app-navbar></app-navbar>
 
-
-
-<!-- add-user.component.html -->
 <div class="col-lg-8 offset-lg-2 col-xl-9 offset-xl-1">
     <div class="d-grid mb-0 d-lg-none w-100">
         <button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
@@ -16,7 +12,7 @@
     <div class="vstack gap-4">
         <div class="card border">
             <div class="card-header border-bottom">
-                <h4 class="card-header-title">User Information</h4>
+                <h4 class="card-header-title">Update User Information</h4>
             </div>
 
             <div class="card-body">
@@ -38,13 +34,7 @@
                     </div>
                 </div>
                 
-                
-                
-                
-              
                 <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="row g-3">
-                    
-
                     <div class="col-md-6">
                         <label class="form-label">Firstname<span class="text-danger">*</span></label>
                         <input type="text" class="form-control" formControlName="firstname" placeholder="Enter Firstname">
@@ -88,11 +78,8 @@
                         <label class="form-label">Role<span class="text-danger">*</span></label>
                         <select class="form-select" formControlName="role">
                             <option value="">Select Role</option>
-                            <option value="Administrateur">
-                            Admin
-                            </option>
-                            <option value="Collaborateur">
-                                Collaborator
+                            <option value="Administrateur">Admin</option>
+                            <option value="Collaborateur">Collaborator</option>
                         </select>
                         <div *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched" class="text-danger">
                             Role is required.
@@ -108,11 +95,10 @@
                     </div>
 
                     <div class="col-12 text-end">
-                        <button type="submit" class="btn btn-primary mb-0" [disabled]="userForm.invalid">Add user</button>
+                        <button type="submit" class="btn btn-primary mb-0" [disabled]="userForm.invalid">Update User</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-

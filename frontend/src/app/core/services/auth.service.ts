@@ -19,23 +19,7 @@ import { CookieService } from "ngx-cookie-service";
      getToken(): string | null {
         return this.cookieService.get('token'); 
       }
-    
-     
-      getUserFromToken(): any {
-        const token = this.getToken();
-        if (token) {
-          try {
-            const decodedToken = jwt_decode(token);
-            console.log("decoded token")
-            return decodedToken; 
-          } catch (error) {
-            console.error('Error decoding JWT:', error);
-            return null;
-          }
-        }
-        return null;
-      }
-    
+      
       
       isLoggedIn(): boolean {
         return !!this.getToken();
@@ -51,8 +35,11 @@ import { CookieService } from "ngx-cookie-service";
     resetpassword(email:ForgetPasswordEmailRequest){
         return this._http.post(this.RESET_PASSWORD_EMAIL_SEND+`?email=${email.email}`, "")
     }
+
+    setNewPassword(token: string, newPassword: string) {
+        return this._http.put('http://localhost:8080/password-reset/reset'+`?token=${token}&password=${newPassword}`, "")
+           
+      }
   }
 
-function jwt_decode(token: string) {
-    throw new Error("Function not implemented.");
-}
+

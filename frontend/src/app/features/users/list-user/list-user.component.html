@@ -63,7 +63,11 @@
                 <div class="d-flex align-items-center">
                   <!-- Avatar -->
                   <div class="avatar avatar-xs flex-shrink-0">
-                    <img class="avatar-img rounded-circle" src="assets/images/avatar/10.jpg" alt="avatar">
+                    <img class="avatar-img rounded-circle" 
+                    [src]="user.image ? user.image : 'assets/images/avatar/10.jpg'" 
+                    alt="avatar">
+               
+
                   </div>
                   <!-- Info -->
                   <div class="ms-2">
@@ -83,6 +87,8 @@
               
               <div class="col">
                 <a href="#" class="btn btn-sm btn-light mb-0">View</a>
+                <button (click)="navToUpdate(user.id)" class="btn btn-sm btn-primary mb-0">Update</button>
+
               </div>
             </div>
           </div>
