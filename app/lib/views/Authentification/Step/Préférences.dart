@@ -52,9 +52,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     onPressed: () {
                       Get.to(() => const PageCountPreference());
                     },
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    child: Text(
+                      'skip'.tr,
+                      style: const TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
                 ],
@@ -63,9 +63,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
               const SizedBox(height: 20),
 
               // Titre
-              const Text(
-                'Complétez votre profil',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                'complete_profile'.tr,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 20),
@@ -99,17 +99,17 @@ class _PreferencesPageState extends State<PreferencesPage> {
               const SizedBox(height: 40),
 
               // Question
-              const Text(
-                "C'est quoi votre intérêt ?",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                'what_interests'.tr,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
 
               // Sous-titre
-              const Text(
-                'Vous pouvez choisir plusieurs options',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+              Text(
+                'select_multiple'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 30),
@@ -118,10 +118,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.4,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.1,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
                   ),
                   itemCount: interests.length,
                   itemBuilder: (context, index) {
@@ -139,13 +139,13 @@ class _PreferencesPageState extends State<PreferencesPage> {
                               interest['selected']
                                   ? Colors.blue.withOpacity(0.1)
                                   : Colors.grey[100],
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color:
                                 interest['selected']
                                     ? Colors.blue
                                     : Colors.transparent,
-                            width: 2,
+                            width: 1.5,
                           ),
                         ),
                         child: Column(
@@ -157,9 +157,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                   interest['selected']
                                       ? Colors.blue
                                       : Colors.grey,
-                              size: 32,
+                              size: 24,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 4),
                             Text(
                               interest['name'],
                               style: TextStyle(
@@ -168,7 +168,11 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                         ? Colors.blue
                                         : Colors.black,
                                 fontWeight: FontWeight.w500,
+                                fontSize: 12,
                               ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -195,9 +199,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Continuer',
-                    style: TextStyle(
+                  child: Text(
+                    'continue'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

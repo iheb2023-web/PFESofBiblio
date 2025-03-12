@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Couleurs communes
-  static const Color primaryColor = Color(0xFF1565C0);
-  static const Color accentColor = Color(0xFF2196F3);
+  static const Color primaryColor = Color(0xFF345afb);    // Bleu principal
+  static const Color accentColor = Color(0xFF637dff);     // Bleu clair
   
   // Couleurs mode sombre
-  static const Color darkBackgroundColor = Color(0xFF0A1929);
-  static const Color darkSurfaceColor = Color(0xFF1A2634);
+  static const Color darkBackgroundColor = Color(0xFF0A1929);  // Bleu foncé pour le fond
+  static const Color darkSurfaceColor = Color(0xFF1A2634);     // Bleu foncé plus clair pour les surfaces
   static const Color darkTextColor = Colors.white;
   static const Color darkSecondaryTextColor = Color(0xFF9E9E9E);
   
   // Couleurs mode clair
-  static const Color lightBackgroundColor = Colors.white;
-  static const Color lightSurfaceColor = Color(0xFFF5F5F5);
-  static const Color lightTextColor = Color(0xFF1A1A1A);
-  static const Color lightSecondaryTextColor = Color(0xFF757575);
+  static const Color lightBackgroundColor = Color(0xFFFFFFFF);  // Blanc pour le fond
+  static const Color lightSurfaceColor = Color(0xFFF5F5F5);    // Gris très clair pour les surfaces
+  static const Color lightTextColor = Color(0xFF202124);        // Noir pour le texte
+  static const Color lightSecondaryTextColor = Color(0xFF757575); // Gris pour le texte secondaire
 
   static InputDecorationTheme _inputDecorationTheme(bool isDark) {
     return InputDecorationTheme(
@@ -138,6 +138,19 @@ class AppTheme {
       textButtonTheme: _textButtonTheme(),
       checkboxTheme: _checkboxTheme(isDark),
       textTheme: _textTheme(isDark),
+      appBarTheme: AppBarTheme(
+        backgroundColor: isDark ? darkBackgroundColor : lightBackgroundColor,
+        elevation: 0,
+        iconTheme: IconThemeData(
+          color: isDark ? darkTextColor : lightTextColor,
+        ),
+        titleTextStyle: TextStyle(
+          color: isDark ? darkTextColor : lightTextColor,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          fontFamily: "Sora",
+        ),
+      ),
     );
   }
 } 

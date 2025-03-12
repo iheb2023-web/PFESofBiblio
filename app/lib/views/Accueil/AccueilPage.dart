@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:app/views/Détails_Livre/details_livre.dart';
+import 'package:app/controllers/theme_controller.dart';
+import 'package:app/theme/app_theme.dart';
 
 // Déplacer la classe Member au niveau supérieur, avant AccueilPage
 class Member {
@@ -21,15 +23,14 @@ class AccueilPage extends StatefulWidget {
 class _AccueilPageState extends State<AccueilPage>
     with SingleTickerProviderStateMixin {
   final List<String> categories = [
-    'Tous',
-    'Romans',
-    'Business',
-    'Sociale',
-    'Science',
-    'Histoire',
+    'all'.tr,
+    'fiction'.tr,
+    'business'.tr,
+    'science'.tr,
+    'history'.tr,
   ];
 
-  int selectedCategoryIndex = 0;
+  String? selectedCategory;
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -94,13 +95,17 @@ class _AccueilPageState extends State<AccueilPage>
       vsync: this,
     )..repeat(reverse: true);
 
-    _animation = Tween<double>(begin: 0, end: 10).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    _animation = Tween<double>(begin: 0, end: 5).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
     );
   }
 
   @override
   void dispose() {
+    _animationController.stop();
     _animationController.dispose();
     super.dispose();
   }
@@ -150,7 +155,7 @@ class _AccueilPageState extends State<AccueilPage>
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un livre...',
+                    hintText: 'search_book'.tr,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -164,59 +169,15 @@ class _AccueilPageState extends State<AccueilPage>
 
               // Catégories
               const SizedBox(height: 20),
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedCategoryIndex = index;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color:
-                              selectedCategoryIndex == index
-                                  ? Colors.blue
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color:
-                                selectedCategoryIndex == index
-                                    ? Colors.blue
-                                    : Colors.grey,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            categories[index],
-                            style: TextStyle(
-                              color:
-                                  selectedCategoryIndex == index
-                                      ? Colors.white
-                                      : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+              _buildCategoryChips(),
 
               // Membres actifs
               const SizedBox(height: 20),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  'Membres actifs',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  'active_members'.tr,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(
@@ -269,13 +230,13 @@ class _AccueilPageState extends State<AccueilPage>
               ),
 
               // Livres populaires
-              _buildBookSection('Livres populaires'),
+              _buildBookSection('popular_books'.tr),
 
               // Livres pour vous
-              _buildBookSection('Livres pour vous'),
+              _buildBookSection('recommended'.tr),
 
               // Livres disponibles
-              _buildBookSection('Livres disponibles'),
+              _buildBookSection('new_arrivals'.tr),
 
               const SizedBox(height: 20),
             ],
@@ -304,6 +265,11 @@ class _AccueilPageState extends State<AccueilPage>
                 child: Lottie.asset(
                   'assets/lottie/chatbot.json',
                   fit: BoxFit.cover,
+                  frameRate: FrameRate(60),
+                  repeat: true,
+                  options: LottieOptions(
+                    enableMergePaths: true,
+                  ),
                 ),
               ),
             ),
@@ -314,8 +280,80 @@ class _AccueilPageState extends State<AccueilPage>
     );
   }
 
+  Widget _buildCategoryChips() {
+    return GetBuilder<ThemeController>(
+      builder: (controller) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          children: [
+            for (String category in categories)
+              Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedCategory = selectedCategory == category ? null : category;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(25),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selectedCategory == category
+                            ? AppTheme.primaryColor
+                            : (controller.isDarkMode 
+                                ? AppTheme.darkSurfaceColor 
+                                : AppTheme.lightSurfaceColor),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          color: selectedCategory == category
+                              ? AppTheme.primaryColor
+                              : controller.isDarkMode
+                                  ? Colors.white24
+                                  : Colors.grey[300]!,
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          if (selectedCategory == category)
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                        ],
+                      ),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: selectedCategory == category
+                              ? Colors.white
+                              : (controller.isDarkMode 
+                                  ? Colors.white70
+                                  : AppTheme.lightTextColor),
+                          fontWeight: selectedCategory == category
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildBookSection(String title) {
-    if (title == 'Livres disponibles') {
+    if (title == 'new_arrivals'.tr) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -336,9 +374,13 @@ class _AccueilPageState extends State<AccueilPage>
               return GestureDetector(
                 onTap: () => Get.to(() => DetailsLivre(book: book)),
                 child: Container(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.2),
@@ -349,12 +391,8 @@ class _AccueilPageState extends State<AccueilPage>
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.all(12),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Image de couverture
                         ClipRRect(
@@ -366,7 +404,7 @@ class _AccueilPageState extends State<AccueilPage>
                             fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         // Informations du livre
                         Expanded(
                           child: Column(
@@ -378,6 +416,8 @@ class _AccueilPageState extends State<AccueilPage>
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -386,6 +426,8 @@ class _AccueilPageState extends State<AccueilPage>
                                   color: Colors.grey,
                                   fontSize: 14,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 8),
                               Row(
@@ -397,7 +439,7 @@ class _AccueilPageState extends State<AccueilPage>
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Prêté ${book.borrowCount} fois',
+                                    'borrowed_times'.trParams({'count': '${book.borrowCount}'}),
                                     style: const TextStyle(
                                       color: Colors.blue,
                                       fontSize: 12,
@@ -410,12 +452,7 @@ class _AccueilPageState extends State<AccueilPage>
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   ElevatedButton(
-                                    onPressed:
-                                        book.isAvailable
-                                            ? () {
-                                              // Action pour emprunter
-                                            }
-                                            : null,
+                                    onPressed: book.isAvailable ? () {} : null,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue,
                                       padding: const EdgeInsets.symmetric(
@@ -424,9 +461,7 @@ class _AccueilPageState extends State<AccueilPage>
                                       minimumSize: const Size(120, 36),
                                     ),
                                     child: Text(
-                                      book.isAvailable
-                                          ? 'Emprunter'
-                                          : 'Indisponible',
+                                      book.isAvailable ? 'borrow'.tr : 'unavailable'.tr,
                                       style: const TextStyle(
                                         color: Colors.white,
                                       ),
@@ -458,7 +493,7 @@ class _AccueilPageState extends State<AccueilPage>
             ),
           ),
           SizedBox(
-            height: 200,
+            height: 220, // Augmenté pour plus d'espace
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: books.length,
@@ -468,11 +503,19 @@ class _AccueilPageState extends State<AccueilPage>
                 return GestureDetector(
                   onTap: () => Get.to(() => DetailsLivre(book: book)),
                   child: Container(
-                    width: 130,
+                    width: 140, // Augmenté pour plus d'espace
                     margin: const EdgeInsets.only(right: 16),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey[200],
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,7 +526,7 @@ class _AccueilPageState extends State<AccueilPage>
                           ),
                           child: Image.asset(
                             book.coverImage,
-                            height: 130,
+                            height: 140,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           ),
@@ -497,9 +540,21 @@ class _AccueilPageState extends State<AccueilPage>
                                 book.title,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              Text(book.author),
+                              const SizedBox(height: 4),
+                              Text(
+                                book.author,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
                           ),
                         ),

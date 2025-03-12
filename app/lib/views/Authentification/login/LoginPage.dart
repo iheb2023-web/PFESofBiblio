@@ -78,31 +78,29 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(16),
           height: MediaQuery.of(context).size.height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 40),
-              Image.asset('assets/images/logo.png', height: 150, width: 150),
+              const SizedBox(height: 80),
+              Image.asset('assets/images/logo.png', height: 150),
               const SizedBox(height: 20),
-              const Text(
-                "Connectez-vous",
-                style: TextStyle(
+              Text(
+                'login'.tr,
+                style: const TextStyle(
+                  fontFamily: "Sora",
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
                 ),
               ),
-              const SizedBox(height: 30),
-
-              // Section Email/Mot de passe
+              const SizedBox(height: 40),
+              
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.blue.withOpacity(0.5)),
                   boxShadow: const [
                     BoxShadow(
                       color: Color.fromARGB(140, 99, 125, 255),
@@ -111,96 +109,123 @@ class _LoginPageState extends State<LoginPage> {
                       offset: Offset(2, 2),
                     ),
                   ],
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(width: 0, color: Colors.transparent)
                 ),
-                child: Column(
+                child: TextFormField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    hintText: 'email'.tr,
+                    icon: const Icon(Icons.person, color: Colors.grey),
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  style: const TextStyle(fontFamily: "Sora", fontSize: 16),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromARGB(140, 99, 125, 255),
+                      blurRadius: 3,
+                      spreadRadius: 0.01,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(width: 0, color: Colors.transparent)
+                ),
+                child: Row(
                   children: [
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        hintText: "Email",
-                        icon: Icon(Icons.person, color: Colors.grey),
-                        border: UnderlineInputBorder(),
-                      ),
-                      controller: emailController,
-                      style: const TextStyle(fontFamily: "Sora", fontSize: 16),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      obscureText: _isHidden,
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        hintText: "Mot de Passe",
-                        icon: const Icon(Icons.lock, color: Colors.grey),
-                        border: const UnderlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isHidden = !_isHidden;
-                            });
-                          },
-                          icon: Icon(
-                            !_isHidden
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: Colors.grey,
-                          ),
+                    Expanded(
+                      child: TextFormField(
+                        obscureText: _isHidden,
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          hintText: 'password'.tr,
+                          icon: const Icon(Icons.lock, color: Colors.grey),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 15),
                         ),
+                        style: const TextStyle(fontFamily: "Sora", fontSize: 16),
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(
-                          MediaQuery.of(context).size.width * 0.7,
-                          50,
-                        ),
-                        backgroundColor: Colors.blue,
-                      ),
-                      onPressed: () async {
-                        if (emailController.text.isEmpty ||
-                            passwordController.text.isEmpty) {
-                          Get.snackbar(
-                            'Erreur',
-                            'Veuillez remplir tous les champs',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                          return;
-                        }
-
-                        try {
-                          await authController.login(
-                            emailController.text,
-                            passwordController.text,
-                          );
-                          Get.to(() => const PreferencesPage());
-                        } catch (e) {
-                          Get.snackbar(
-                            'Erreur',
-                            'Identifiants incorrects',
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                          );
-                        }
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isHidden = !_isHidden;
+                        });
                       },
-                      child: const Text(
-                        "Se Connecter",
-                        style: TextStyle(color: Colors.white),
+                      icon: Icon(
+                        !_isHidden ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
+              
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(MediaQuery.of(context).size.width * 0.9, 50),
+                  backgroundColor: Colors.blue,
+                ),
+                onPressed: () async {
+                      Get.to(() => const PreferencesPage());
+
+                  // if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                  //   Get.snackbar(
+                  //     'error'.tr,
+                  //     'fill_all_fields'.tr,
+                  //     snackPosition: SnackPosition.BOTTOM,
+                  //     backgroundColor: Colors.red,
+                  //     colorText: Colors.white,
+                  //   );
+                  //   return;
+                  // }
+                  // try {
+                  //   await authController.login(emailController.text, passwordController.text);
+                  //   Get.to(() => const PreferencesPage());
+                  // } catch (e) {
+                  //   Get.snackbar(
+                  //     'error'.tr,
+                  //     'incorrect_credentials'.tr,
+                  //     snackPosition: SnackPosition.BOTTOM,
+                  //     backgroundColor: Colors.red,
+                  //     colorText: Colors.white,
+                  //   );
+                  // }
+                },
+                child: Text(
+                  'sign_in'.tr,
+                  style: const TextStyle(color: Colors.white, fontFamily: "Sora"),
+                ),
+              ),
+
+              const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
                   Get.to(() => const ForgotPasswordScreen());
                 },
-                child: const Text(
-                  "Mot de passe oublié ?",
-                  style: TextStyle(
+                child: Text(
+                  'forgot_password'.tr,
+                  style: const TextStyle(
                     fontFamily: "Sora",
                     color: Colors.blue,
                     fontSize: 14,
@@ -209,51 +234,64 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+              Stack(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Divider(
+                      color: Colors.grey,
+                      height: 1,
+                      thickness: 1,
+                    ),
+                  ),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       child: Text(
-                        "ou",
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                        'or'.tr,
+                        style: const TextStyle(
+                          fontFamily: "Sora",
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
+                  ),
+                ],
               ),
 
-              const Text(
-                "Utiliser votre empreinte pour vous connecter\nà votre compte",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+              const SizedBox(height: 20),
+              Text(
+                'sign_in_with_fingerprint'.tr,
+                style: const TextStyle(
+                  fontFamily: "Sora",
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
               ),
 
               const Spacer(),
-
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.blue, width: 2),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.fingerprint,
-                      size: 40,
-                      color: Colors.blue,
+              if (_canCheckBiometrics)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.blue, width: 2),
                     ),
-                    onPressed: _canCheckBiometrics ? _authenticate : null,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.fingerprint,
+                        size: 40,
+                        color: Colors.blue,
+                      ),
+                      onPressed: _authenticate,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 5),
             ],
           ),
         ),

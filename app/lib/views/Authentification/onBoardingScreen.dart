@@ -26,136 +26,126 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
   int index = 0;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).size.height * 0.2,
-          left: 30,
-          right: 30,
-        ),
-        child: PageView(
-          controller: controller,
-          onPageChanged: (value) {
-            setState(() {
-              index = value;
-            });
-          },
-          children: const [
-            BuildPage(
-              title: "Trouvez votre lecture en un clic !",
-              description:
-                  "À la recherche d'un livre ? Découvrez et partagez facilement des ouvrages pour enrichir votre bibliothèque en un seul clic.",
-              path: "assets/lottie/livres.json",
-            ),
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
 
-            BuildPage(
-              title: "Plongez dans un univers de lecture !",
-              description:
-                  "Laissez-vous inspirer par une collection de livres variée et trouvez celui qui vous transportera dans une nouvelle aventure.",
-              path: "assets/lottie/lecture1.json",
-            ),
-            BuildPage(
-              title: "Réservez votre livre en un instant !",
-              description:
-                  "Trouvez le livre qui vous passionne et réservez-le en toute simplicité pour en profiter sans attendre.",
-              path: "assets/lottie/réservation.json",
-            ),
-          ],
-        ),
-      ),
-      bottomSheet: Container(
-        padding: const EdgeInsets.all(20),
-        height: MediaQuery.of(context).size.height * 0.3,
-        color: Colors.transparent,
+    return Scaffold(
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      controller.previousPage(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Text(
-                      "Back",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Sora",
-                        fontWeight: FontWeight.w400,
-                        color:
-                            index == 0
-                                ? Theme.of(context).scaffoldBackgroundColor
-                                : blueColor,
-                      ),
+            // Contenu principal (PageView)
+            Expanded(
+              flex: 5,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                ),
+                child: PageView(
+                  controller: controller,
+                  onPageChanged: (value) {
+                    setState(() {
+                      index = value;
+                    });
+                  },
+                  children: [
+                    BuildPage(
+                      title: 'find_book'.tr,
+                      description: 'find_book_desc'.tr,
+                      path: "assets/lottie/livres.json",
                     ),
-                  ),
-                  Center(
-                    child: SmoothPageIndicator(
-                      controller: controller,
-                      count: 3,
-                      effect: const WormEffect(
-                        activeDotColor: blueColor,
-                        dotColor: Colors.grey,
-                        dotHeight: 10,
-                        dotWidth: 10,
-                      ),
+                    BuildPage(
+                      title: 'dive_reading'.tr,
+                      description: 'dive_reading_desc'.tr,
+                      path: "assets/lottie/lecture1.json",
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      controller.nextPage(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    child: Text(
-                      "Next",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: "Sora",
-                        fontWeight: FontWeight.w700,
-                        color:
-                            index == 2
-                                ? Theme.of(context).scaffoldBackgroundColor
-                                : blueColor,
-                      ),
+                    BuildPage(
+                      title: 'reserve_instant'.tr,
+                      description: 'reserve_instant_desc'.tr,
+                      path: "assets/lottie/réservation.json",
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(5),
-              child: MyButton(
-                onTap: () {
-                  Get.to(() => LoginPage(), transition: Transition.rightToLeft);
-                },
-                label: "Se Connecter",
-                width: MediaQuery.of(context).size.width * 0.85,
-                height: MediaQuery.of(context).size.height * 0.06,
+            // Navigation et boutons dans un Expanded
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.05,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Indicateurs et boutons Next/Back
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            controller.previousPage(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          child: Text(
+                            'back'.tr,
+                            style: TextStyle(
+                              fontSize: isTablet ? 16 : screenWidth * 0.035,
+                              fontFamily: "Sora",
+                              fontWeight: FontWeight.w400,
+                              color: index == 0
+                                  ? Theme.of(context).scaffoldBackgroundColor
+                                  : blueColor,
+                            ),
+                          ),
+                        ),
+                        SmoothPageIndicator(
+                          controller: controller,
+                          count: 3,
+                          effect: WormEffect(
+                            activeDotColor: blueColor,
+                            dotColor: Colors.grey,
+                            dotHeight: isTablet ? 12 : screenWidth * 0.025,
+                            dotWidth: isTablet ? 12 : screenWidth * 0.025,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            controller.nextPage(
+                              duration: const Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          child: Text(
+                            'next'.tr,
+                            style: TextStyle(
+                              fontSize: isTablet ? 16 : screenWidth * 0.035,
+                              fontFamily: "Sora",
+                              fontWeight: FontWeight.w700,
+                              color: index == 2
+                                  ? Theme.of(context).scaffoldBackgroundColor
+                                  : blueColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // Bouton Sign In
+                    MyButton(
+                      onTap: () {
+                        Get.to(() => LoginPage(), transition: Transition.rightToLeft);
+                      },
+                      label: 'sign_in'.tr,
+                      width: isTablet ? screenWidth * 0.5 : screenWidth * 0.85,
+                      height: 38,
+                    ),
+                  ],
+                ),
               ),
             ),
-            // Supprimez ou commentez tout le TextButton, pas seulement une partie
-            /*TextButton(
-                onPressed: () {
-                  Get.to(() => LoginPage(),
-                      transition: Transition.rightToLeft);
-                },
-                child: const Text(
-                  "Pas de compte? Créer Un",
-                  style: TextStyle(
-                      fontFamily: "Sora",
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: blueColor),
-                )),*/
-            const SizedBox(height: 10),
           ],
         ),
       ),

@@ -12,32 +12,32 @@ class ReadingHabits extends StatefulWidget {
 class _ReadingHabitsState extends State<ReadingHabits> {
   final List<Map<String, dynamic>> questions = [
     {
-      'question': 'Quand préférez-vous lire ?',
+      'question': 'when_prefer_read'.tr,
       'options': [
-        {'text': 'Le matin', 'icon': Icons.wb_sunny},
-        {'text': 'L\'après-midi', 'icon': Icons.wb_cloudy},
-        {'text': 'Le soir', 'icon': Icons.nights_stay},
-        {'text': 'À tout moment', 'icon': Icons.access_time},
+        {'text': 'morning'.tr, 'icon': Icons.wb_sunny},
+        {'text': 'afternoon'.tr, 'icon': Icons.wb_cloudy},
+        {'text': 'evening'.tr, 'icon': Icons.nights_stay},
+        {'text': 'anytime'.tr, 'icon': Icons.access_time},
       ],
       'selected': null,
     },
     {
-      'question': 'Où aimez-vous lire ?',
+      'question': 'where_like_read'.tr,
       'options': [
-        {'text': 'À la maison', 'icon': Icons.home},
-        {'text': 'Dans les transports', 'icon': Icons.directions_bus},
-        {'text': 'Dans un café', 'icon': Icons.local_cafe},
-        {'text': 'Dans la nature', 'icon': Icons.park},
+        {'text': 'at_home'.tr, 'icon': Icons.home},
+        {'text': 'in_transport'.tr, 'icon': Icons.directions_bus},
+        {'text': 'in_cafe'.tr, 'icon': Icons.local_cafe},
+        {'text': 'in_nature'.tr, 'icon': Icons.park},
       ],
       'selected': null,
     },
     {
-      'question': 'Comment choisissez-vous vos livres ?',
+      'question': 'how_choose_books'.tr,
       'options': [
-        {'text': 'Recommandations', 'icon': Icons.thumb_up},
-        {'text': 'Couverture/Résumé', 'icon': Icons.menu_book},
-        {'text': 'Genre préféré', 'icon': Icons.category},
-        {'text': 'Au hasard', 'icon': Icons.shuffle},
+        {'text': 'recommendations'.tr, 'icon': Icons.thumb_up},
+        {'text': 'cover_summary'.tr, 'icon': Icons.menu_book},
+        {'text': 'preferred_genre'.tr, 'icon': Icons.category},
+        {'text': 'random'.tr, 'icon': Icons.shuffle},
       ],
       'selected': null,
     },
@@ -66,9 +66,9 @@ class _ReadingHabitsState extends State<ReadingHabits> {
                     onPressed: () {
                       Get.offAll(() => const NavigationMenu());
                     },
-                    child: const Text(
-                      'Skip',
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                    child: Text(
+                      'skip'.tr,
+                      style: const TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
                 ],
@@ -77,9 +77,9 @@ class _ReadingHabitsState extends State<ReadingHabits> {
               const SizedBox(height: 20),
 
               // Titre
-              const Text(
-                'Dernière étape !',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                'last_step'.tr,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 20),
@@ -210,9 +210,9 @@ class _ReadingHabitsState extends State<ReadingHabits> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text(
-                    'Terminer',
-                    style: TextStyle(
+                  child: Text(
+                    'finish'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
