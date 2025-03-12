@@ -7,6 +7,8 @@ import { SharedModule } from '../shared/shared.module';
 import { ProfileComponent } from './profile/profile.component';
 import { ProfileSidebarComponent } from './profile-sidebar/profile-sidebar.component';
 import { AddUserComponent } from './add-user/add-user.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UpdateUserComponent } from './update-user/update-user.component';
 
 
 @NgModule({
@@ -14,12 +16,17 @@ import { AddUserComponent } from './add-user/add-user.component';
     ListUserComponent,
     ProfileComponent,
     ProfileSidebarComponent,
-    AddUserComponent
+    AddUserComponent,
+    UpdateUserComponent
   ],
   imports: [
     CommonModule,
     UsersRoutingModule,
-    SharedModule 
+    SharedModule,
+    FormsModule,
+    ReactiveFormsModule,
+    
+    
   ]
 })
 export class UsersModule { }

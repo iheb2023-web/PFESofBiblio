@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthenticationRequest } from 'src/app/core/dtos/AuthentificationRequest';
 import { AuthenticationResponse } from 'src/app/core/dtos/AuthentificationResponse';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { UsersService } from 'src/app/core/services/users.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private userService : UsersService
   ) {}
 
 
@@ -30,9 +32,19 @@ export class LoginComponent {
         this.authResponse = response;
         
         document.cookie = `token=${response.access_token}; path=/; max-age=${24 * 60 * 60}`;
-
-        
-        //this.router.navigate(['/home']);
+  
+        this.authRequest.email
+        this.userService.getUserMinInfo(
+          this.authRequest.email
+        ).subscribe({
+          next: (userMin) => {
+            localStorage.setItem('user', JSON.stringify(userMin));
+            this.router.navigate(['/users']);
+          },
+          error: (error) => {
+            console.error('Failed to fetch user info:', error);
+          }
+        });
       },
       error: (error) => {
         this.errorMessage = 'Authentication failed. Check your credentials.';
@@ -40,4 +52,5 @@ export class LoginComponent {
       }
     });
   }
+  
 }

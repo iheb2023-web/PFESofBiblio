@@ -26,9 +26,9 @@ export class ForgetPasswordComponent {
         },
         error: (err) => {
           if (err.status === 500) {
-            alert('Please verify your email address and try again.');
+         //lert('Please verify your email address and try again.');
           } else {
-            this.errorMessage = err.error?.message || 'Please verify your email address and try again.';
+            this.errorMessage = err.error?.message ;  //'Please verify your email address and try again.'
           }
         }
       });
