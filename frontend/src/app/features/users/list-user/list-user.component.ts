@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { UsersService } from 'src/app/core/services/users.service';
 
 @Component({
@@ -12,10 +13,16 @@ export class ListUserComponent implements OnInit {
   pageSize: number = 8;
   totalEntries: number = 0;
 
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService,
+    private router : Router
+  ) {}
 
   ngOnInit(): void {
     this.getUsers(this.currentPage, this.pageSize);
+  }
+
+  navToUpdate(userId: number): void {
+    this.router.navigate(['/users/update', userId]);
   }
 
   getUsers(page: number, pageSize: number): void {

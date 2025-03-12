@@ -1,12 +1,10 @@
 package com.sofrecom.backend.controllers;
 
-import com.sofrecom.backend.dtos.AuthenticationRequest;
-import com.sofrecom.backend.dtos.AuthenticationResponse;
-import com.sofrecom.backend.dtos.RegisterRequest;
-import com.sofrecom.backend.dtos.UserDto;
+import com.sofrecom.backend.dtos.*;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
 import com.sofrecom.backend.services.AuthenticationService;
+import com.sofrecom.backend.services.CloudinaryService;
 import com.sofrecom.backend.services.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -29,6 +30,8 @@ import java.util.List;
 public class UserController {
     private final IUserService userService;
     private final AuthenticationService authenticationService;
+    private final CloudinaryService cloudinaryService;
+
 
 
     @Operation(summary = "Add user", description = "Add new user")
@@ -54,6 +57,32 @@ public class UserController {
         return userService.getUsers(pageable);
     }
 
+    @GetMapping("/usermininfo/{email}")
+    public UserMinDto getUserMinInfo(@PathVariable String email) {
+        return this.userService.getUserMinInfo(email);
+    }
+
+    @PostMapping("/upload")
+    public String uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            return imageUrl;
+        } catch (IOException e) {
+            return "error";
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserUpdateDto user) {
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserUpdateDto> updateUser(@PathVariable Long id) {
+        UserUpdateDto updatedUser = userService.getUserById(id);
+        return ResponseEntity.ok(updatedUser);
+    }
 
 
 

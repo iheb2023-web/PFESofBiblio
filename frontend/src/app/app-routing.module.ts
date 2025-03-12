@@ -3,12 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './features/login/login.component';
 import { ForgetPasswordComponent } from './features/forget-password/forget-password.component';
 import { NotfoundComponent } from './features/notfound/notfound.component';
+import { NewPasswordComponent } from './features/new-password/new-password.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
    path: 'forgetpassword', component : ForgetPasswordComponent
   },
+  { path: 'newpassword', component: NewPasswordComponent },
   { path: 'users', loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule) },
   { path: '**', component: NotfoundComponent}
   

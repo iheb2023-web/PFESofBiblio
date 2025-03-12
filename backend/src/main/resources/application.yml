@@ -24,4 +24,8 @@ spring:
           auth: true
           starttls:
             enable: true
+cloudinary:
+  cloud-name: db1corx7c
+  api-key: 579621484693214
+  api-secret: M7lvz20ofye74TLYSlyHO8j41Yw
 

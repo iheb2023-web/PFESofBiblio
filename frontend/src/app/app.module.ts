@@ -9,6 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ForgetPasswordComponent } from './features/forget-password/forget-password.component';
 import { TokenInterceptor } from './core/interceptor/token-inter.interceptor';
 import { NotfoundComponent } from './features/notfound/notfound.component';
+import { UsersModule } from './features/users/users.module';
+import { NewPasswordComponent } from './features/new-password/new-password.component';
 
 @NgModule({
   declarations: [
@@ -16,13 +18,16 @@ import { NotfoundComponent } from './features/notfound/notfound.component';
     LoginComponent,
     ForgetPasswordComponent,
     NotfoundComponent,
+    NewPasswordComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    UsersModule
+   
   ],
   providers: [
     {

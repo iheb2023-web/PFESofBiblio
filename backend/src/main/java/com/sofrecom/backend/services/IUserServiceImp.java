@@ -1,11 +1,10 @@
 package com.sofrecom.backend.services;
 
 import com.sofrecom.backend.config.JwtService;
-import com.sofrecom.backend.dtos.AuthenticationResponse;
-import com.sofrecom.backend.dtos.RegisterRequest;
-import com.sofrecom.backend.dtos.UserDto;
+import com.sofrecom.backend.dtos.*;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
+import com.sofrecom.backend.exceptions.ResourceNotFoundException;
 import com.sofrecom.backend.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,11 @@ public class IUserServiceImp implements IUserService {
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
+                .job(request.getJob())
+                .birthday(request.getBirthday())
+                .number(request.getNumber())
                 .email(request.getEmail())
+                .image(request.getImage())
                 .password(passwordEncoder.encode(password))
                 .role(request.getRole())
                 .build();
@@ -64,6 +67,47 @@ public class IUserServiceImp implements IUserService {
     @Override
     public void deleteUser(Long id) {
         this.userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserMinDto getUserMinInfo(String email) {
+        return this.userRepository.findUserMinInfo(email);
+    }
+
+    public User updateUser(Long id, UserUpdateDto userDto) {
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (userDto.getFirstname() != null) {
+            existingUser.setFirstname(userDto.getFirstname());
+        }
+        if (userDto.getLastname() != null) {
+            existingUser.setLastname(userDto.getLastname());
+        }
+        if (userDto.getEmail() != null) {
+            existingUser.setEmail(userDto.getEmail());
+        }
+        if (userDto.getImage() != null) {
+            existingUser.setImage(userDto.getImage());
+        }
+        if (userDto.getJob() != null) {
+            existingUser.setJob(userDto.getJob());
+        }
+        if (userDto.getBirthday() != null) {
+            existingUser.setBirthday(userDto.getBirthday());
+        }
+        if (userDto.getNumber() != null) {
+            existingUser.setNumber(userDto.getNumber());
+        }
+        if (userDto.getRole() != null) {
+            existingUser.setRole(userDto.getRole());
+        }
+        return userRepository.save(existingUser);
+    }
+
+    @Override
+    public UserUpdateDto getUserById(Long id) {
+        return userRepository.findUserUpdateDtoById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     private String getPassword() {
