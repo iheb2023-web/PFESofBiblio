@@ -6,6 +6,7 @@ import { NotfoundComponent } from './features/notfound/notfound.component';
 import { NewPasswordComponent } from './features/new-password/new-password.component';
 
 const routes: Routes = [
+   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
    path: 'forgetpassword', component : ForgetPasswordComponent

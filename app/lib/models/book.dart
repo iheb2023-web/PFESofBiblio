@@ -8,6 +8,10 @@ class Book {
   final String category;
   final int pageCount;
   final String language;
+  final bool isAvailable;
+  final int rating;
+  final int borrowCount;
+  final String? modelUrl;
 
   Book({
     required this.title,
@@ -19,6 +23,10 @@ class Book {
     required this.category,
     required this.pageCount,
     required this.language,
+    this.isAvailable = true,
+    this.rating = 0,
+    this.borrowCount = 0,
+    this.modelUrl,
   });
 
   // Conversion d'un JSON en objet Book
@@ -33,6 +41,11 @@ class Book {
       category: json['category'] ?? '',
       pageCount: json['pageCount'] ?? 0,
       language: json['language'] ?? '',
+      isAvailable: json['isAvailable'] ?? true,
+      rating: json['rating'] ?? 0,
+      borrowCount: json['borrowCount'] ?? 0,
+      modelUrl: json['modelUrl'] ?? '',
+
     );
   }
 
@@ -48,6 +61,10 @@ class Book {
       'category': category,
       'pageCount': pageCount,
       'language': language,
+      'isAvailable': isAvailable,
+      'rating': rating,
+      'borrowCount': borrowCount,
+      'modelUrl': modelUrl,
     };
   }
 
@@ -62,6 +79,10 @@ class Book {
     String? category,
     int? pageCount,
     String? language,
+    bool? isAvailable,
+    int? rating,
+    int? borrowCount,
+    String? modelUrl,
   }) {
     return Book(
       title: title ?? this.title,
@@ -73,6 +94,10 @@ class Book {
       category: category ?? this.category,
       pageCount: pageCount ?? this.pageCount,
       language: language ?? this.language,
+      isAvailable: isAvailable ?? this.isAvailable,
+      rating: rating ?? this.rating,
+      borrowCount: borrowCount ?? this.borrowCount,
+      modelUrl: modelUrl ?? this.modelUrl,
     );
   }
 } 

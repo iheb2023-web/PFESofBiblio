@@ -71,8 +71,8 @@ class AppTheme {
 
   static CheckboxThemeData _checkboxTheme(bool isDark) {
     return CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-        if (states.contains(MaterialState.selected)) {
+      fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor;
         }
         return isDark ? darkSurfaceColor : lightSurfaceColor;
@@ -125,13 +125,11 @@ class AppTheme {
               primary: primaryColor,
               secondary: accentColor,
               surface: darkSurfaceColor,
-              background: darkBackgroundColor,
             )
           : const ColorScheme.light(
               primary: primaryColor,
               secondary: accentColor,
               surface: lightSurfaceColor,
-              background: lightBackgroundColor,
             ),
       inputDecorationTheme: _inputDecorationTheme(isDark),
       elevatedButtonTheme: _elevatedButtonTheme(),

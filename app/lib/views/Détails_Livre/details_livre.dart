@@ -1,34 +1,12 @@
+import 'package:app/models/book.dart';
+import 'package:app/views/Emprunter/emprunter_livre.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class BookDetails {
-  final String title;
-  final String author;
-  final String coverImage;
-  final String? modelUrl;
-  final int rating;
-  final String description;
-  final String category;
-  final int pages;
-  final int borrowCount;
-  final bool isAvailable;
 
-  BookDetails({
-    required this.title,
-    required this.author,
-    required this.coverImage,
-    this.modelUrl,
-    required this.rating,
-    required this.description,
-    required this.category,
-    required this.pages,
-    required this.borrowCount,
-    required this.isAvailable,
-  });
-}
 
 class DetailsLivre extends StatefulWidget {
-  final BookDetails book;
+  final Book book;
 
   const DetailsLivre({
     super.key,
@@ -205,7 +183,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
-                              image: AssetImage(widget.book.coverImage),
+                              image: AssetImage(widget.book.coverUrl),
                               fit: BoxFit.cover,
                             ),
                             boxShadow: [
@@ -291,7 +269,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 image: DecorationImage(
-                                  image: AssetImage(widget.book.coverImage),
+                                  image: AssetImage(widget.book.coverUrl),
                                   fit: BoxFit.cover,
                                 ),
                                 boxShadow: [
@@ -358,7 +336,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                             children: [
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Get.to(() => EmprunterLivre(book: widget.book));
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue,
                                     foregroundColor: Colors.white,
@@ -462,7 +442,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                     _buildInfoCard(
                       icon: Icons.book,
                       title: "Pages",
-                      value: widget.book.pages.toString(),
+                      value: widget.book.pageCount.toString(),
                     ),
                   ],
                 ),

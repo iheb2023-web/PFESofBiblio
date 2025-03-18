@@ -1,3 +1,4 @@
+import 'package:app/models/book.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -50,40 +51,49 @@ class _AccueilPageState extends State<AccueilPage>
   ); // Tri par nombre de prêts décroissant
 
   // Liste des livres avec leurs détails
-  final List<BookDetails> books = [
-    BookDetails(
+  final List<Book> books = [
+    Book(
       title: "Le Petit Prince",
       author: "Antoine de Saint-Exupéry",
-      coverImage: "assets/images/couverture1.png",
+      coverUrl: "assets/images/couverture1.png",
       rating: 5,
       description:
           "Un conte poétique qui aborde les thèmes de l'amour et l'amitié.",
       category: "Fiction",
-      pages: 96,
+      pageCount: 96,
       borrowCount: 24,
       isAvailable: true,
+      publishedDate: "2020-01-01",
+      isbn: "978-3-16-148410-0",
+      language: "fr",
     ),
-    BookDetails(
+    Book(
       title: "Harry Potter",
       author: "J.K. Rowling",
-      coverImage: "assets/images/couverture2.png",
+      coverUrl: "assets/images/couverture2.png",
       rating: 4,
       description: "L'histoire d'un jeune sorcier découvrant son destin.",
       category: "Fantasy",
-      pages: 320,
+      pageCount: 320,
       borrowCount: 18,
       isAvailable: true,
+      publishedDate: "2020-01-01",
+      isbn: "978-3-16-148410-0",
+      language: "fr",
     ),
-    BookDetails(
+    Book(
       title: "Le Seigneur des Anneaux",
       author: "J.R.R. Tolkien",
-      coverImage: "assets/images/couverture3.png",
+      coverUrl: "assets/images/couverture3.png",
       rating: 5,
       description: "Une épopée fantastique dans un monde imaginaire.",
       category: "Fantasy",
-      pages: 576,
+      pageCount: 576,
       borrowCount: 15,
       isAvailable: false,
+      publishedDate: "2020-01-01",
+      isbn: "978-3-16-148410-0",
+      language: "fr",
     ),
   ];
 
@@ -398,7 +408,7 @@ class _AccueilPageState extends State<AccueilPage>
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.asset(
-                            book.coverImage,
+                            book.coverUrl,
                             height: 120,
                             width: 80,
                             fit: BoxFit.cover,
@@ -525,7 +535,7 @@ class _AccueilPageState extends State<AccueilPage>
                             top: Radius.circular(10),
                           ),
                           child: Image.asset(
-                            book.coverImage,
+                            book.coverUrl,
                             height: 140,
                             width: double.infinity,
                             fit: BoxFit.cover,

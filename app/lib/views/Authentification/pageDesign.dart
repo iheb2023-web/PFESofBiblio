@@ -36,7 +36,7 @@ class BuildPage extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.04),
               // Titre adaptatif
-              Container(
+              SizedBox(
                 width: screenWidth * 0.8,
                 child: Text(
                   title,
@@ -53,7 +53,7 @@ class BuildPage extends StatelessWidget {
               ),
               SizedBox(height: screenHeight * 0.02),
               // Description adaptative
-              Container(
+              SizedBox(
                 width: screenWidth * 0.8,
                 child: Text(
                   description,
