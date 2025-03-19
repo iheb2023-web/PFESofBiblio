@@ -28,7 +28,6 @@ export class AddUserComponent implements OnInit {
   ) { }
 
 
-// Fonction d'upload qui utilise async/await
 
 
 async uploadImage() {

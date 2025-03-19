@@ -29,8 +29,8 @@
                     </a>
                     <!-- Submenu -->
                     <ul class="nav collapse flex-column show" id="collapseguest" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"> <a class="nav-link active" routerLink="/users" >User List</a></li>
-                        <li class="nav-item"> <a class="nav-link" routerLink="/users/add">
+                        <li class="nav-item"> <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/users" >User List</a></li>
+                        <li class="nav-item"> <a class="nav-link" routerLinkActive="active" routerLink="/home/users/add">
                             Add User
 
                         </a></li>

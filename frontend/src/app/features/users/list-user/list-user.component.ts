@@ -14,7 +14,8 @@ export class ListUserComponent implements OnInit {
   totalEntries: number = 0;
 
   constructor(private usersService: UsersService,
-    private router : Router
+    private router : Router,
+    private userService : UsersService
   ) {}
 
   ngOnInit(): void {
@@ -22,7 +23,7 @@ export class ListUserComponent implements OnInit {
   }
 
   navToUpdate(userId: number): void {
-    this.router.navigate(['/users/update', userId]);
+    this.router.navigate(['/home/users/update', userId]);
   }
 
   getUsers(page: number, pageSize: number): void {
@@ -38,6 +39,8 @@ export class ListUserComponent implements OnInit {
       }
     });
   }
+
+
 
   onPageChange(page: number): void {
     this.currentPage = page;

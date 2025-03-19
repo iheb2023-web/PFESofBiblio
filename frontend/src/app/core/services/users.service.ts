@@ -5,6 +5,7 @@ import { Injectable } from "@angular/core";
     providedIn: 'root'
   })
   export class UsersService {
+
  
  
     constructor(private _http: HttpClient) {}
@@ -26,6 +27,7 @@ import { Injectable } from "@angular/core";
         return this._http.get<any>(this.URL, { params });
       }
 
+      
       getUserMinInfo(email: any){
         return this._http.get<any>(`${this.URL}/usermininfo/${email}`);
       }

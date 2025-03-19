@@ -1,9 +1,7 @@
 package com.sofrecom.backend.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,5 +25,11 @@ public class Book {
     private String category;
     private int pageCount;
     private String language;
+
+    @JsonIgnore
+    @ManyToOne
+    private User owner;
+
+
 
 }

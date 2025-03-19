@@ -11,6 +11,8 @@ import { TokenInterceptor } from './core/interceptor/token-inter.interceptor';
 import { NotfoundComponent } from './features/notfound/notfound.component';
 import { UsersModule } from './features/users/users.module';
 import { NewPasswordComponent } from './features/new-password/new-password.component';
+import { SharedModule } from './features/shared/shared.module';
+import { HomeComponent } from './features/home/home.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +21,7 @@ import { NewPasswordComponent } from './features/new-password/new-password.compo
     ForgetPasswordComponent,
     NotfoundComponent,
     NewPasswordComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,
@@ -26,7 +29,8 @@ import { NewPasswordComponent } from './features/new-password/new-password.compo
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
-    UsersModule
+    UsersModule,
+    SharedModule
    
   ],
   providers: [

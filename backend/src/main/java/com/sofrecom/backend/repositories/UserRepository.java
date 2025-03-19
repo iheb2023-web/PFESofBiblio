@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -18,9 +19,18 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<UserDto> findAllUsers(Pageable pageable);
 
     boolean existsByEmail(String email);
-    @Query("SELECT new com.sofrecom.backend.dtos.UserMinDto(u.email, u.firstname, u.lastname,u.image) FROM User u WHERE u.email = :email")
+    @Query("SELECT new com.sofrecom.backend.dtos.UserMinDto(u.email, u.firstname, u.lastname,u.image, u.role) FROM User u WHERE u.email = :email")
     UserMinDto findUserMinInfo(@Param("email") String email);
 
     @Query("SELECT new com.sofrecom.backend.dtos.UserUpdateDto(u.id, u.firstname, u.lastname, u.email, u.image, u.job, u.birthday, u.number, u.role) FROM User u WHERE u.id = :id")
     Optional<UserUpdateDto> findUserUpdateDtoById(@Param("id") Long id);
+
+    @Query("SELECT u FROM User u WHERE " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.job) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.firstname) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.lastname) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<UserDto> searchUsers(@Param("searchTerm") String searchTerm);
+
+
 }

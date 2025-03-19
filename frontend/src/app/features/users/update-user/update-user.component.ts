@@ -144,7 +144,7 @@ export class UpdateUserComponent implements OnInit {
       this.userService.updateUser(this.userId, this.userForm.value).subscribe({
         next: (response) => {
           console.log('User updated successfully:', response);
-          this.router.navigate(['/users']);
+          this.router.navigate(['/home/users']);
         },
         error: (error) => {
           console.error('Error updating user:', error);

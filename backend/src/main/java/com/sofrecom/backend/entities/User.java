@@ -31,6 +31,12 @@ public class User implements UserDetails {
     private Role role;
     private String password;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books;
+
+    @OneToMany(mappedBy = "borrower")
+    private List<Borrow>  borrows;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
