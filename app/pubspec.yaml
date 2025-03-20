@@ -100,16 +100,8 @@ flutter:
   assets:
     - assets/lottie/
     - assets/images/
-    - assets/icons/
-    - assets/fonts/
-    - assets/animations/
-    
-  # fonts:
-  #   - family: NomDeVotrePolice
-  #     fonts:
-  #       - asset: assets/fonts/NomDeVotrePolice-Regular.ttf
-  #       - asset: assets/fonts/NomDeVotrePolice-Bold.ttf
-  #         weight: 700
+    - assets/images/couverture1.png
+    - assets/images/couverture2.png
 
 # Configuration des icônes (à la racine, pas sous flutter:)
 
