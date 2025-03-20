@@ -78,6 +78,23 @@ const Map<String, String> fr = {
   'children': 'Jeunesse',
   'comics': 'BD',
   'education': 'Éducation',
+  'available_date': 'Date de disponibilité',
+  'status': 'Statut',
+  'in_stock': 'En stock',
+  'borrow_book': 'Emprunter un livre',
+  'calendar': 'Calendrier',
+  'availability_calendar': 'Calendrier de disponibilité',
+  'book_availability': 'Disponibilité du livre',
+  'book_information': 'Informations du livre',
+  'book_availability_calendar': 'Calendrier de disponibilité du livre',
+  'book_status': 'Statut du livre',
+  'book_borrow': 'Emprunter un livre',
+  'book_return': 'Retourner un livre',
+  'book_extend': 'Prolonger un livre',
+  'book_due_date': 'Date de retour du livre',
+  'book_author': 'Auteur du livre',
+  'book_publisher': 'Éditeur du livre',
+  'book_publication_date': 'Date de publication du livre',
 
   // Reviews
   'your_rating': 'Votre note',
@@ -91,11 +108,14 @@ const Map<String, String> fr = {
 
   // Onboarding
   'find_book': 'Trouvez votre lecture en un clic !',
-  'find_book_desc': 'Découvrez et partagez facilement des ouvrages pour enrichir votre bibliothèque en un seul clic.',
+  'find_book_desc':
+      'Découvrez et partagez facilement des ouvrages pour enrichir votre bibliothèque en un seul clic.',
   'dive_reading': 'Plongez dans un univers de lecture !',
-  'dive_reading_desc': 'Laissez-vous inspirer par une collection de livres variée et trouvez celui qui vous transportera dans une nouvelle aventure.',
+  'dive_reading_desc':
+      'Laissez-vous inspirer par une collection de livres variée et trouvez celui qui vous transportera dans une nouvelle aventure.',
   'reserve_instant': 'Réservez votre livre en un instant !',
-  'reserve_instant_desc': 'Trouvez le livre qui vous passionne et réservez-le en toute simplicité pour en profiter sans attendre.',
+  'reserve_instant_desc':
+      'Trouvez le livre qui vous passionne et réservez-le en toute simplicité pour en profiter sans attendre.',
 
   // Profile
   'edit_profile': 'Modifier le profil',
@@ -142,7 +162,7 @@ const Map<String, String> fr = {
   'how_many_pages': 'Combien de pages aimez-vous lire ?',
   'choose_reading_length': 'Choisissez votre longueur de lecture préférée',
   'last_step': 'Dernière étape !',
-  
+
   // Page counts
   'less_100_pages': 'Moins de 100 pages',
   'quick_reads': 'Lectures courtes et rapides',
@@ -169,4 +189,4 @@ const Map<String, String> fr = {
   'cover_summary': 'Couverture/Résumé',
   'preferred_genre': 'Genre préféré',
   'random': 'Au hasard',
-}; 
+};

@@ -20,80 +20,253 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
 
+  // Map pour stocker les jours disponibles et indisponibles
+  final Map<DateTime, bool> _availabilityMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialiser les disponibilités (exemple)
+    final now = DateTime.now();
+    for (int i = 0; i < 31; i++) {
+      final day = DateTime(now.year, now.month, now.day + i);
+      // Jour disponible (valeur true) ou indisponible (valeur false)
+      // On peut simuler des jours indisponibles, par exemple les weekends
+      _availabilityMap[day] = day.weekday != 6 && day.weekday != 7;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ThemeController>(
       builder:
           (themeController) => Scaffold(
-            appBar: AppBar(title: Text('Emprunter'.tr)),
+            appBar: AppBar(
+              title: Text('Emprunter'.tr),
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              foregroundColor:
+                  themeController.isDarkMode ? Colors.white : Colors.black,
+            ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Section détails du livre
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Couverture du livre
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(
-                          widget.book.coverUrl,
-                          height: 200,
-                          width: 140,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Informations du livre
-                      Expanded(
-                        child: Column(
+                  // Section détails du livre (comme dans l'image)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Couverture du livre
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                widget.book.coverUrl,
+                                height: 120,
+                                width: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Informations du livre
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.book.title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    widget.book.author,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  // Notation étoiles
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget.book.rating.toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // État de disponibilité
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.green[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'Disponible'.tr,
+                            style: TextStyle(color: Colors.green[700]),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Informations supplémentaires (style liste)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildInfoRow('ISBN', widget.book.isbn),
+                        _buildInfoRow('Catégorie', widget.book.category),
+                        _buildInfoRow('Pages', '${widget.book.pageCount}'),
+                        _buildInfoRow('Statut actuel', 'En stock'.tr),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Titre du calendrier
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Calendrier de disponibilité'.tr,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Calendrier
+                  Column(
+                    children: [
+                      // Mois et navigation
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.chevron_left),
+                              onPressed: () {
+                                setState(() {
+                                  _focusedDay = DateTime(
+                                    _focusedDay.year,
+                                    _focusedDay.month - 1,
+                                    _focusedDay.day,
+                                  );
+                                });
+                              },
+                            ),
                             Text(
-                              widget.book.title,
-                              style: Theme.of(context).textTheme.titleLarge,
+                              '${_getMonthName(_focusedDay.month)} ${_focusedDay.year}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              widget.book.author,
-                              style: Theme.of(context).textTheme.bodyLarge,
+                            IconButton(
+                              icon: const Icon(Icons.chevron_right),
+                              onPressed: () {
+                                setState(() {
+                                  _focusedDay = DateTime(
+                                    _focusedDay.year,
+                                    _focusedDay.month + 1,
+                                    _focusedDay.day,
+                                  );
+                                });
+                              },
                             ),
-                            const SizedBox(height: 8),
-                            // Notation étoiles
-                            Row(
-                              children: List.generate(5, (index) {
-                                return Icon(
-                                  index < widget.book.rating
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: AppTheme.primaryColor,
-                                  size: 20,
-                                );
-                              }),
-                            ),
-                            const SizedBox(height: 16),
-                            // État de disponibilité
+                          ],
+                        ),
+                      ),
+
+                      // Jours de la semaine
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children:
+                              ['L', 'M', 'M', 'J', 'V', 'S', 'D']
+                                  .map(
+                                    (day) => SizedBox(
+                                      width: 30,
+                                      child: Center(
+                                        child: Text(
+                                          day,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Calendrier simplifié
+                      _buildSimpleCalendar(),
+
+                      const SizedBox(height: 16),
+
+                      // Légende
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
+                              width: 12,
+                              height: 12,
                               decoration: BoxDecoration(
-                                color:
-                                    widget.book.isAvailable
-                                        ? Colors.green
-                                        : Colors.red,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                widget.book.isAvailable
-                                    ? 'disponible'.tr
-                                    : 'non_disponible'.tr,
-                                style: const TextStyle(color: Colors.white),
+                                color: Colors.green[100],
+                                shape: BoxShape.circle,
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            Text('Disponible'),
+                            const SizedBox(width: 24),
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Colors.red[100],
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text('Indisponible'),
                           ],
                         ),
                       ),
@@ -102,98 +275,109 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
 
                   const SizedBox(height: 24),
 
-                  // Informations supplémentaires
-                  _buildInfoRow('ISBN', widget.book.isbn),
-                  _buildInfoRow('category'.tr, widget.book.category),
-                  _buildInfoRow('pages'.tr, '${widget.book.pageCount}'),
-                  _buildInfoRow(
-                    'status'.tr,
-                    widget.book.isAvailable ? 'en_stock'.tr : 'emprunte'.tr,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Calendrier
-                  Container(
-                    decoration: BoxDecoration(
-                      color:
-                          themeController.isDarkMode
-                              ? AppTheme.darkSurfaceColor
-                              : AppTheme.lightSurfaceColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TableCalendar(
-                      firstDay: DateTime.now(),
-                      lastDay: DateTime.now().add(const Duration(days: 365)),
-                      focusedDay: _focusedDay,
-                      calendarFormat: _calendarFormat,
-                      selectedDayPredicate: (day) {
-                        return isSameDay(dateEmprunt, day) ||
-                            isSameDay(dateRetour, day);
-                      },
-                      onDaySelected: (selectedDay, focusedDay) {
-                        setState(() {
-                          if (dateEmprunt == null) {
-                            dateEmprunt = selectedDay;
-                          } else if (dateRetour == null &&
-                              selectedDay.isAfter(dateEmprunt!)) {
-                            dateRetour = selectedDay;
-                          } else {
-                            dateEmprunt = selectedDay;
-                            dateRetour = null;
-                          }
-                          _focusedDay = focusedDay;
-                        });
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
                   // Dates sélectionnées
-                  if (dateEmprunt != null)
-                    _buildDateRow('date_emprunt'.tr, dateEmprunt!),
-                  if (dateRetour != null)
-                    _buildDateRow('date_retour'.tr, dateRetour!),
-
-                  const SizedBox(height: 24),
-
-                  // Résumé de réservation
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color:
-                          themeController.isDarkMode
-                              ? AppTheme.darkSurfaceColor
-                              : AppTheme.lightSurfaceColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'resume_reservation'.tr,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 16),
-                        if (dateEmprunt != null && dateRetour != null)
-                          Text(
-                            'duree'.trParams({
-                              'jours':
-                                  '${dateRetour!.difference(dateEmprunt!).inDays}',
-                            }),
-                            style: Theme.of(context).textTheme.bodyLarge,
+                          'Dates sélectionnées',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed:
-                              (dateEmprunt != null && dateRetour != null)
-                                  ? () {
-                                    // Logique de réservation
-                                  }
-                                  : null,
-                          child: Text('reserver_maintenant'.tr),
                         ),
+                        const SizedBox(height: 8),
+                        if (dateEmprunt != null)
+                          _buildDateSelection(
+                            'Date d\'emprunt',
+                            dateEmprunt!,
+                            Icons.calendar_today,
+                            Colors.green,
+                          ),
+                        if (dateRetour != null)
+                          _buildDateSelection(
+                            'Date de retour',
+                            dateRetour!,
+                            Icons.event_busy,
+                            Colors.red,
+                          ),
+                        if (dateEmprunt == null && dateRetour == null)
+                          Text(
+                            'Aucune date sélectionnée',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              dateEmprunt = null;
+                              dateRetour = null;
+                            });
+                          },
+                          child: Text('Effacer'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.blue,
+                            padding: EdgeInsets.zero,
+                            alignment: Alignment.centerRight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Résumé de réservation
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Résumé de la réservation',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildInfoRow(
+                          'Durée',
+                          dateEmprunt != null && dateRetour != null
+                              ? '${dateRetour!.difference(dateEmprunt!).inDays} jours'
+                              : '-',
+                        ),
+                        _buildInfoRow('Statut', 'Disponible'),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed:
+                                (dateEmprunt != null && dateRetour != null)
+                                    ? () {
+                                      // Logique de réservation
+                                    }
+                                    : null,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.bookmark),
+                                const SizedBox(width: 8),
+                                Text('Réserver maintenant'),
+                              ],
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -208,36 +392,150 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '$label: ',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(value, style: Theme.of(context).textTheme.bodyLarge),
+          Text(label, style: TextStyle(color: Colors.grey[600])),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _buildDateRow(String label, DateTime date) {
+  Widget _buildDateSelection(
+    String label,
+    DateTime date,
+    IconData icon,
+    Color color,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Text(label, style: TextStyle(color: Colors.grey[600])),
+          const Spacer(),
           Text(
-            '$label: ',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '${date.day}/${date.month}/${date.year}',
-            style: Theme.of(context).textTheme.bodyLarge,
+            '${date.day} ${_getMonthName(date.month)} ${date.year}',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildSimpleCalendar() {
+    final daysInMonth =
+        DateTime(_focusedDay.year, _focusedDay.month + 1, 0).day;
+    final firstDayOfMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
+    final firstWeekday = firstDayOfMonth.weekday;
+
+    // Calculer le nombre de lignes nécessaires
+    final totalDays = firstWeekday - 1 + daysInMonth;
+    final numberOfWeeks = (totalDays / 7).ceil();
+
+    List<Widget> weeks = [];
+
+    int dayCounter = 1 - (firstWeekday - 1);
+
+    for (int week = 0; week < numberOfWeeks; week++) {
+      List<Widget> days = [];
+
+      for (int i = 0; i < 7; i++) {
+        if (dayCounter <= 0 || dayCounter > daysInMonth) {
+          // Jour hors du mois actuel
+          days.add(const SizedBox(width: 30, height: 30));
+        } else {
+          final currentDate = DateTime(
+            _focusedDay.year,
+            _focusedDay.month,
+            dayCounter,
+          );
+          final isSelected =
+              dateEmprunt != null && isSameDay(currentDate, dateEmprunt) ||
+              dateRetour != null && isSameDay(currentDate, dateRetour);
+          final isAvailable = _availabilityMap[currentDate] ?? true;
+
+          days.add(
+            GestureDetector(
+              onTap: () {
+                if (isAvailable) {
+                  setState(() {
+                    if (dateEmprunt == null) {
+                      dateEmprunt = currentDate;
+                    } else if (dateRetour == null &&
+                        currentDate.isAfter(dateEmprunt!)) {
+                      dateRetour = currentDate;
+                    } else {
+                      dateEmprunt = currentDate;
+                      dateRetour = null;
+                    }
+                  });
+                }
+              },
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color:
+                      isSelected
+                          ? Colors.blue
+                          : isAvailable
+                          ? Colors.green[100]
+                          : Colors.red[100],
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    dayCounter.toString(),
+                    style: TextStyle(
+                      color:
+                          isSelected
+                              ? Colors.white
+                              : isAvailable
+                              ? Colors.black
+                              : Colors.red[900],
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+        dayCounter++;
+      }
+
+      weeks.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: days,
+          ),
+        ),
+      );
+    }
+
+    return Column(children: weeks);
+  }
+
+  String _getMonthName(int month) {
+    const monthNames = [
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
+    ];
+    return monthNames[month - 1];
   }
 }
