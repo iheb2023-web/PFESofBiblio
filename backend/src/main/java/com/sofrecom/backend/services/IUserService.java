@@ -17,4 +17,5 @@ public interface IUserService {
     User updateUser(Long id, UserUpdateDto user);
 
     UserUpdateDto getUserById(Long id);
+    User findById(Long id);
 }

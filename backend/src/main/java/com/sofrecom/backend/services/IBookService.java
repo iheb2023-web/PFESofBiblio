@@ -9,4 +9,6 @@ public interface IBookService {
     Book addBook(Book addBookDto);
 
     List<Book> getAll();
+    
+    List<Book> getBooksByUser(Long userId);
 }

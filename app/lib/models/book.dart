@@ -12,6 +12,7 @@ class Book {
   final int rating;
   final int borrowCount;
   final String? modelUrl;
+  final int? ownerId;
 
   Book({
     required this.title,
@@ -27,10 +28,14 @@ class Book {
     this.rating = 0,
     this.borrowCount = 0,
     this.modelUrl,
+    this.ownerId,
   });
 
   // Conversion d'un JSON en objet Book
   factory Book.fromJson(Map<String, dynamic> json) {
+    final ownerJson = json['owner'] as Map<String, dynamic>?;
+    final ownerId = ownerJson != null ? ownerJson['id'] as int? : json['ownerId'] as int?;
+    
     return Book(
       title: json['title'] ?? '',
       author: json['author'] ?? '',
@@ -45,7 +50,7 @@ class Book {
       rating: json['rating'] ?? 0,
       borrowCount: json['borrowCount'] ?? 0,
       modelUrl: json['modelUrl'] ?? '',
-
+      ownerId: ownerId,
     );
   }
 
@@ -65,6 +70,7 @@ class Book {
       'rating': rating,
       'borrowCount': borrowCount,
       'modelUrl': modelUrl,
+      'ownerId': ownerId,
     };
   }
 
@@ -83,6 +89,7 @@ class Book {
     int? rating,
     int? borrowCount,
     String? modelUrl,
+    int? ownerId,
   }) {
     return Book(
       title: title ?? this.title,
@@ -98,6 +105,7 @@ class Book {
       rating: rating ?? this.rating,
       borrowCount: borrowCount ?? this.borrowCount,
       modelUrl: modelUrl ?? this.modelUrl,
+      ownerId: ownerId ?? this.ownerId,
     );
   }
-} 
+}

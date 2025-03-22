@@ -120,5 +120,9 @@ public class IUserServiceImp implements IUserService {
         }
         return password.toString();
     }
+    @Override
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
 
 }

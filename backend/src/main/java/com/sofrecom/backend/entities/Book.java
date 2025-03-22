@@ -15,7 +15,8 @@ import lombok.NoArgsConstructor;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
+    private Long id;
+
     private String title;
     private String author;
     private String description;
@@ -26,8 +27,12 @@ public class Book {
     private int pageCount;
     private String language;
 
+    @Transient
+    private Long ownerId;
+
     @JsonIgnore
     @ManyToOne
+    @JoinColumn(name = "owner_id")  
     private User owner;
 
 
