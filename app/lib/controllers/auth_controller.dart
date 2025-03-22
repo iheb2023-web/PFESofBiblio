@@ -14,13 +14,27 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    print('AuthController: onInit');
     checkAuthStatus();
   }
 
   Future<void> checkAuthStatus() async {
-    final userData = _storageService.getUserSession();
-    if (userData != null) {
-      currentUser.value = User.fromJson(userData);
+    print('AuthController: Vérification du statut d\'authentification');
+    try {
+      final userData = await _storageService.getUserSession();
+      print('AuthController: Données utilisateur trouvées: $userData');
+      
+      if (userData != null) {
+        final user = User.fromJson(userData);
+        print('AuthController: Utilisateur chargé: ${user.toString()}');
+        currentUser.value = user;
+        update(); // Notifier GetX du changement
+      } else {
+        print('AuthController: Aucune session utilisateur trouvée');
+      }
+    } catch (e) {
+      print('AuthController: Erreur lors de la vérification du statut: $e');
+      errorMessage.value = 'Erreur lors de la vérification de la session';
     }
   }
 
@@ -28,13 +42,18 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
+      print('AuthController: Tentative de connexion pour $email');
 
       final user = await _authService.login(email, password);
+      print('AuthController: Connexion réussie pour ${user.toString()}');
+      
       currentUser.value = user;
+      update(); // Notifier GetX du changement
 
       // Sauvegarder la session
       await _storageService.saveUserSession(user.toJson());
-      // message de succès est affiché
+      print('AuthController: Session sauvegardée');
+      
       Get.snackbar(
         'Succès',
         'Connexion réussie',
@@ -42,9 +61,8 @@ class AuthController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-
-      // La navigation est maintenant gérée par la page de connexion
     } catch (e) {
+      print('AuthController: Erreur de connexion: $e');
       errorMessage.value = e.toString();
       Get.snackbar(
         'Erreur',
@@ -53,7 +71,7 @@ class AuthController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      rethrow; // Propager l'erreur pour que la page de connexion puisse la gérer
+      rethrow;
     } finally {
       isLoading.value = false;
     }
@@ -61,9 +79,12 @@ class AuthController extends GetxController {
 
   Future<void> logout() async {
     try {
+      print('AuthController: Déconnexion en cours');
       await _authService.logout();
       await _storageService.clearSession();
       currentUser.value = null;
+      update(); // Notifier GetX du changement
+      print('AuthController: Déconnexion réussie');
       // Supprimer les informations stockées si nécessaire
       // await storage.delete(key: 'user');
       // message de succès est affiché
@@ -78,7 +99,8 @@ class AuthController extends GetxController {
       // Navigation vers la page de connexion
       Get.offAllNamed('/login');
     } catch (e) {
-      errorMessage.value = e.toString();
+      print('AuthController: Erreur de déconnexion: $e');
+      errorMessage.value = 'Erreur lors de la déconnexion';
       Get.snackbar(
         'Erreur',
         'Erreur lors de la déconnexion',
@@ -93,8 +115,10 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
+      print('AuthController: Demande de réinitialisation du mot de passe pour $email');
 
       await _authService.requestPasswordReset(email);
+      print('AuthController: Email de réinitialisation envoyé');
 
       Get.snackbar(
         'Succès',
@@ -107,6 +131,7 @@ class AuthController extends GetxController {
       // Retourner à la page de connexion
       Get.back();
     } catch (e) {
+      print('AuthController: Erreur de réinitialisation du mot de passe: $e');
       errorMessage.value = e.toString();
       Get.snackbar(
         'Erreur',

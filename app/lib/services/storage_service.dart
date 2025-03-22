@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:app/models/user_model.dart';
 
 class StorageService {
   static final StorageService _instance = StorageService._internal();
@@ -68,4 +69,4 @@ class StorageService {
     }
     return null;
   }
-} 
+}

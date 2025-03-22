@@ -8,6 +8,8 @@ import 'package:app/services/book_service.dart';
 import 'dart:async';
 import 'package:app/services/api_service.dart';
 import 'package:app/models/book.dart';
+import 'package:app/controllers/auth_controller.dart';
+import 'package:app/models/user_model.dart';
 
 class BookData {
   final String title;
@@ -67,6 +69,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   BookData? bookData;
   bool isLoading = false;
+
+  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -446,6 +450,33 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _addBook() async {
+    // Déboguer l'état de l'authentification
+    print('État de l\'authentification:');
+    print('AuthController: ${_authController.toString()}');
+    print('CurrentUser: ${_authController.currentUser.value}');
+    print('UserId: ${_authController.currentUser.value?.id}');
+
+    // Vérifier si l'utilisateur est connecté
+    final currentUser = _authController.currentUser.value;
+    final userId = currentUser?.id;
+    
+    if (userId == null) {
+      print('Erreur: ID utilisateur null');
+      print('Détails utilisateur: $currentUser');
+      
+      Get.snackbar(
+        'Erreur',
+        'Vous devez être connecté pour ajouter un livre',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      // Rediriger vers la page de connexion
+      Get.toNamed('/login');
+      return;
+    }
+
+    // Valider les champs requis
     if (titleController.text.isEmpty || authorController.text.isEmpty) {
       Get.snackbar(
         'Erreur',
@@ -467,11 +498,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
       category: categoryController.text,
       pageCount: int.tryParse(pageCountController.text) ?? 0,
       language: languageController.text,
+      ownerId: userId, // Utiliser l'ID non-nullable
     );
 
     try {
-      final success = await ApiService.addBook(book);
+      final success = await ApiService.addBook(book, userId); // Utiliser l'ID non-nullable
       if (success) {
+        // Effacer tous les champs du formulaire
         titleController.clear();
         authorController.clear();
         descriptionController.clear();
@@ -487,8 +520,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
         });
 
         Get.snackbar(
-          'Success',
-          'Book added successfully',
+          'Succès',
+          'Le livre a été ajouté avec succès',
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -500,21 +533,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
       } else {
         Get.snackbar(
           'Erreur',
-          'Impossible d\'ajouter le livre',
+          'Une erreur est survenue lors de l\'ajout du livre',
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
+      print('Erreur lors de l\'ajout du livre: $e');
       Get.snackbar(
         'Erreur',
-        'Une erreur est survenue',
+        'Une erreur est survenue lors de l\'ajout du livre',
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      print('Erreur lors de l\'ajout du livre: $e');
     }
   }
 
