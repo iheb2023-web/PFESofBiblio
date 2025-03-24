@@ -1,8 +1,9 @@
 package com.sofrecom.backend.services;
 
 import com.sofrecom.backend.entities.Book;
+import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.BookRepository;
-import com.sofrecom.backend.services.IUserService;
+import com.sofrecom.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ public class BookService implements IBookService {
 
     private final BookRepository bookRepository;
     private final IUserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public Book addBook(Book book) {
@@ -32,5 +34,12 @@ public class BookService implements IBookService {
             throw new RuntimeException("User not found with id: " + userId);
         }
         return this.bookRepository.findByOwner_Id(userId);
+    }
+
+    @Override
+    public Book addNewBook(Book book, String email) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        book.setOwner(user);
+        return this.bookRepository.save(book);
     }
 }

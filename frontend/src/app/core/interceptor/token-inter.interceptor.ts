@@ -8,7 +8,6 @@ import { catchError } from 'rxjs/operators';
 export class TokenInterceptor implements HttpInterceptor {
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
-
   private getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -20,6 +19,16 @@ export class TokenInterceptor implements HttpInterceptor {
     if (isPlatformBrowser(this.platformId)) {
       const myToken = this.getCookie('token');  
 
+      // Check if the URL is for a Google API request
+      if (req.url.includes('googleapis.com')) {
+        // If it's a Google API request, remove the Authorization header
+        const cloneRequest = req.clone({
+          headers: req.headers.delete('Authorization') // Remove Authorization header
+        });
+        return next.handle(cloneRequest);
+      }
+
+      // If the request is not to Google APIs, add the Authorization header
       if (myToken) {
         const cloneRequest = req.clone({
           setHeaders: {

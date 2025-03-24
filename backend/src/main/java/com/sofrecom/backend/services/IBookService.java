@@ -11,4 +11,6 @@ public interface IBookService {
     List<Book> getAll();
     
     List<Book> getBooksByUser(Long userId);
+
+    Book addNewBook(Book book, String email);
 }

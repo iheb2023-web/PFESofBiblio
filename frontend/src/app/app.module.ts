@@ -13,6 +13,7 @@ import { UsersModule } from './features/users/users.module';
 import { NewPasswordComponent } from './features/new-password/new-password.component';
 import { SharedModule } from './features/shared/shared.module';
 import { HomeComponent } from './features/home/home.component';
+import { BooksModule } from './features/books/books.module';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { HomeComponent } from './features/home/home.component';
     NotfoundComponent,
     NewPasswordComponent,
     HomeComponent,
+    
   ],
   imports: [
     BrowserModule,
@@ -30,7 +32,9 @@ import { HomeComponent } from './features/home/home.component';
     ReactiveFormsModule,
     FormsModule,
     UsersModule,
+    BooksModule,
     SharedModule
+    
    
   ],
   providers: [
