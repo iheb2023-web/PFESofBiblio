@@ -1,0 +1,80 @@
+<section class="position-relative">
+    <div class="container">
+      <div class="row g-4 g-lg-5 align-items-center">
+        <!-- Left column with form -->
+        <div class="col-lg-6 position-relative">
+          <h6 class="text-uppercase">📚 Add a New Book</h6>
+          <h1 class="mb-2">Enter Book Details</h1>
+          <p class="mb-4">Fill in the book details, and we will fetch additional information automatically.</p>
+  
+          <!-- Form START -->
+          <form (ngSubmit)="onSubmit()" class="row g-4">
+            <!-- Title -->
+            <div class="col-12">
+              <label class="small">Title</label>
+              <input type="text" [(ngModel)]="bookTitle" name="title" class="form-control"
+               placeholder="Enter book title" (ngModelChange)="onTitleOrAuthorChange()">
+            </div>
+  
+            <!-- Author -->
+            <div class="col-12">
+              <label class="small">Author</label>
+              <input type="text" [(ngModel)]="bookAuthor" name="author"
+               class="form-control" placeholder="Enter author name" (ngModelChange)="onTitleOrAuthorChange()">
+            </div>
+  
+            <!-- Description -->
+            <div class="col-12">
+              <label class="small">Description</label>
+              <textarea [(ngModel)]="bookDescription" name="description" class="form-control" placeholder="Book description" readonly></textarea>
+            </div>
+  
+            <!-- Published Date -->
+            <div class="col-md-6">
+              <label class="small">Published Date</label>
+              <input type="text" [(ngModel)]="publishedDate" name="publishedDate" class="form-control" placeholder="Published date" readonly>
+            </div>
+  
+            <!-- ISBN -->
+            <div class="col-md-6">
+              <label class="small">ISBN</label>
+              <input type="text" [(ngModel)]="isbn" name="isbn" class="form-control" placeholder="ISBN number" readonly>
+            </div>
+  
+            <!-- Category -->
+            <div class="col-md-6">
+              <label class="small">Category</label>
+              <input type="text" [(ngModel)]="category" name="category" class="form-control" placeholder="Category" readonly>
+            </div>
+  
+            <!-- Page Count -->
+            <div class="col-md-6">
+              <label class="small">Page Count</label>
+              <input type="number" [(ngModel)]="pageCount" name="pageCount" class="form-control" placeholder="Number of pages" readonly>
+            </div>
+  
+            <!-- Language -->
+            <div class="col-md-6">
+              <label class="small">Language</label>
+              <input type="text" [(ngModel)]="language" name="language" class="form-control" placeholder="Language" readonly>
+            </div>
+  
+            <!-- Submit Button -->
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary w-100 mb-0">Add Book</button>
+            </div>
+          </form>
+          <!-- Form END -->
+        </div>
+        
+        <!-- Right column with book cover image -->
+        <div class="col-lg-6 position-relative">
+          <div *ngIf="bookCover" class="text-center">
+            <img [src]="bookCover" alt="Book Cover" class="rounded" width="100%" height="100%">
+            
+          </div>
+         
+        </div>
+      </div>
+    </div>
+  </section>

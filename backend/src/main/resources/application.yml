@@ -2,7 +2,6 @@ spring:
   application:
     name: backend
   datasource:
-    #url: jdbc:mysql://localhost:3306/sofbiblio_db
     url: jdbc:mysql://localhost:3306/sofbiblio_db?createDatabaseIfNotExist=true
     username: root
     password:
