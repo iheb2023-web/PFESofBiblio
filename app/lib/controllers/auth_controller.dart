@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:app/models/user_model.dart';
 import 'package:app/services/auth_service.dart';
 import 'package:app/services/storage_service.dart';
+import 'package:app/config/app_config.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -10,6 +11,8 @@ class AuthController extends GetxController {
   final Rx<User?> currentUser = Rx<User?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+
+  String get baseUrl => AppConfig.apiBaseUrl;
 
   @override
   void onInit() {
@@ -19,10 +22,9 @@ class AuthController extends GetxController {
   }
 
   Future<void> checkAuthStatus() async {
-    print('AuthController: Vérification du statut d\'authentification');
     try {
       final userData = await _storageService.getUserSession();
-      print('AuthController: Données utilisateur trouvées: $userData');
+      print('AuthController: Vérification du statut d\'authentification');
       
       if (userData != null) {
         final user = User.fromJson(userData);
@@ -145,7 +147,41 @@ class AuthController extends GetxController {
     }
   }
 
-//vérifie si un utilisateur est connecté en fonction de currentUser
+  Future<void> updateUserProfile(Map<String, dynamic> userData) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final updatedUser = await _authService.updateProfile(currentUser.value!.id!, userData);
+      currentUser.value = updatedUser;
+      
+      Get.snackbar(
+        'Succès',
+        'Profil mis à jour avec succès',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        'Échec de la mise à jour du profil',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> refreshUserProfile() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      currentUser.value = user;
+    } catch (e) {
+      print('Error refreshing user profile: $e');
+    }
+  }
+
+  //vérifie si un utilisateur est connecté en fonction de currentUser
   bool get isLoggedIn => currentUser.value != null;
   //renvoie le nom complet de l'utilisateur si l'utilisateur est connecté.
   String get userFullName =>

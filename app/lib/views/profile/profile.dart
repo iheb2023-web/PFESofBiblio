@@ -32,201 +32,151 @@ class ProfilePage extends GetView<ThemeController> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Photo de profil et statistiques
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      // Photo de profil
-                      Center(
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundImage: user.image != null 
-                                ? NetworkImage(user.image!)
-                                : const AssetImage('assets/images/default_profile.png') as ImageProvider,
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primaryColor,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  size: 20,
-                                  color: Colors.white,
+          return RefreshIndicator(
+            onRefresh: () => authController.refreshUserProfile(),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundImage: user.image != null && user.image!.isNotEmpty
+                                  ? NetworkImage(user.image!)
+                                  : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+                                backgroundColor: Theme.of(context).colorScheme.surface,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${user.firstname ?? ''} ${user.lastname ?? ''}',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          user.email ?? '',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildStat(context, '${user.borrowedBooks?.length ?? 0}', 'emprunts'.tr),
+                            _buildStat(context, '${user.myBooks?.length ?? 0}', 'mes_livres'.tr),
+                            _buildStat(context, '${user.toReadBooks?.length ?? 0}', 'a_lire'.tr),
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Nom et username
-                      Text(
-                        '${user.firstname} ${user.lastname}',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Text(
-                        user.email,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 24),
-                      // Statistiques
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildStat(context, '${user.borrowedBooks?.length ?? 0}', 'emprunts'.tr),
-                          _buildStat(context, '${user.myBooks?.length ?? 0}', 'mes_livres'.tr),
-                          _buildStat(context, '${user.toReadBooks?.length ?? 0}', 'a_lire'.tr),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                // Informations personnelles
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'informations_personnelles'.tr,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoRow(context, Icons.email, user.email),
-                      if (user.phone != null) ...[
-                        const SizedBox(height: 12),
-                        _buildInfoRow(context, Icons.phone, user.phone!),
                       ],
-                      if (user.address != null) ...[
-                        const SizedBox(height: 12),
-                        _buildInfoRow(context, Icons.location_on, user.address!),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
-                const Divider(),
-                // Thème
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'apparence'.tr,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      ListTile(
-                        leading: Icon(
-                          themeController.themeMode == ThemeMode.system
-                              ? Icons.brightness_auto
-                              : themeController.themeMode == ThemeMode.dark
-                                  ? Icons.dark_mode
-                                  : Icons.light_mode,
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'informations_personnelles'.tr,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        title: Text('theme'.tr),
-                        subtitle: Text(
-                          themeController.themeMode == ThemeMode.system
-                              ? 'theme_system'.tr
-                              : themeController.themeMode == ThemeMode.dark
-                                  ? 'theme_dark'.tr
-                                  : 'theme_light'.tr,
-                        ),
-                        onTap: themeController.toggleTheme,
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                // Centres d'intérêt
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'centres_interet'.tr,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildInterestChip(context, 'Roman'),
-                          _buildInterestChip(context, 'Science-Fiction'),
-                          _buildInterestChip(context, 'Histoire'),
-                          _buildInterestChip(context, 'Philosophie'),
+                        const SizedBox(height: 16),
+                        _buildInfoRow(context, Icons.email, user.email ?? ''),
+                        if (user.phone != null && user.phone!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildInfoRow(context, Icons.phone, user.phone!),
                         ],
-                      ),
-                    ],
+                        if (user.address != null && user.address!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildInfoRow(context, Icons.location_on, user.address!),
+                        ],
+                      ],
+                    ),
                   ),
-                ),
-                const Divider(),
-                // À lire plus tard
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'a_lire_plus_tard'.tr,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildBookToRead(
-                        context,
-                        'Les Misérables',
-                        'Victor Hugo',
-                        'assets/images/les_miserables.jpg',
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                // Bouton de déconnexion
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        authController.logout();
-                        Get.offAll(() => const LoginPage());
-                      },
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      label: Text(
-                        'deconnexion'.tr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'apparence'.tr,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 16),
+                        ListTile(
+                          leading: Icon(
+                            themeController.themeMode == ThemeMode.system
+                                ? Icons.brightness_auto
+                                : themeController.themeMode == ThemeMode.dark
+                                    ? Icons.dark_mode
+                                    : Icons.light_mode,
+                          ),
+                          title: Text('theme'.tr),
+                          subtitle: Text(
+                            themeController.themeMode == ThemeMode.system
+                                ? 'theme_system'.tr
+                                : themeController.themeMode == ThemeMode.dark
+                                    ? 'theme_dark'.tr
+                                    : 'theme_light'.tr,
+                          ),
+                          onTap: themeController.toggleTheme,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          authController.logout();
+                          Get.offAll(() => const LoginPage());
+                        },
+                        icon: const Icon(Icons.logout, color: Colors.white),
+                        label: Text(
+                          'deconnexion'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }),
@@ -262,38 +212,6 @@ class ProfilePage extends GetView<ThemeController> {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
-    );
-  }
-
-  Widget _buildInterestChip(BuildContext context, String label) {
-    return Chip(
-      label: Text(label),
-      backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-      labelStyle: TextStyle(color: AppTheme.primaryColor),
-    );
-  }
-
-  Widget _buildBookToRead(
-    BuildContext context,
-    String title,
-    String author,
-    String coverImage,
-  ) {
-    return Card(
-      child: ListTile(
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Image.asset(
-            coverImage,
-            width: 40,
-            height: 60,
-            fit: BoxFit.cover,
-          ),
-        ),
-        title: Text(title),
-        subtitle: Text(author),
-        trailing: const Icon(Icons.bookmark),
-      ),
     );
   }
 }

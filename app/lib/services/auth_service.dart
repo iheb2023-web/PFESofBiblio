@@ -1,10 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/models/user_model.dart';
+import 'package:app/services/storage_service.dart';
 
 class AuthService {
+  final StorageService _storageService = StorageService();
   // Utiliser l'adresse IP de votre machine au lieu de localhost
   static const String baseUrl = 'http://10.0.2.2:8080';
+
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await _storageService.getAuthToken();
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
 
   Future<User> login(String email, String password) async {
     try {
@@ -106,6 +117,49 @@ class AuthService {
     } catch (e) {
       print('Erreur inattendue: $e');
       throw Exception('Erreur lors de la réinitialisation du mot de passe: $e');
+    }
+  }
+
+  Future<User> getCurrentUser() async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/me'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return User.fromJson(data);
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expirée');
+      } else {
+        throw Exception('Erreur lors de la récupération du profil');
+      }
+    } catch (e) {
+      throw Exception('Erreur lors de la récupération du profil: $e');
+    }
+  }
+
+  Future<User> updateProfile(int userId, Map<String, dynamic> userData) async {
+    try {
+      final headers = await _getAuthHeaders();
+      final response = await http.patch(
+        Uri.parse('$baseUrl/users/$userId'),
+        headers: headers,
+        body: json.encode(userData),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return User.fromJson(data);
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expirée');
+      } else {
+        throw Exception('Erreur lors de la mise à jour du profil');
+      }
+    } catch (e) {
+      throw Exception('Erreur lors de la mise à jour du profil: $e');
     }
   }
 }

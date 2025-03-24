@@ -7,22 +7,41 @@ class ApiService {
   static const String baseUrl = 'http://10.0.2.2:8080'; // Pour l'émulateur Android
   // static const String baseUrl = 'http://localhost:8080'; // Pour iOS
 
-  static Future<bool> addBook(Book book, int userId) async {
+  static Future<bool> addBook(Book book, int? userId) async {
+    if (userId == null) {
+      print('Erreur: userId est null');
+      return false;
+    }
+
     try {
-      // Create a new book with the owner ID
-      final bookWithOwner = book.copyWith(ownerId: userId);
-      
+      final bookData = {
+        ...book.toJson(),
+        'ownerId': userId,
+      };
+      print('Envoi de la requête avec les données: ${json.encode(bookData)}');
+
       final response = await http.post(
         Uri.parse('$baseUrl/books'),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode(bookWithOwner.toJson()),
+        body: json.encode(bookData),
       );
 
-      return response.statusCode == 201;
-    } catch (e) {
+      print('Réponse du serveur:');
+      print('Status code: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode != 201) {
+        print('Erreur serveur: ${response.statusCode}');
+        print('Réponse: ${response.body}');
+        return false;
+      }
+
+      return true;
+    } catch (e, stackTrace) {
       print('Erreur lors de l\'ajout du livre: $e');
+      print('Stack trace: $stackTrace');
       return false;
     }
   }

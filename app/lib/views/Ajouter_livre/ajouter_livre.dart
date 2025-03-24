@@ -60,37 +60,43 @@ class _AddBookScreenState extends State<AddBookScreen> {
   DateTime? selectedDate;
   final TextEditingController titleController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
-  final TextEditingController durationController = TextEditingController(text: '7 jours');
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController isbnController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController pageCountController = TextEditingController();
   final TextEditingController languageController = TextEditingController();
-
+  final TextEditingController durationController = TextEditingController();
+  Timer? _debounceTimer;
   BookData? bookData;
+  late AuthController _authController;
   bool isLoading = false;
-
-  final AuthController _authController = Get.find<AuthController>();
 
   @override
   void initState() {
     super.initState();
+    _authController = Get.find<AuthController>();
+    durationController.text = '7 jours';
+    
+    // Vérifier l'état de l'authentification au démarrage
+    print('InitState - État de l\'authentification:');
+    print('User: ${_authController.currentUser.value?.toJson()}');
+    print('User ID: ${_authController.currentUser.value?.id}');
+    
     titleController.addListener(_onFieldsChanged);
     authorController.addListener(_onFieldsChanged);
   }
 
   @override
   void dispose() {
-    titleController.removeListener(_onFieldsChanged);
-    authorController.removeListener(_onFieldsChanged);
+    _debounceTimer?.cancel();
     titleController.dispose();
     authorController.dispose();
-    durationController.dispose();
     descriptionController.dispose();
     isbnController.dispose();
     categoryController.dispose();
     pageCountController.dispose();
     languageController.dispose();
+    durationController.dispose();
     super.dispose();
   }
 
@@ -105,8 +111,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _debounceSearch();
     }
   }
-
-  Timer? _debounceTimer;
 
   void _debounceSearch() {
     if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
@@ -450,59 +454,62 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _addBook() async {
-    // Déboguer l'état de l'authentification
-    print('État de l\'authentification:');
-    print('AuthController: ${_authController.toString()}');
-    print('CurrentUser: ${_authController.currentUser.value}');
-    print('UserId: ${_authController.currentUser.value?.id}');
-
-    // Vérifier si l'utilisateur est connecté
-    final currentUser = _authController.currentUser.value;
-    final userId = currentUser?.id;
-    
-    if (userId == null) {
-      print('Erreur: ID utilisateur null');
-      print('Détails utilisateur: $currentUser');
-      
-      Get.snackbar(
-        'Erreur',
-        'Vous devez être connecté pour ajouter un livre',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      // Rediriger vers la page de connexion
-      Get.toNamed('/login');
-      return;
-    }
-
-    // Valider les champs requis
-    if (titleController.text.isEmpty || authorController.text.isEmpty) {
-      Get.snackbar(
-        'Erreur',
-        'Le titre et l\'auteur sont requis',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
-    }
-
-    final book = Book(
-      title: titleController.text,
-      author: authorController.text,
-      description: descriptionController.text,
-      coverUrl: bookData?.coverUrl ?? '',
-      publishedDate: bookData?.publishedDate ?? '',
-      isbn: isbnController.text,
-      category: categoryController.text,
-      pageCount: int.tryParse(pageCountController.text) ?? 0,
-      language: languageController.text,
-      ownerId: userId, // Utiliser l'ID non-nullable
-    );
+    setState(() {
+      isLoading = true;
+    });
 
     try {
-      final success = await ApiService.addBook(book, userId); // Utiliser l'ID non-nullable
+      // Vérifier l'état de l'authentification avant l'ajout
+      final user = _authController.currentUser.value;
+      print('AddBook - État de l\'authentification:');
+      print('User: ${user?.toJson()}');
+      print('User ID: ${user?.id}');
+      
+      if (user?.id == null) {
+        print('Erreur: ID utilisateur manquant');
+        Get.snackbar(
+          'Erreur',
+          'Vous devez être connecté pour ajouter un livre',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Validation des champs requis
+      if (titleController.text.isEmpty || authorController.text.isEmpty) {
+        Get.snackbar(
+          'Erreur',
+          'Le titre et l\'auteur sont requis',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      final book = Book(
+        title: titleController.text.trim(),
+        author: authorController.text.trim(),
+        description: descriptionController.text.trim(),
+        coverUrl: bookData?.coverUrl ?? '',
+        publishedDate: selectedDate != null ? DateFormat('yyyy-MM-dd').format(selectedDate!) : '',
+        isbn: isbnController.text.trim(),
+        category: categoryController.text.trim(),
+        pageCount: int.tryParse(pageCountController.text) ?? 0,
+        language: languageController.text.trim(),
+        ownerId: user.id,
+        isAvailable: true,
+        rating: 0,
+        borrowCount: 0,
+      );
+
+      print('Tentative d\'ajout du livre:');
+      print('Données du livre: ${book.toJson()}');
+      
+      final success = await ApiService.addBook(book, user.id);
+      
       if (success) {
         // Effacer tous les champs du formulaire
         titleController.clear();
@@ -539,8 +546,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
           colorText: Colors.white,
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Erreur lors de l\'ajout du livre: $e');
+      print('Stack trace: $stackTrace');
       Get.snackbar(
         'Erreur',
         'Une erreur est survenue lors de l\'ajout du livre',
@@ -548,6 +556,12 @@ class _AddBookScreenState extends State<AddBookScreen> {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
