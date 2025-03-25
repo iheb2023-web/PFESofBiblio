@@ -15,6 +15,7 @@ class StorageService {
 
   // Gestion de la session
   Future<void> saveAuthToken(String token) async {
+    print('StorageService: Sauvegarde du token');
     await _prefs.setString('auth_token', token);
   }
 
@@ -24,36 +25,72 @@ class StorageService {
 
   Future<void> saveUserSession(Map<String, dynamic> userData) async {
     print('StorageService: Sauvegarde des données utilisateur: $userData');
-    await _prefs.setString('user_session', json.encode(userData));
-    
-    // Sauvegarder l'ID séparément pour un accès facile
-    if (userData['id'] != null) {
-      final id = userData['id'] is int ? userData['id'] : int.tryParse(userData['id'].toString());
-      if (id != null) {
-        print('StorageService: Sauvegarde de l\'ID utilisateur: $id');
-        await _prefs.setInt('user_id', id);
-      }
+
+    // Vérifier que l'ID est présent et valide
+    if (userData['id'] == null) {
+      print('StorageService: ID utilisateur manquant dans les données');
+      throw Exception('ID utilisateur manquant dans les données');
     }
+
+    // Convertir l'ID en entier si nécessaire
+    final id =
+        userData['id'] is int
+            ? userData['id']
+            : int.tryParse(userData['id'].toString());
+
+    if (id == null) {
+      print('StorageService: ID utilisateur invalide');
+      throw Exception('ID utilisateur invalide');
+    }
+
+    print('StorageService: ID utilisateur valide: $id');
+
+    // Sauvegarder les données complètes
+    final jsonData = json.encode(userData);
+    await _prefs.setString('user_session', jsonData);
+    print('StorageService: Données de session sauvegardées');
+
+    // Sauvegarder l'ID séparément pour un accès rapide
+    await _prefs.setInt('user_id', id);
+    print('StorageService: ID utilisateur sauvegardé séparément');
+
+    // Vérifier que les données ont été correctement sauvegardées
+    final savedData = _prefs.getString('user_session');
+    final savedId = _prefs.getInt('user_id');
+    print(
+      'StorageService: Vérification des données sauvegardées - ID: $savedId, Data: $savedData',
+    );
   }
 
   Map<String, dynamic>? getUserSession() {
     final String? data = _prefs.getString('user_session');
     print('StorageService: Données de session brutes: $data');
-    
+
     if (data != null) {
       try {
         final Map<String, dynamic> sessionData = json.decode(data);
         print('StorageService: Données de session décodées: $sessionData');
-        
-        // Récupérer l'ID séparé si nécessaire
+
+        // Vérifier que l'ID est présent
         if (sessionData['id'] == null) {
-          final userId = getUserId();
-          if (userId != null) {
-            sessionData['id'] = userId;
-            print('StorageService: ID ajouté depuis le stockage séparé: $userId');
-          }
+          print('StorageService: ID manquant dans les données de session');
+          return null;
         }
-        
+
+        // Vérifier que l'ID correspond à celui stocké séparément
+        final savedId = _prefs.getInt('user_id');
+        final sessionId =
+            sessionData['id'] is int
+                ? sessionData['id']
+                : int.tryParse(sessionData['id'].toString());
+
+        if (savedId != sessionId) {
+          print(
+            'StorageService: Incohérence entre l\'ID de session et l\'ID stocké',
+          );
+          return null;
+        }
+
         return sessionData;
       } catch (e) {
         print('StorageService: Erreur lors de la lecture de la session: $e');
@@ -88,7 +125,10 @@ class StorageService {
   Future<void> saveUserJson(Map<String, dynamic> userData) async {
     await _prefs.setString('user_data', json.encode(userData));
     try {
-      final id = userData['id'] is int ? userData['id'] : int.tryParse(userData['id'].toString());
+      final id =
+          userData['id'] is int
+              ? userData['id']
+              : int.tryParse(userData['id'].toString());
       if (id != null) {
         await _prefs.setInt('user_id', id);
       }

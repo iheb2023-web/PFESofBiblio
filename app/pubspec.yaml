@@ -41,6 +41,7 @@ dependencies:
   get: ^4.6.6
   shared_preferences: ^2.5.2
   intl: ^0.18.0  # Ajout de la dépendance intl
+  jwt_decoder: ^2.0.1  # Ajout de la dépendance jwt_decoder
 
 dev_dependencies:
   flutter_test:

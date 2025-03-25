@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 40),
-              
+
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(width: 0, color: Colors.transparent)
+                  border: Border.all(width: 0, color: Colors.transparent),
                 ),
                 child: TextFormField(
                   controller: emailController,
@@ -127,9 +127,9 @@ class _LoginPageState extends State<LoginPage> {
                   style: const TextStyle(fontFamily: "Sora", fontSize: 16),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(width: 0, color: Colors.transparent)
+                  border: Border.all(width: 0, color: Colors.transparent),
                 ),
                 child: Row(
                   children: [
@@ -161,7 +161,10 @@ class _LoginPageState extends State<LoginPage> {
                           disabledBorder: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 15),
                         ),
-                        style: const TextStyle(fontFamily: "Sora", fontSize: 16),
+                        style: const TextStyle(
+                          fontFamily: "Sora",
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                     IconButton(
@@ -180,16 +183,18 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               const SizedBox(height: 20),
-              
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  minimumSize: Size(MediaQuery.of(context).size.width * 0.9, 50),
+                  minimumSize: Size(
+                    MediaQuery.of(context).size.width * 0.9,
+                    50,
+                  ),
                   backgroundColor: Colors.blue,
                 ),
                 onPressed: () async {
-                      //Get.to(() => const PreferencesPage());
-
-                  if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                  if (emailController.text.isEmpty ||
+                      passwordController.text.isEmpty) {
                     Get.snackbar(
                       'error'.tr,
                       'fill_all_fields'.tr,
@@ -199,13 +204,40 @@ class _LoginPageState extends State<LoginPage> {
                     );
                     return;
                   }
+
                   try {
-                    await authController.login(emailController.text, passwordController.text);
-                    Get.to(() => const PreferencesPage());
+                    print('LoginPage: Tentative de connexion...');
+                    await authController.login(
+                      emailController.text,
+                      passwordController.text,
+                    );
+                    print(
+                      'LoginPage: Connexion effectuée, vérification de l\'état',
+                    );
+
+                    // Vérifier si l'utilisateur est bien connecté
+                    if (authController.currentUser.value != null) {
+                      print(
+                        'LoginPage: Connexion réussie, redirection vers les préférences',
+                      );
+                      Get.offAll(() => const PreferencesPage());
+                    } else {
+                      print(
+                        'LoginPage: Échec de la connexion - utilisateur null',
+                      );
+                      Get.snackbar(
+                        'error'.tr,
+                        'incorrect_credentials'.tr,
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
                   } catch (e) {
+                    print('LoginPage: Erreur de connexion: $e');
                     Get.snackbar(
                       'error'.tr,
-                      'incorrect_credentials'.tr,
+                      e.toString(),
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.red,
                       colorText: Colors.white,
@@ -214,7 +246,10 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: Text(
                   'sign_in'.tr,
-                  style: const TextStyle(color: Colors.white, fontFamily: "Sora"),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: "Sora",
+                  ),
                 ),
               ),
 
@@ -238,11 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(10.0),
-                    child: Divider(
-                      color: Colors.grey,
-                      height: 1,
-                      thickness: 1,
-                    ),
+                    child: Divider(color: Colors.grey, height: 1, thickness: 1),
                   ),
                   Center(
                     child: Container(

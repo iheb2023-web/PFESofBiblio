@@ -9,63 +9,75 @@ class ProfilePage extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('profile'.tr),
-      ),
+      appBar: AppBar(title: Text('profile'.tr)),
       body: Obx(() {
         final user = controller.currentUser.value;
         final isLoading = controller.isLoading.value;
 
-        if (isLoading && user == null) {
+        print('ProfilePage - État de chargement: $isLoading');
+        print('ProfilePage - Utilisateur: $user');
+        if (user != null) {
+          print('ProfilePage - ID utilisateur: ${user.id}');
+          print(
+            'ProfilePage - Données utilisateur complètes: ${user.toJson()}',
+          );
+        }
+
+        if (isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (user == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.offAllNamed('/login');
+          print('ProfilePage - Redirection vers la page de connexion');
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (!Get.isRegistered<AuthController>() ||
+                controller.currentUser.value == null) {
+              Get.offAll(() => const LoginPage());
+            }
           });
-          return const SizedBox.shrink();
+          return const Center(
+            child: Text('Redirection vers la page de connexion...'),
+          );
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Bonjour, voici votre ID : ${user.id}',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Bonjour, voici votre ID : ${user.id}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    controller.logout();
-                    Get.offAll(() => const LoginPage());
-                  },
-                  icon: const Icon(Icons.logout, color: Colors.white),
-                  label: Text(
-                    'deconnexion'.tr,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await controller.logout();
+                      Get.offAll(() => const LoginPage());
+                    },
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    label: Text(
+                      'deconnexion'.tr,
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }),

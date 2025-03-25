@@ -11,6 +11,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class UserMinDto {
+    private Long id;
     private String email;
     private String firstname;
     private String lastname;

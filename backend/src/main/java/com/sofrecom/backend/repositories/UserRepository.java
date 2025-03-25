@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<UserDto> findAllUsers(Pageable pageable);
 
     boolean existsByEmail(String email);
-    @Query("SELECT new com.sofrecom.backend.dtos.UserMinDto(u.email, u.firstname, u.lastname,u.image, u.role) FROM User u WHERE u.email = :email")
+    @Query("SELECT new com.sofrecom.backend.dtos.UserMinDto(u.id,u.email, u.firstname, u.lastname,u.image, u.role) FROM User u WHERE u.email = :email")
     UserMinDto findUserMinInfo(@Param("email") String email);
 
     @Query("SELECT new com.sofrecom.backend.dtos.UserUpdateDto(u.id, u.firstname, u.lastname, u.email, u.image, u.job, u.birthday, u.number, u.role) FROM User u WHERE u.id = :id")

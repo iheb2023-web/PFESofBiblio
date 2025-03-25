@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/models/user_model.dart';
 import 'package:app/services/storage_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   static final StorageService _storageService = StorageService();
@@ -33,34 +34,104 @@ class AuthService {
       if (response.statusCode == 200) {
         try {
           final data = json.decode(response.body);
+          print('AuthService - Structure complète de la réponse: $data');
+
           if (data == null) {
             throw Exception('Réponse vide du serveur');
           }
-          
-          print('AuthService - données reçues: $data'); // Debug log
-          
-          // Créer l'utilisateur avant de sauvegarder la session
-          final user = User.fromJson(data);
-          print('AuthService - utilisateur créé avec ID: ${user.id}'); // Debug log
-          
-          // Sauvegarder les données de l'utilisateur
-          await _storageService.saveUserSession(data);
-          
-          // Sauvegarder le token
-          if (data['token'] != null) {
-            await _storageService.saveAuthToken(data['token']);
+
+          // Vérifier que le token est présent et valide
+          if (data['access_token'] == null) {
+            print('AuthService - Pas de token dans la réponse');
+            throw Exception('Token d\'accès manquant dans la réponse');
           }
-          
-          return user;
+
+          final token = data['access_token'];
+          print('AuthService - Token reçu: $token');
+
+          // Ajouter un log pour la structure du token
+          print('AuthService - Structure du token brut: ${token.split('.')}');
+
+          // Vérifier que le token est un JWT valide en essayant de le décoder
+          try {
+            final decodedToken = JwtDecoder.decode(token);
+            print('AuthService - Token décodé: $decodedToken');
+            print(
+              'AuthService - Clés disponibles dans le token: ${decodedToken.keys.join(', ')}',
+            );
+
+            // Récupérer les informations de l'utilisateur depuis le backend
+            final userEmail = decodedToken['sub'];
+            final userResponse = await http.get(
+              Uri.parse('$baseUrl/users/usermininfo/$userEmail'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
+            );
+
+            if (userResponse.statusCode != 200) {
+              print('AuthService - Erreur lors de la récupération des données utilisateur: ${userResponse.statusCode}');
+              throw Exception('Erreur lors de la récupération des données utilisateur');
+            }
+
+            final userInfo = json.decode(userResponse.body);
+            print('AuthService - Informations utilisateur reçues: $userInfo');
+
+            // Extraire toutes les informations de l'utilisateur depuis la réponse
+            final userData = {
+              'id': userInfo['id'],
+              'email': userInfo['email'] ?? decodedToken['sub'],
+              'firstname': userInfo['firstname']?.toString() ?? '',
+              'lastname': userInfo['lastname']?.toString() ?? '',
+              'role': userInfo['role']?.toString() ?? 'USER',
+              'image': userInfo['image']?.toString(),
+              'job': userInfo['job']?.toString(),
+              'birthday': userInfo['birthday']?.toString(),
+              'phone': userInfo['phone']?.toString(),
+              'address': userInfo['address']?.toString(),
+            };
+
+            print('AuthService - Données utilisateur préparées: $userData');
+
+            try {
+              // Créer l'utilisateur avec toutes les données du token
+              final user = User.fromJson(userData);
+              print('AuthService - Utilisateur créé avec ID: ${user.id}');
+
+              // Sauvegarder le token
+              await _storageService.saveAuthToken(token);
+              print('AuthService - Token sauvegardé');
+
+              // Sauvegarder les données de l'utilisateur
+              await _storageService.saveUserSession(userData);
+              print('AuthService - Session utilisateur sauvegardée');
+
+              return user;
+            } catch (e) {
+              print('Erreur lors de la création de l\'utilisateur: $e');
+              print('AuthService - Données qui ont causé l\'erreur: $userData');
+              throw Exception(
+                'Erreur lors de la création de l\'utilisateur: $e',
+              );
+            }
+          } catch (e) {
+            print('Erreur lors de la validation du token: $e');
+            print('AuthService - Token qui a causé l\'erreur: $token');
+            throw Exception('Token invalide ou malformé: $e');
+          }
         } catch (e) {
           print('Erreur lors du parsing de la réponse: $e');
-          throw Exception('Format de réponse invalide');
+          throw Exception('Format de réponse invalide: $e');
         }
       } else if (response.statusCode == 401) {
+        print('AuthService - Erreur 401: Email ou mot de passe incorrect');
         throw Exception('Email ou mot de passe incorrect');
       } else if (response.statusCode == 404) {
+        print('AuthService - Erreur 404: Utilisateur non trouvé');
         throw Exception('Utilisateur non trouvé');
       } else {
+        print('AuthService - Erreur serveur: ${response.statusCode}');
         throw Exception(
           'Erreur serveur: ${response.statusCode} - ${response.body}',
         );
@@ -87,7 +158,7 @@ class AuthService {
       if (response.statusCode != 200) {
         throw Exception('Erreur lors de la déconnexion');
       }
-      
+
       // Nettoyer les données de session
       await _storageService.clearSession();
     } catch (e) {
