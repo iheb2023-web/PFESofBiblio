@@ -60,7 +60,6 @@ class ProfilePage extends GetView<AuthController> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       await controller.logout();
-                      Get.offAll(() => const LoginPage());
                     },
                     icon: const Icon(Icons.logout, color: Colors.white),
                     label: Text(
