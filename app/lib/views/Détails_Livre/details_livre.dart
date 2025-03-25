@@ -3,8 +3,6 @@ import 'package:app/views/Emprunter/emprunter_livre.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
-
 class DetailsLivre extends StatefulWidget {
   final Book book;
 
@@ -183,8 +181,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: DecorationImage(
-                              image: AssetImage(widget.book.coverUrl),
+                              image: NetworkImage(widget.book.coverUrl),
                               fit: BoxFit.cover,
+                              onError: (exception, stackTrace) => const Icon(Icons.book),
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -194,6 +193,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                               ),
                             ],
                           ),
+                          child: widget.book.coverUrl.isEmpty
+                            ? const Center(child: Icon(Icons.book, size: 50))
+                            : null,
                         ),
                       );
                     },
@@ -269,8 +271,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 image: DecorationImage(
-                                  image: AssetImage(widget.book.coverUrl),
+                                  image: NetworkImage(widget.book.coverUrl),
                                   fit: BoxFit.cover,
+                                  onError: (exception, stackTrace) => const Icon(Icons.book),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -280,6 +283,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                                   ),
                                 ],
                               ),
+                              child: widget.book.coverUrl.isEmpty
+                                ? const Center(child: Icon(Icons.book, size: 50))
+                                : null,
                             ),
                           ),
                           Positioned(
@@ -506,38 +512,36 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
     required String title,
     required String value,
   }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.blue),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey[600], size: 20),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

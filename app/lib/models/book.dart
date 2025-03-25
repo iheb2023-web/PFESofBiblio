@@ -1,4 +1,5 @@
 class Book {
+  final int? id;
   final String title;
   final String author;
   final String description;
@@ -15,6 +16,7 @@ class Book {
   final int? ownerId;
 
   Book({
+    this.id,
     required this.title,
     required this.author,
     required this.description,
@@ -37,6 +39,7 @@ class Book {
     final ownerId = ownerJson != null ? ownerJson['id'] as int? : json['ownerId'] as int?;
     
     return Book(
+      id: json['id'] as int?,
       title: json['title'] ?? '',
       author: json['author'] ?? '',
       description: json['description'] ?? '',
@@ -57,6 +60,7 @@ class Book {
   // Conversion de l'objet Book en JSON
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'title': title,
       'author': author,
       'description': description,
@@ -76,6 +80,7 @@ class Book {
 
   // Copie d'un objet Book avec modification possible de certains champs
   Book copyWith({
+    int? id,
     String? title,
     String? author,
     String? description,
@@ -92,6 +97,7 @@ class Book {
     int? ownerId,
   }) {
     return Book(
+      id: id ?? this.id,
       title: title ?? this.title,
       author: author ?? this.author,
       description: description ?? this.description,
