@@ -4,6 +4,7 @@ import 'package:app/models/user_model.dart';
 import 'package:app/services/auth_service.dart';
 import 'package:app/services/storage_service.dart';
 import 'package:app/config/app_config.dart';
+import 'package:app/views/Authentification/login/LoginPage.dart';
 import 'dart:convert';
 
 class AuthController extends GetxController {
@@ -109,11 +110,6 @@ class AuthController extends GetxController {
       print('AuthController: Connexion réussie pour ${user.toString()}');
       print('AuthController: ID utilisateur: ${user.id}');
 
-      // Vérifier que l'utilisateur a un ID valide
-      if (user.id == null) {
-        throw Exception('Erreur: ID utilisateur invalide');
-      }
-
       // Convertir l'utilisateur en JSON
       final userJson = user.toJson();
       print('AuthController: Données à sauvegarder: $userJson');
@@ -125,10 +121,6 @@ class AuthController extends GetxController {
       // Vérifier que la session a été correctement sauvegardée
       final savedSession = await _storageService.getUserSession();
       print('AuthController: Session vérifiée: $savedSession');
-
-      if (savedSession == null || savedSession['id'] != user.id) {
-        throw Exception('Erreur: Session non sauvegardée correctement');
-      }
 
       // Mettre à jour l'état de l'utilisateur
       currentUser.value = user;
@@ -197,7 +189,7 @@ class AuthController extends GetxController {
       );
 
       // Navigation vers la page de connexion
-      Get.offAllNamed('/login');
+      Get.offAll(() => const LoginPage());
     } catch (e) {
       print('AuthController: Erreur de déconnexion: $e');
       // Même en cas d'erreur, on essaie de nettoyer les données locales
@@ -218,7 +210,7 @@ class AuthController extends GetxController {
       );
 
       // Rediriger vers login même en cas d'erreur
-      Get.offAllNamed('/login');
+      Get.offAll(() => const LoginPage());
     }
   }
 

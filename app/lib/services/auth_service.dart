@@ -6,8 +6,11 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   static final StorageService _storageService = StorageService();
-  // Utiliser l'adresse IP de votre machine au lieu de localhost
-  static const String baseUrl = 'http://10.0.2.2:8080';
+  // URL du serveur backend - à configurer selon l'environnement
+  static const String baseUrl =
+      'http://10.0.2.2:8080'; // Pour l'émulateur Android
+  // static const String baseUrl = 'http://localhost:8080';  // Pour iOS
+  // static const String baseUrl = 'http://192.168.1.xxx:8080';  // Pour appareil physique Android (remplacer xxx par votre IP)
 
   static Future<Map<String, String>> getHeaders() async {
     final token = await _storageService.getAuthToken();
@@ -20,16 +23,20 @@ class AuthService {
 
   Future<User> login(String email, String password) async {
     try {
-      print('Tentative de connexion avec email: $email');
+      print('AuthService: Tentative de connexion avec email: $email');
+      print('AuthService: URL du serveur: $baseUrl');
+
+      final headers = await getHeaders();
+      print('AuthService: Headers de la requête: $headers');
 
       final response = await http.post(
         Uri.parse('$baseUrl/users/login'),
-        headers: await getHeaders(),
+        headers: headers,
         body: json.encode({'email': email, 'password': password}),
       );
 
-      print('Réponse du serveur: ${response.statusCode}');
-      print('Corps de la réponse: ${response.body}');
+      print('AuthService: Réponse du serveur: ${response.statusCode}');
+      print('AuthService: Corps de la réponse: ${response.body}');
 
       if (response.statusCode == 200) {
         try {
@@ -49,30 +56,34 @@ class AuthService {
           final token = data['access_token'];
           print('AuthService - Token reçu: $token');
 
-          // Ajouter un log pour la structure du token
-          print('AuthService - Structure du token brut: ${token.split('.')}');
-
-          // Vérifier que le token est un JWT valide en essayant de le décoder
           try {
-            final decodedToken = JwtDecoder.decode(token);
-            print('AuthService - Token décodé: $decodedToken');
-            print(
-              'AuthService - Clés disponibles dans le token: ${decodedToken.keys.join(', ')}',
-            );
+            // Sauvegarder le token avant de récupérer les informations utilisateur
+            await _storageService.saveAuthToken(token);
+            print('AuthService - Token sauvegardé');
 
             // Récupérer les informations de l'utilisateur depuis le backend
-            final userEmail = decodedToken['sub'];
             final userResponse = await http.get(
-              Uri.parse('$baseUrl/users/usermininfo/$userEmail'),
+              Uri.parse('$baseUrl/users/usermininfo/$email'),
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer $token',
               },
             );
 
+            print(
+              'AuthService - Réponse utilisateur: ${userResponse.statusCode}',
+            );
+            print(
+              'AuthService - Corps de la réponse utilisateur: ${userResponse.body}',
+            );
+
             if (userResponse.statusCode != 200) {
-              print('AuthService - Erreur lors de la récupération des données utilisateur: ${userResponse.statusCode}');
-              throw Exception('Erreur lors de la récupération des données utilisateur');
+              print(
+                'AuthService - Erreur lors de la récupération des données utilisateur: ${userResponse.statusCode}',
+              );
+              throw Exception(
+                'Erreur lors de la récupération des données utilisateur',
+              );
             }
 
             final userInfo = json.decode(userResponse.body);
@@ -81,7 +92,7 @@ class AuthService {
             // Extraire toutes les informations de l'utilisateur depuis la réponse
             final userData = {
               'id': userInfo['id'],
-              'email': userInfo['email'] ?? decodedToken['sub'],
+              'email': userInfo['email'] ?? email,
               'firstname': userInfo['firstname']?.toString() ?? '',
               'lastname': userInfo['lastname']?.toString() ?? '',
               'role': userInfo['role']?.toString() ?? 'USER',
@@ -95,13 +106,9 @@ class AuthService {
             print('AuthService - Données utilisateur préparées: $userData');
 
             try {
-              // Créer l'utilisateur avec toutes les données du token
+              // Créer l'utilisateur avec toutes les données
               final user = User.fromJson(userData);
               print('AuthService - Utilisateur créé avec ID: ${user.id}');
-
-              // Sauvegarder le token
-              await _storageService.saveAuthToken(token);
-              print('AuthService - Token sauvegardé');
 
               // Sauvegarder les données de l'utilisateur
               await _storageService.saveUserSession(userData);
@@ -150,18 +157,30 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/users/logout'),
-        headers: await getHeaders(),
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Erreur lors de la déconnexion');
-      }
-
-      // Nettoyer les données de session
+      // Nettoyer d'abord les données locales
       await _storageService.clearSession();
+
+      // Ensuite, essayer de notifier le serveur si possible
+      try {
+        final response = await http.post(
+          Uri.parse('$baseUrl/users/logout'),
+          headers: await getHeaders(),
+        );
+
+        if (response.statusCode != 200) {
+          print(
+            'AuthService: Erreur lors de la déconnexion côté serveur: ${response.statusCode}',
+          );
+        }
+      } catch (e) {
+        print(
+          'AuthService: Erreur lors de la notification de déconnexion au serveur: $e',
+        );
+        // On continue même si la notification au serveur échoue
+      }
     } catch (e) {
+      print('AuthService: Erreur lors de la déconnexion: $e');
+      // On propage l'erreur pour que le contrôleur puisse la gérer
       throw Exception('Erreur lors de la déconnexion: $e');
     }
   }

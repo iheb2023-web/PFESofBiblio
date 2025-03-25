@@ -29,18 +29,30 @@ class BookService {
   // Get books by user
   static Future<List<Book>> getBooksByUser(int userId) async {
     try {
+      print('BookService: Récupération des livres pour l\'utilisateur $userId');
+      final headers = await AuthService.getHeaders();
+      print('BookService: Headers de la requête: $headers');
+      
+      final url = '$baseUrl/user/$userId';
+      print('BookService: URL de la requête: $url');
+      
       final response = await http.get(
-        Uri.parse('$baseUrl/user/$userId'),
-        headers: await AuthService.getHeaders(),
+        Uri.parse(url),
+        headers: headers,
       );
+
+      print('BookService: Status code de la réponse: ${response.statusCode}');
+      print('BookService: Corps de la réponse: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Book.fromJson(json)).toList();
+        final books = data.map((json) => Book.fromJson(json)).toList();
+        print('BookService: ${books.length} livres récupérés');
+        return books;
       }
-      throw Exception('Failed to load user books');
+      throw Exception('Échec du chargement des livres: ${response.statusCode}');
     } catch (e) {
-      print('Error getting user books: $e');
+      print('BookService: Erreur lors de la récupération des livres: $e');
       return [];
     }
   }
