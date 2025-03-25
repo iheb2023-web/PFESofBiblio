@@ -4,6 +4,7 @@ import 'package:app/models/user_model.dart';
 import 'package:app/services/auth_service.dart';
 import 'package:app/services/storage_service.dart';
 import 'package:app/config/app_config.dart';
+import 'dart:convert';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();
@@ -23,20 +24,26 @@ class AuthController extends GetxController {
 
   Future<void> checkAuthStatus() async {
     try {
+      isLoading.value = true;
       final userData = await _storageService.getUserSession();
-      print('AuthController: Vérification du statut d\'authentification');
+      print('AuthController: Données de session: $userData');
       
       if (userData != null) {
         final user = User.fromJson(userData);
-        print('AuthController: Utilisateur chargé: ${user.toString()}');
+        print('AuthController: Utilisateur créé avec ID: ${user.id}');
         currentUser.value = user;
-        update(); // Notifier GetX du changement
+        update();
       } else {
         print('AuthController: Aucune session utilisateur trouvée');
+        currentUser.value = null;
+        update();
       }
     } catch (e) {
       print('AuthController: Erreur lors de la vérification du statut: $e');
-      errorMessage.value = 'Erreur lors de la vérification de la session';
+      currentUser.value = null;
+      update();
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -48,13 +55,22 @@ class AuthController extends GetxController {
 
       final user = await _authService.login(email, password);
       print('AuthController: Connexion réussie pour ${user.toString()}');
+      print('AuthController: ID utilisateur: ${user.id}');
+      
+      // Convertir l'utilisateur en JSON
+      final userJson = user.toJson();
+      print('AuthController: Données à sauvegarder: $userJson');
+      
+      // Sauvegarder la session
+      await _storageService.saveUserSession(userJson);
+      
+      // Sauvegarder l'utilisateur complet
+      await _storageService.saveUser(json.encode(userJson));
       
       currentUser.value = user;
       update(); // Notifier GetX du changement
 
-      // Sauvegarder la session
-      await _storageService.saveUserSession(user.toJson());
-      print('AuthController: Session sauvegardée');
+      print('AuthController: Session et utilisateur sauvegardés');
       
       Get.snackbar(
         'Succès',
@@ -73,7 +89,6 @@ class AuthController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      rethrow;
     } finally {
       isLoading.value = false;
     }
@@ -82,14 +97,16 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     try {
       print('AuthController: Déconnexion en cours');
-      await _authService.logout();
+      // S'assurer que le service de stockage est initialisé
+      await _storageService.init();
+      // D'abord effacer les données locales
       await _storageService.clearSession();
+      // Ensuite appeler le service de déconnexion
+      await _authService.logout();
       currentUser.value = null;
       update(); // Notifier GetX du changement
       print('AuthController: Déconnexion réussie');
-      // Supprimer les informations stockées si nécessaire
-      // await storage.delete(key: 'user');
-      // message de succès est affiché
+
       Get.snackbar(
         'Succès',
         'Déconnexion réussie',
@@ -102,7 +119,13 @@ class AuthController extends GetxController {
       Get.offAllNamed('/login');
     } catch (e) {
       print('AuthController: Erreur de déconnexion: $e');
-      errorMessage.value = 'Erreur lors de la déconnexion';
+      // Même en cas d'erreur, on essaie de nettoyer les données locales
+      try {
+        await _storageService.clearSession();
+      } catch (storageError) {
+        print('AuthController: Erreur supplémentaire lors du nettoyage: $storageError');
+      }
+      
       Get.snackbar(
         'Erreur',
         'Erreur lors de la déconnexion',
@@ -110,6 +133,9 @@ class AuthController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+      
+      // Rediriger vers login même en cas d'erreur
+      Get.offAllNamed('/login');
     }
   }
 
@@ -174,10 +200,24 @@ class AuthController extends GetxController {
 
   Future<void> refreshUserProfile() async {
     try {
+      isLoading.value = true;
       final user = await _authService.getCurrentUser();
       currentUser.value = user;
+      // Mettre à jour la session stockée
+      if (user != null) {
+        await _storageService.saveUserSession(user.toJson());
+      }
     } catch (e) {
       print('Error refreshing user profile: $e');
+      Get.snackbar(
+        'Erreur',
+        'Impossible de rafraîchir le profil',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 

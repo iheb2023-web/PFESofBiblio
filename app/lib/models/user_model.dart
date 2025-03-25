@@ -35,8 +35,10 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     try {
+      print('User.fromJson - raw id: ${json['id']} (${json['id'].runtimeType})'); // Debug log
       return User(
-        id: json['id'] != null ? int.parse(json['id'].toString()) : null,
+        id: json['id'] is int ? json['id'] : 
+            json['id'] != null ? int.tryParse(json['id'].toString()) : null,
         firstname: json['firstname']?.toString() ?? '',
         lastname: json['lastname']?.toString() ?? '',
         email: json['email']?.toString() ?? '',

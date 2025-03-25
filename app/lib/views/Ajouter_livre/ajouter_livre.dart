@@ -499,7 +499,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         category: categoryController.text.trim(),
         pageCount: int.tryParse(pageCountController.text) ?? 0,
         language: languageController.text.trim(),
-        ownerId: user.id,
+        ownerId: user?.id,  
         isAvailable: true,
         rating: 0,
         borrowCount: 0,
@@ -508,43 +508,45 @@ class _AddBookScreenState extends State<AddBookScreen> {
       print('Tentative d\'ajout du livre:');
       print('Données du livre: ${book.toJson()}');
       
-      final success = await ApiService.addBook(book, user.id);
-      
-      if (success) {
-        // Effacer tous les champs du formulaire
-        titleController.clear();
-        authorController.clear();
-        descriptionController.clear();
-        isbnController.clear();
-        categoryController.clear();
-        pageCountController.clear();
-        languageController.clear();
-        durationController.text = '7 jours';
+      if (user?.id != null) {  
+        final success = await ApiService.addBook(book, user!.id);
         
-        setState(() {
-          selectedDate = null;
-          bookData = null;
-        });
+        if (success) {
+          // Effacer tous les champs du formulaire
+          titleController.clear();
+          authorController.clear();
+          descriptionController.clear();
+          isbnController.clear();
+          categoryController.clear();
+          pageCountController.clear();
+          languageController.clear();
+          durationController.text = '7 jours';
+        
+          setState(() {
+            selectedDate = null;
+            bookData = null;
+          });
 
-        Get.snackbar(
-          'Succès',
-          'Le livre a été ajouté avec succès',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 2),
-        );
+          Get.snackbar(
+            'Succès',
+            'Le livre a été ajouté avec succès',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+          );
 
-        await Future.delayed(const Duration(seconds: 2));
-        if (mounted) Get.back();
-      } else {
-        Get.snackbar(
-          'Erreur',
-          'Une erreur est survenue lors de l\'ajout du livre',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) Get.back();
+        } else {
+          Get.snackbar(
+            'Erreur',
+            'Une erreur est survenue lors de l\'ajout du livre',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
       }
     } catch (e, stackTrace) {
       print('Erreur lors de l\'ajout du livre: $e');

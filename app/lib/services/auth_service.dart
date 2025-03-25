@@ -4,11 +4,11 @@ import 'package:app/models/user_model.dart';
 import 'package:app/services/storage_service.dart';
 
 class AuthService {
-  final StorageService _storageService = StorageService();
+  static final StorageService _storageService = StorageService();
   // Utiliser l'adresse IP de votre machine au lieu de localhost
   static const String baseUrl = 'http://10.0.2.2:8080';
 
-  Future<Map<String, String>> _getAuthHeaders() async {
+  static Future<Map<String, String>> getHeaders() async {
     final token = await _storageService.getAuthToken();
     return {
       'Content-Type': 'application/json',
@@ -23,10 +23,7 @@ class AuthService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/users/login'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await getHeaders(),
         body: json.encode({'email': email, 'password': password}),
       );
 
@@ -39,7 +36,22 @@ class AuthService {
           if (data == null) {
             throw Exception('Réponse vide du serveur');
           }
-          return User.fromJson(data);
+          
+          print('AuthService - données reçues: $data'); // Debug log
+          
+          // Créer l'utilisateur avant de sauvegarder la session
+          final user = User.fromJson(data);
+          print('AuthService - utilisateur créé avec ID: ${user.id}'); // Debug log
+          
+          // Sauvegarder les données de l'utilisateur
+          await _storageService.saveUserSession(data);
+          
+          // Sauvegarder le token
+          if (data['token'] != null) {
+            await _storageService.saveAuthToken(data['token']);
+          }
+          
+          return user;
         } catch (e) {
           print('Erreur lors du parsing de la réponse: $e');
           throw Exception('Format de réponse invalide');
@@ -69,15 +81,15 @@ class AuthService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/users/logout'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await getHeaders(),
       );
 
       if (response.statusCode != 200) {
         throw Exception('Erreur lors de la déconnexion');
       }
+      
+      // Nettoyer les données de session
+      await _storageService.clearSession();
     } catch (e) {
       throw Exception('Erreur lors de la déconnexion: $e');
     }
@@ -89,10 +101,7 @@ class AuthService {
 
       final response = await http.post(
         Uri.parse('$baseUrl/password-reset/request'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: await getHeaders(),
         body: json.encode({'email': email}),
       );
 
@@ -122,7 +131,7 @@ class AuthService {
 
   Future<User> getCurrentUser() async {
     try {
-      final headers = await _getAuthHeaders();
+      final headers = await getHeaders();
       final response = await http.get(
         Uri.parse('$baseUrl/users/me'),
         headers: headers,
@@ -143,7 +152,7 @@ class AuthService {
 
   Future<User> updateProfile(int userId, Map<String, dynamic> userData) async {
     try {
-      final headers = await _getAuthHeaders();
+      final headers = await getHeaders();
       final response = await http.patch(
         Uri.parse('$baseUrl/users/$userId'),
         headers: headers,

@@ -5,6 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:app/views/Détails_Livre/details_livre.dart';
 import 'package:app/controllers/theme_controller.dart';
 import 'package:app/theme/app_theme.dart';
+import 'package:app/controllers/book_controller.dart';
 
 // Déplacer la classe Member au niveau supérieur, avant AccueilPage
 class Member {
@@ -32,6 +33,7 @@ class _AccueilPageState extends State<AccueilPage>
   ];
 
   String? selectedCategory;
+  final BookController _bookController = Get.find<BookController>();
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -45,57 +47,10 @@ class _AccueilPageState extends State<AccueilPage>
     (index) => Member(
       'Membre ${index + 1}',
       (10 - index) * 5,
-    ), // Nombre de prêts décroissant
+    ),
   )..sort(
     (a, b) => b.loans.compareTo(a.loans),
-  ); // Tri par nombre de prêts décroissant
-
-  // Liste des livres avec leurs détails
-  final List<Book> books = [
-    Book(
-      title: "Le Petit Prince",
-      author: "Antoine de Saint-Exupéry",
-      coverUrl: "assets/images/couverture1.png",
-      rating: 5,
-      description:
-          "Un conte poétique qui aborde les thèmes de l'amour et l'amitié.",
-      category: "Fiction",
-      pageCount: 96,
-      borrowCount: 24,
-      isAvailable: true,
-      publishedDate: "2020-01-01",
-      isbn: "978-3-16-148410-0",
-      language: "fr",
-    ),
-    Book(
-      title: "Harry Potter",
-      author: "J.K. Rowling",
-      coverUrl: "assets/images/couverture2.png",
-      rating: 4,
-      description: "L'histoire d'un jeune sorcier découvrant son destin.",
-      category: "Fantasy",
-      pageCount: 320,
-      borrowCount: 18,
-      isAvailable: true,
-      publishedDate: "2020-01-01",
-      isbn: "978-3-16-148410-0",
-      language: "fr",
-    ),
-    Book(
-      title: "Le Seigneur des Anneaux",
-      author: "J.R.R. Tolkien",
-      coverUrl: "assets/images/couverture3.png",
-      rating: 5,
-      description: "Une épopée fantastique dans un monde imaginaire.",
-      category: "Fantasy",
-      pageCount: 576,
-      borrowCount: 15,
-      isAvailable: false,
-      publishedDate: "2020-01-01",
-      isbn: "978-3-16-148410-0",
-      language: "fr",
-    ),
-  ];
+  );
 
   @override
   void initState() {
@@ -111,6 +66,9 @@ class _AccueilPageState extends State<AccueilPage>
         curve: Curves.easeInOut,
       ),
     );
+
+    // Load books when the page is initialized
+    _bookController.loadAllBooks();
   }
 
   @override
@@ -191,7 +149,7 @@ class _AccueilPageState extends State<AccueilPage>
                 ),
               ),
               SizedBox(
-                height: 120, // Augmenté pour accommoder le texte supplémentaire
+                height: 120,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: members.length,
@@ -363,161 +321,70 @@ class _AccueilPageState extends State<AccueilPage>
   }
 
   Widget _buildBookSection(String title) {
-    if (title == 'new_arrivals'.tr) {
+    List<Book> sectionBooks = [];
+    
+    // Select the appropriate book list based on the section title
+    if (title == 'popular_books'.tr) {
+      sectionBooks = _bookController.popularBooks;
+    } else if (title == 'recommended'.tr) {
+      sectionBooks = _bookController.recommendedBooks;
+    } else if (title == 'new_arrivals'.tr) {
+      sectionBooks = _bookController.newBooks;
+    }
+
+    return Obx(() {
+      if (_bookController.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (_bookController.error.value.isNotEmpty) {
+        return Center(
+          child: Text(
+            _bookController.error.value,
+            style: const TextStyle(color: Colors.red),
+          ),
+        );
+      }
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: books.length,
-            padding: EdgeInsets.zero,
-            itemBuilder: (context, index) {
-              final book = books[index];
-              return GestureDetector(
-                onTap: () => Get.to(() => DetailsLivre(book: book)),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        // Image de couverture
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            book.coverUrl,
-                            height: 120,
-                            width: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Informations du livre
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.title,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                book.author,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.people_outline,
-                                    size: 16,
-                                    color: Colors.blue,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'borrowed_times'.trParams({'count': '${book.borrowCount}'}),
-                                    style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: book.isAvailable ? () {} : null,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                      ),
-                                      minimumSize: const Size(120, 36),
-                                    ),
-                                    child: Text(
-                                      book.isAvailable ? 'borrow'.tr : 'unavailable'.tr,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              );
-            },
-          ),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                TextButton(
+                  onPressed: () {
+                    // Handle view all action
+                  },
+                  child: Text('view_all'.tr),
+                ),
+              ],
             ),
           ),
-          SizedBox(
-            height: 220, // Augmenté pour plus d'espace
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: books.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+          if (title == 'new_arrivals'.tr)
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: sectionBooks.length,
+              padding: EdgeInsets.zero,
               itemBuilder: (context, index) {
-                final book = books[index];
+                final book = sectionBooks[index];
                 return GestureDetector(
                   onTap: () => Get.to(() => DetailsLivre(book: book)),
                   child: Container(
-                    width: 140, // Augmenté pour plus d'espace
-                    margin: const EdgeInsets.only(right: 16),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
                       color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withOpacity(0.2),
@@ -527,56 +394,177 @@ class _AccueilPageState extends State<AccueilPage>
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(10),
-                          ),
-                          child: Image.asset(
-                            book.coverUrl,
-                            height: 140,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          // Image de couverture
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              book.coverUrl,
+                              height: 120,
+                              width: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  height: 120,
+                                  width: 80,
+                                  color: Colors.grey[200],
+                                  child: const Icon(Icons.book),
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                book.author,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          // Informations du livre
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  book.title,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  book.author,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.people_outline,
+                                      size: 16,
+                                      color: Colors.blue,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'borrowed_times'.trParams({'count': '${book.borrowCount}'}),
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: book.isAvailable ? () {} : null,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                        ),
+                                        minimumSize: const Size(120, 36),
+                                      ),
+                                      child: Text(
+                                        book.isAvailable ? 'borrow'.tr : 'unavailable'.tr,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
+            )
+          else
+            SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: sectionBooks.length,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemBuilder: (context, index) {
+                  final book = sectionBooks[index];
+                  return GestureDetector(
+                    onTap: () => Get.to(() => DetailsLivre(book: book)),
+                    child: Container(
+                      width: 160,
+                      margin: const EdgeInsets.only(right: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              book.coverUrl,
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    height: 200,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.book,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            book.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            book.author,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star,
+                                size: 16,
+                                color: Colors.amber[700],
+                              ),
+                              Text(' ${book.rating}/5'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
         ],
       );
-    }
+    });
   }
 }

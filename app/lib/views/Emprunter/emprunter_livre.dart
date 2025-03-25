@@ -64,11 +64,18 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                             // Couverture du livre
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.asset(
+                              child: Image.network(
                                 widget.book.coverUrl,
                                 height: 120,
                                 width: 80,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    height: 120,
+                                    width: 80,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.book),
+                                  ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -455,6 +462,12 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
               dateEmprunt != null && isSameDay(currentDate, dateEmprunt) ||
               dateRetour != null && isSameDay(currentDate, dateRetour);
           final isAvailable = _availabilityMap[currentDate] ?? true;
+          
+          // Check if the current date is between start and end dates
+          final isBetweenDates = dateEmprunt != null && 
+              dateRetour != null && 
+              currentDate.isAfter(dateEmprunt!) && 
+              currentDate.isBefore(dateRetour!);
 
           days.add(
             GestureDetector(
@@ -478,7 +491,7 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                 height: 30,
                 decoration: BoxDecoration(
                   color:
-                      isSelected
+                      isSelected || isBetweenDates
                           ? Colors.blue
                           : isAvailable
                           ? Colors.green[100]
@@ -490,7 +503,7 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                     dayCounter.toString(),
                     style: TextStyle(
                       color:
-                          isSelected
+                          isSelected || isBetweenDates
                               ? Colors.white
                               : isAvailable
                               ? Colors.black

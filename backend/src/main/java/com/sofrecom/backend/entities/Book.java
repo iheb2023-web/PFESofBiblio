@@ -19,6 +19,7 @@ public class Book {
 
     private String title;
     private String author;
+    @Column(length = 1000)
     private String description;
     private String coverUrl;
     private String publishedDate;
@@ -32,7 +33,7 @@ public class Book {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "owner_id")  
+    @JoinColumn(name = "owner_id")
     private User owner;
 
 
