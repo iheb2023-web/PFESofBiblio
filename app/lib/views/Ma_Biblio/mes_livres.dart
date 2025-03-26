@@ -6,6 +6,7 @@ import 'package:app/theme/app_theme.dart';
 import 'package:app/models/book.dart';
 import 'package:app/services/book_service.dart';
 import 'package:app/services/storage_service.dart';
+import 'package:app/views/Ma_Biblio/mes_demandes.dart';
 
 class MesLivresController extends GetxController {
   var books = <Book>[].obs;
@@ -111,6 +112,9 @@ class MesLivresPage extends GetView<ThemeController> {
     return GetBuilder<ThemeController>(
       builder:
           (themeController) => Scaffold(
+            appBar: AppBar(
+              elevation: 0,
+            ),
             body: RefreshIndicator(
               onRefresh: () => bookController.refreshBooks(),
               child: Obx(() {
@@ -258,7 +262,7 @@ class MesLivresPage extends GetView<ThemeController> {
                 ),
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: () {}, // Static for now
+                  onPressed: () => Get.to(() => MesDemandesPage()),
                   icon: const Icon(
                     Icons.visibility_outlined,
                     size: 16,

@@ -8,6 +8,8 @@ import 'package:app/translations/app_translations.dart';
 import 'package:app/services/storage_service.dart';
 import 'package:app/views/NavigationMenu.dart';
 import 'package:app/bindings/app_binding.dart';
+import 'package:app/views/Ma_Biblio/mes_demandes.dart';
+import 'package:app/views/Ma_Biblio/demande_emprunt.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +43,16 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: '/home', page: () => const NavigationMenu()),
         GetPage(name: '/onboarding', page: () => const Onboardingscreen()),
+        GetPage(
+          name: '/demande-emprunt',
+          page: () => DemandeEmpruntPage(),
+          transition: Transition.rightToLeft,
+        ),
+        GetPage(
+          name: '/mes-demandes',
+          page: () => MesDemandesPage(),
+          transition: Transition.rightToLeft,
+        ),
       ],
       home: Obx(() => authController.currentUser.value != null 
           ? const NavigationMenu()
