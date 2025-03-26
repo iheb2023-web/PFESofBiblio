@@ -10,6 +10,11 @@ import { AddBookComponent } from './add-book/add-book.component';
 import {  HttpClientModule } from '@angular/common/http';
 import { BookDetailsComponent } from './book-details/book-details.component';
 import { MyBooksComponent } from './my-books/my-books.component';
+import { BookReservationComponent } from './book-reservation/book-reservation.component';
+import { NavigationsComponent } from './navigations/navigations.component';
+import { DemandesComponent } from './demandes/demandes.component';
+import { LibraryComponent } from './library/library.component';
+import { RequestsComponent } from './requests/requests.component';
 
 
 @NgModule({
@@ -18,7 +23,12 @@ import { MyBooksComponent } from './my-books/my-books.component';
     BookGridComponent,
     AddBookComponent,
     BookDetailsComponent,
-    MyBooksComponent
+    MyBooksComponent,
+    BookReservationComponent,
+    NavigationsComponent,
+    DemandesComponent,
+    LibraryComponent,
+    RequestsComponent
   ],
   imports: [
     CommonModule,

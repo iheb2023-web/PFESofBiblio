@@ -21,9 +21,9 @@ public class BorrowController {
     }
 
     @PostMapping()
-    public Borrow borrowBook(@RequestBody Borrow borrow)
+    public void borrowBook(@RequestBody Borrow borrow)
     {
-        return this.borrowService.borrowBook(borrow);
+        this.borrowService.borrowBook(borrow);
     }
 
     @GetMapping("/{id}")
@@ -36,6 +36,18 @@ public class BorrowController {
     {
         boolean approved = Boolean.parseBoolean(isApproved);
         return this.borrowService.processBorrowRequest(borrow,approved);
+    }
+
+    @GetMapping("/demands/{email}")
+    public List<Borrow>  getBorrowDemandsByUserEmail(@PathVariable String email) {
+        return this.borrowService.getBorrowDemandsByUserEmail(email);
+    }
+
+
+
+    @GetMapping("/requests/{email}")
+    public List<Borrow>  getBorrowRequestsByUserEmail(@PathVariable String email) {
+        return this.borrowService.getBorrowRequestsByUserEmail(email);
     }
 
 }

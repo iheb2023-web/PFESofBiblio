@@ -17,13 +17,13 @@
           <ul class="nav nav-pills nav-pills-dark" id="tour-pills-tab" role="tablist">
             <!-- Tab item -->
             <li class="nav-item">
-              <a class="nav-link rounded-start rounded-0 mb-0" href="hotel-list.html"><i class="bi fa-fw bi-list-ul"></i></a>
+                <a class="nav-link rounded-start rounded-0 mb-0 "  routerLink="/home/books"><i class="bi fa-fw bi-list-ul"></i></a>
             </li>
             <!-- Tab item -->
             <li class="nav-item">
-              <a class="nav-link rounded-end rounded-0 mb-0 active" href="hotel-grid.html"><i class="bi fa-fw bi-grid-fill"></i></a>
+                <a class="nav-link rounded-end rounded-0 mb-0" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"  routerLink="/home/books/grid"><i class="bi fa-fw bi-grid-fill"></i></a>
             </li>
-          </ul>
+        </ul>
 				</div>
 				<!-- Meta END -->
 			</div>
@@ -341,7 +341,7 @@
                    
                         <!-- Button -->
                         <div class="mt-2 mt-sm-0">
-                          <a  class="btn btn-sm btn-primary-soft mb-0 w-100">
+                          <a [routerLink]="['/home/books/details', book.id]"  class="btn btn-sm btn-primary-soft mb-0 w-100">
                             View Details <i class="bi bi-arrow-right ms-2"></i>
                           </a>
                         </div>

@@ -21,6 +21,11 @@ export class BookService {
     return this.http.get<any>(this.URL);
   }
   
+  getBookById(id : any)
+  {
+    return this.http.get(this.URL + `/${id}`)
+  }
+
   searchBooks(query: string): Observable<Book[]> {
     return this.http.get<any>(`${this.apiUrl}${query}`).pipe(
       map(response => {

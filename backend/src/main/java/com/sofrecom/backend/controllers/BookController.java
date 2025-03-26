@@ -20,6 +20,11 @@ public class BookController {
     private final IBookService bookService;
     private final IUserService userService;
 
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Long id) {
+        return this.bookService.getBookById(id);
+    }
+
     @PostMapping("/add/{email}")
     public Book addNewBook(@RequestBody Book book, @PathVariable String email) {
         return bookService.addNewBook(book,email);
