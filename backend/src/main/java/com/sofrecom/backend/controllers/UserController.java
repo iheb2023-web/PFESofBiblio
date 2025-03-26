@@ -89,6 +89,12 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    @GetMapping("/getIdFromEmail/{email}")
+    public Long getIdFromEmail(@PathVariable String email)
+    {
+        return this.userService.getIdFromEmail(email);
+    }
+
 
 
 

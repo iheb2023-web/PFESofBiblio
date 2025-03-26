@@ -15,4 +15,6 @@ public interface IBookService {
     Book addNewBook(Book book, String email);
 
     Book getBookById(Long id);
+
+    boolean checkOwnerBookByEmail(String email, Long id);
 }

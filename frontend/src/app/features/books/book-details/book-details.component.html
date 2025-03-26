@@ -157,7 +157,9 @@
 				<div class="row g-4">
 
 					<!-- Price summary START -->
-                    <app-book-reservation [bookId]="book.id"></app-book-reservation>
+                    <div *ngIf="!isOwner">
+                        <app-book-reservation [bookId]="book.id"></app-book-reservation>
+                      </div>
 					<!-- Price summary END -->
 
 					

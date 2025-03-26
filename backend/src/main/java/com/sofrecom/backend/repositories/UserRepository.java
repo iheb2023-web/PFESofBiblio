@@ -32,5 +32,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "LOWER(u.lastname) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<UserDto> searchUsers(@Param("searchTerm") String searchTerm);
 
-
+    @Query("SELECT  u.id FROM  User u where u.email = :email")
+    Long findIdByEmail(@Param("email") String email);
 }

@@ -18,4 +18,6 @@ public interface IUserService {
 
     UserUpdateDto getUserById(Long id);
     User findById(Long id);
+
+    Long getIdFromEmail(String email);
 }

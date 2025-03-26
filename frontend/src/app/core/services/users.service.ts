@@ -27,6 +27,10 @@ import { Injectable } from "@angular/core";
         return this._http.get<any>(this.URL, { params });
       }
 
+      getIdFromEmail(email :any )
+      {
+        return this._http.get(this.URL+ `/getIdFromEmail/${email}`)
+      }
       
       getUserMinInfo(email: any){
         return this._http.get<any>(`${this.URL}/usermininfo/${email}`);

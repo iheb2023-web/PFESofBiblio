@@ -15,12 +15,21 @@ export class BookService {
   addBook(book : any, email : any){
     return this.http.post(this.URL+ "/add"+ `/${email}`, book)
   }
+  checkOwnerBookByEmail(email: any, id: any)
+  {
+    return this.http.get(this.URL+ `/checkOwnerBookByEmail/${email}/${id}`)
+  }
 
+  getBooksByOwnerId(id : any)
+  {
+    return this.http.get(this.URL+ `/user/${id}`)
+  }
+  
   getBooks()
   {
     return this.http.get<any>(this.URL);
   }
-  
+
   getBookById(id : any)
   {
     return this.http.get(this.URL + `/${id}`)
