@@ -46,12 +46,29 @@ class ProfilePage extends GetView<AuthController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.blueAccent,
+                  child: Text(
+                    user.firstname.substring(0, 1).toUpperCase(),
+                    style: const TextStyle(fontSize: 40, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Text(
-                  'Bonjour, voici votre ID : ${user.id}',
+                  'Bonjour, ${user.firstname} ${user.lastname}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.blue,
+                    color: Colors.black87,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Email: ${user.email}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),

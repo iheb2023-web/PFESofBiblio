@@ -5,6 +5,11 @@ class AppTheme {
   static const Color primaryColor = Color(0xFF345afb);    // Bleu principal
   static const Color accentColor = Color(0xFF637dff);     // Bleu clair
   
+  // Couleurs de statut
+  static const Color successColor = Color(0xFF4CAF50);    // Vert pour succès
+  static const Color errorColor = Color(0xFFE53935);      // Rouge pour erreur
+  static const Color warningColor = Color(0xFFFFA726);    // Orange pour avertissement
+  
   // Couleurs mode sombre
   static const Color darkBackgroundColor = Color(0xFF0A1929);  // Bleu foncé pour le fond
   static const Color darkSurfaceColor = Color(0xFF1A2634);     // Bleu foncé plus clair pour les surfaces
@@ -125,11 +130,13 @@ class AppTheme {
               primary: primaryColor,
               secondary: accentColor,
               surface: darkSurfaceColor,
+              error: errorColor,
             )
           : const ColorScheme.light(
               primary: primaryColor,
               secondary: accentColor,
               surface: lightSurfaceColor,
+              error: errorColor,
             ),
       inputDecorationTheme: _inputDecorationTheme(isDark),
       elevatedButtonTheme: _elevatedButtonTheme(),

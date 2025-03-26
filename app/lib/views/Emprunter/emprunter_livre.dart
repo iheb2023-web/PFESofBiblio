@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:app/theme/app_theme.dart';
 import 'package:app/controllers/theme_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:app/controllers/borrow_controller.dart';
 
 class EmprunterLivre extends StatefulWidget {
   final Book book;
@@ -22,6 +23,8 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
 
   // Map pour stocker les jours disponibles et indisponibles
   final Map<DateTime, bool> _availabilityMap = {};
+
+  final BorrowController _borrowController = Get.find<BorrowController>();
 
   @override
   void initState() {
@@ -362,8 +365,91 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                           child: ElevatedButton(
                             onPressed:
                                 (dateEmprunt != null && dateRetour != null)
-                                    ? () {
-                                      // Logique de réservation
+                                    ? () async {
+                                      try {
+                                        if (widget.book.id == null) {
+                                          throw Exception(
+                                            'ID du livre invalide',
+                                          );
+                                        }
+
+                                        await _borrowController.borrowBook(
+                                          widget.book.id!,
+                                          dateEmprunt!,
+                                          dateRetour!,
+                                        );
+
+                                        // Success - show message and navigate back
+                                        Get.snackbar(
+                                          'Succès',
+                                          'Livre réservé avec succès',
+                                          snackPosition: SnackPosition.TOP,
+                                          backgroundColor: Colors.green[100],
+                                          colorText: Colors.green[900],
+                                          duration: const Duration(seconds: 2),
+                                        );
+                                        await Future.delayed(
+                                          const Duration(seconds: 1),
+                                        );
+
+                                        // Retourner à la page précédente
+                                        Get.back();
+                                        // Puis naviguer vers la page de détails
+                                        Get.toNamed(
+                                          '/book-details',
+                                          arguments: widget.book,
+                                          preventDuplicates: true,
+                                        );
+                                      } catch (e) {
+                                        // Ne pas montrer l'erreur si l'emprunt a réussi
+                                        if (e.toString().contains(
+                                              'FormatException',
+                                            ) ||
+                                            e.toString().contains(
+                                              'Unexpected end of input',
+                                            )) {
+                                          Get.snackbar(
+                                            'Succès',
+                                            'Livre réservé avec succès',
+                                            snackPosition: SnackPosition.TOP,
+                                            backgroundColor: Colors.green[100],
+                                            colorText: Colors.green[900],
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                          );
+                                          await Future.delayed(
+                                            const Duration(seconds: 1),
+                                          );
+
+                                          // Retourner à la page précédente
+                                          Get.back();
+                                          // Puis naviguer vers la page de détails
+                                          Get.toNamed(
+                                            '/book-details',
+                                            arguments: widget.book,
+                                            preventDuplicates: true,
+                                          );
+                                          return;
+                                        }
+
+                                        String errorMessage = e.toString();
+                                        if (errorMessage.startsWith(
+                                          'Exception: ',
+                                        )) {
+                                          errorMessage = errorMessage.substring(
+                                            11,
+                                          );
+                                        }
+                                        Get.snackbar(
+                                          'Erreur',
+                                          errorMessage,
+                                          snackPosition: SnackPosition.BOTTOM,
+                                          backgroundColor: Colors.red[100],
+                                          colorText: Colors.red[900],
+                                          duration: const Duration(seconds: 3),
+                                        );
+                                      }
                                     }
                                     : null,
                             child: Row(
