@@ -42,4 +42,9 @@ public class BookService implements IBookService {
         book.setOwner(user);
         return this.bookRepository.save(book);
     }
+
+    @Override
+    public Book getBookById(Long id) {
+        return this.bookRepository.findById(id).orElse(null);
+    }
 }

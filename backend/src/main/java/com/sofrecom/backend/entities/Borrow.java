@@ -1,5 +1,6 @@
 package com.sofrecom.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sofrecom.backend.enums.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,9 +27,13 @@ public class Borrow {
     @Enumerated(EnumType.STRING)
     private BorrowStatus BorrowStatus;
 
+
     @ManyToOne
     private User borrower;
-    @OneToOne
+
+
+    @ManyToOne
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
 }

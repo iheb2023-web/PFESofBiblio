@@ -1,9 +1,13 @@
 package com.sofrecom.backend.services;
 
 
+import com.sofrecom.backend.dtos.UserDto;
+import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
+import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.enums.BorrowStatus;
 import com.sofrecom.backend.repositories.BorrowRepository;
+import com.sofrecom.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +18,22 @@ import java.util.List;
 @Service
 public class BorrowService implements IBorrowService {
     private final BorrowRepository borrowRepository;
+    private final UserRepository userRepository;
 
     public List<Borrow> findAll() {
         return borrowRepository.findAll();
     }
 
-    public Borrow borrowBook(Borrow borrow) {
+    public void borrowBook(Borrow borrow) {
         borrow.setRequestDate(LocalDate.now());
-
+        User user = this.userRepository.findByEmail(borrow.getBorrower().getEmail()).orElse(null);
+        User borrower = borrow.getBorrower();
+        if (user != null) {
+            borrower.setId(user.getId());
+        }
+        borrow.setBorrower(borrower);
         borrow.setBorrowStatus(BorrowStatus.PENDING);
-        return borrowRepository.save(borrow);
+        borrowRepository.save(borrow);
     }
 
     public Borrow  processBorrowRequest(Borrow borrow, boolean isApproved)
@@ -42,5 +52,15 @@ public class BorrowService implements IBorrowService {
     @Override
     public Borrow getBorrowById(Long id) {
         return this.borrowRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Borrow> getBorrowDemandsByUserEmail(String email) {
+        return this.borrowRepository.findBorrowDemandsByOwnerEmail(email);
+    }
+
+    @Override
+    public List<Borrow> getBorrowRequestsByUserEmail(String email) {
+        return this.borrowRepository.getBorrowRequestsByUserEmail(email);
     }
 }

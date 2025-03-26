@@ -1,1 +1,201 @@
-<p>book-details works!</p>
+<section class="py-0">
+	<div class="container">
+		<!-- Card START -->
+		<div class="card bg-light overflow-hidden px-sm-5">
+			<div class="row align-items-center g-4">
+
+				<!-- Content -->
+				<div class="col-sm-9">
+					<div class="card-body">
+						<!-- Breadcrumb -->
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb breadcrumb-dots mb-0">
+								<li class="breadcrumb-item"><a href=""><i class="bi bi-house me-1"></i> Home</a></li>
+								<li class="breadcrumb-item">Books</li>
+								<li class="breadcrumb-item active">Details</li>
+							</ol>
+						</nav>
+						<!-- Title -->
+						<h1 class="m-0 h2 card-title">Book Review </h1>
+					</div>
+				</div>	
+
+				<!-- Image -->
+				<div class="col-sm-3 text-end d-none d-sm-block">
+					<img src="assets/images/element/17.svg" class="mb-n4" alt="">
+				</div>
+			</div>
+		</div>
+		<!-- Card END -->
+	</div>
+</section>
+
+<section>
+	<div class="container">
+		<div class="row g-4 g-lg-5">	
+
+			<!-- Left side content START -->
+			<div class="col-xl-8">
+				<div class="vstack gap-5">
+					<!-- Book information START -->
+					<div class="card shadow">
+						<!-- Card header -->
+						<div class="card-header p-4 border-bottom">
+							<!-- Title -->
+							<h3 class="mb-0"><i class="fa-solid fa-book me-2"></i>Book Information</h3>
+						</div>
+
+						<!-- Card body START -->
+						<div class="card-body p-4">
+							<!-- Card list START -->
+							<div class="card mb-4">
+								<div class="row align-items-center">
+									<!-- Image -->
+									<div class="col-sm-6 col-md-3">
+                                        <img [src]="book.coverUrl" class="card-img" alt="{{ book.title }}">
+									</div>
+
+									<!-- Card Body -->
+									<div class="col-sm-6 col-md-9">
+										<div class="card-body pt-3 pt-sm-0 p-0">
+											<!-- Title -->
+											<h5 class="card-title">{{ book.title }}</h5>
+											<p class="small mb-2 text-success">{{ book.author }}</p>
+
+											<!-- Rating star -->
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fa-solid fa-star-half-alt text-warning"></i></li>
+												<li class="list-inline-item ms-2 h6 small fw-bold mb-0">4.5/5.0</li>
+											</ul>
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<!-- Card list END -->
+							
+							<!-- Information START -->
+							<div class="row g-4">
+								<!-- Item -->
+								<div class="col-lg-4">
+									<div class="bg-light py-3 px-4 rounded-3">
+										<h6 class="fw-light small mb-1">Pages</h6>
+										<h5 class="mb-1">{{book.pageCount}}</h5>
+									</div>
+								</div>
+
+								<!-- Item -->
+								<div class="col-lg-4">
+									<div class="bg-light py-3 px-4 rounded-3">
+										<h6 class="fw-light small mb-1">Category</h6>
+										<h5 class="mb-1">{{book.category}}</h5>
+									</div>
+								</div>
+
+								<!-- Item -->
+								<div class="col-lg-4">
+									<div class="bg-light py-3 px-4 rounded-3">
+										<h6 class="fw-light small mb-1">Language</h6>
+										<h5 class="mb-1">{{book.language}}</h5>
+									</div>
+								</div>
+							</div>
+							<!-- Information END -->
+
+							<!-- Card START -->
+							<div class="card border mt-4">
+								<!-- Card header -->
+								<div class="card-header border-bottom d-md-flex justify-content-md-between">
+									<h5 class="card-title mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>Book Description</h5>
+									
+								</div>
+
+								<!-- Card body -->
+								<div class="card-body">
+									
+									
+									
+										<li class="list-group-item h6 fw-light d-flex mb-0">{{book.description}}</li>
+
+                                        
+                                          
+									
+								</div>
+                                
+							</div>
+							<!-- Card END -->
+                         
+                            
+						</div>
+						<!-- Card body END -->
+
+                        
+					</div>
+					<!-- Book information END -->
+
+
+
+                    
+                    
+
+                    
+					
+
+					<!-- Payment Options START -->
+					
+					<!-- Payment Options END -->
+				</div>	
+			</div>
+			<!-- Left side content END -->
+
+			<!-- Right side content START -->
+			<aside class="col-xl-4">
+				<div class="row g-4">
+
+					<!-- Price summary START -->
+                    <app-book-reservation [bookId]="book.id"></app-book-reservation>
+					<!-- Price summary END -->
+
+					
+
+					<!-- Information START -->
+					<div class="col-md-6 col-xl-12">
+						<div class="card shadow">
+							<!-- Card header -->
+							<div class="card-header border-bottom">
+								<h5 class="card-title mb-0">Why Sign up or Log in</h5>
+							</div>
+
+							<!-- Card body -->
+							<div class="card-body">
+								<!-- List -->
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Get Access to several Books</span>
+									</li>
+
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Book Faster</span>
+									</li>
+
+									<li class="list-group-item d-flex mb-0"><i class="fa-solid fa-check text-success me-2"></i>
+										<span class="h6 fw-normal">Manage Your Booking</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<!-- Information END -->
+
+				</div>
+			</aside>
+			<!-- Right side content END -->
+		</div> <!-- Row END -->
+	</div>
+</section>
+
+

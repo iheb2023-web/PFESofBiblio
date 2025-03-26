@@ -1,5 +1,6 @@
 package com.sofrecom.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sofrecom.backend.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,6 +35,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner")
     private List<Book> books;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "borrower")
     private List<Borrow>  borrows;
 

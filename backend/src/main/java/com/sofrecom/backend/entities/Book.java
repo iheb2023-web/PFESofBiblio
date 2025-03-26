@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -19,7 +21,7 @@ public class Book {
 
     private String title;
     private String author;
-    @Column(length = 1000)
+    @Column(length = 3000)
     private String description;
     private String coverUrl;
     private String publishedDate;
@@ -36,6 +38,11 @@ public class Book {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "book")
+    private List<Borrow> borrows;
 
 
 }

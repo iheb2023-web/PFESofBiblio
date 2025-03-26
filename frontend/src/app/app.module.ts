@@ -15,6 +15,7 @@ import { SharedModule } from './features/shared/shared.module';
 import { HomeComponent } from './features/home/home.component';
 import { BooksModule } from './features/books/books.module';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,6 +24,7 @@ import { BooksModule } from './features/books/books.module';
     NotfoundComponent,
     NewPasswordComponent,
     HomeComponent,
+    
     
   ],
   imports: [
@@ -33,7 +35,7 @@ import { BooksModule } from './features/books/books.module';
     FormsModule,
     UsersModule,
     BooksModule,
-    SharedModule
+    SharedModule,
     
    
   ],
