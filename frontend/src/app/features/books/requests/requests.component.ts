@@ -7,7 +7,8 @@ import { BorrowService } from 'src/app/core/services/borrow.service';
   styleUrls: ['./requests.component.scss']
 })
 export class RequestsComponent implements OnInit{
-   demands: any[] = [];
+  demands: any[] = [];  
+  
   
     constructor(private borrowService: BorrowService) {}
   
@@ -17,6 +18,7 @@ export class RequestsComponent implements OnInit{
       if (email) {
         this.getRequests(email); 
       }
+      
     }
 
     calculateDuration(demand: any): number {
@@ -28,6 +30,8 @@ export class RequestsComponent implements OnInit{
       }
       return 0;
     }
+
+   
   
     getRequests(email: string): void {
       this.borrowService.getBorrowRequestsByUserEmail(email).subscribe(

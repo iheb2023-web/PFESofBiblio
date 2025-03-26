@@ -70,4 +70,13 @@ public class BookController {
                 .body("Error retrieving books: " + e.getMessage());
         }
     }
+
+    @GetMapping("/checkOwnerBookByEmail/{email}/{id}")
+    public boolean checkOwnerBookByEmail(@PathVariable String email, @PathVariable Long id) {
+        return this.bookService.checkOwnerBookByEmail(email,id);
+    }
+
+
+
+
 }

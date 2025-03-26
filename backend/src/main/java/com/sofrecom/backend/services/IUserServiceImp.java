@@ -125,4 +125,9 @@ public class IUserServiceImp implements IUserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Long getIdFromEmail(String email) {
+        return this.userRepository.findIdByEmail(email);
+    }
+
 }

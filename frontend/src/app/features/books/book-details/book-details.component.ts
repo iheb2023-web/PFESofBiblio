@@ -10,7 +10,7 @@ import { BookService } from 'src/app/core/services/books.service';
 export class BookDetailsComponent implements OnInit {
   bookId!: string;
   book!: any;
-  
+  isOwner !: boolean
   constructor(private route : ActivatedRoute,
     private bookService : BookService
   )
@@ -18,8 +18,25 @@ export class BookDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.bookId = this.route.snapshot.paramMap.get('id')!;
+    const user = JSON.parse(localStorage.getItem('user') || '{}'); 
     this.getBookById(this.bookId);
+    const email = user?.email; 
+    if(email)
+    {
+      this.bookService.checkOwnerBookByEmail(email, this.bookId).subscribe(
+        (isOwner : any) => {
+         this.isOwner = isOwner
+        },
+        (error) => {
+        }
+      );
+      
+    }
+    
+
+
   }
+  
 
   getBookById(bookId : any)
   {

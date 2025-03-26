@@ -1,5 +1,6 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
 import flatpickr from 'flatpickr';
 import { BorrowService } from 'src/app/core/services/borrow.service';
 import { UsersService } from 'src/app/core/services/users.service';
@@ -18,7 +19,8 @@ export class BookReservationComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
     private borrowService : BorrowService,
-    private userService : UsersService
+    private userService : UsersService,
+    private router : Router
   ) {
     this.reservationForm = this.fb.group({
       checkInOut: ['']
@@ -69,9 +71,7 @@ export class BookReservationComponent implements OnInit {
 
     this.borrowService.borrowBook(borrowRequest).subscribe({
       next: (response) => {
-        alert('Borrow request submitted successfully!');
-        
-        // Handle success (e.g., navigation or UI update)
+        this.router.navigate(['/home/books/library/requests']);
       },
       error: (err) => {
         console.error('Error submitting request:', err);

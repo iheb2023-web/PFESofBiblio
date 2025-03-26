@@ -3,6 +3,7 @@ import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
 import { Observable, of, Subject } from 'rxjs';
 import { BookService } from 'src/app/core/services/books.service';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add-book',
@@ -30,7 +31,8 @@ export class AddBookComponent {
 
   constructor(
     private bookService: BookService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router : Router
   ) {
     // Setting up the searchSubject with debounceTime and switchMap
     this.searchSubject.pipe(
@@ -131,7 +133,7 @@ export class AddBookComponent {
     const user = JSON.parse(userData);
     this.bookService.addBook(newBook,user.email).subscribe(
       response => {
-       
+        this.router.navigate(['/home/books/library/mybooks']);
       },
       error => {
         console.error('Error adding book:', error);

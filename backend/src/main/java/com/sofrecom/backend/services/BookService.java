@@ -7,6 +7,7 @@ import com.sofrecom.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class BookService implements IBookService {
 
     @Override
     public Book addNewBook(Book book, String email) {
+        book.setAddedDate(LocalDate.now());
         User user = this.userRepository.findByEmail(email).orElse(null);
         book.setOwner(user);
         return this.bookRepository.save(book);
@@ -46,5 +48,10 @@ public class BookService implements IBookService {
     @Override
     public Book getBookById(Long id) {
         return this.bookRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean checkOwnerBookByEmail(String email, Long id) {
+        return this.bookRepository.checkOwnerBookByEmail(email,id);
     }
 }

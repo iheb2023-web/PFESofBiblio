@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -29,6 +30,7 @@ public class Book {
     private String category;
     private int pageCount;
     private String language;
+    private LocalDate AddedDate;
 
     @Transient
     private Long ownerId;
