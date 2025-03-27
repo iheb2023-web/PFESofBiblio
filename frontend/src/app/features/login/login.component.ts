@@ -39,7 +39,7 @@ export class LoginComponent {
         ).subscribe({
           next: (userMin) => {
             localStorage.setItem('user', JSON.stringify(userMin));
-            this.router.navigate(['/home']);
+            this.router.navigate(['/home/books']);
           },
           error: (error) => {
             console.error('Failed to fetch user info:', error);
