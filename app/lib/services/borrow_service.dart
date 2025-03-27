@@ -234,4 +234,26 @@ class BorrowService extends GetxService {
       rethrow;
     }
   }
+
+  Future<Borrow> processBorrowRequest(Borrow borrow, bool isApproved) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/borrows/approved/${isApproved.toString()}'),
+        headers: await getHeaders(),
+        body: jsonEncode(borrow.toJson()),
+      );
+
+      print('processBorrowRequest response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return Borrow.fromJson(responseData);
+      } else {
+        throw Exception('Erreur lors du traitement de la demande: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('processBorrowRequest error: $e');
+      rethrow;
+    }
+  }
 }
