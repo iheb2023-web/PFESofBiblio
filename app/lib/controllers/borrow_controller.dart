@@ -11,6 +11,7 @@ class BorrowController extends GetxController {
 
   final RxList<Borrow> borrows = <Borrow>[].obs;
   final RxList<Borrow> ownerRequests = <Borrow>[].obs;
+  final RxList<Borrow> userBorrows = <Borrow>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
 
@@ -108,6 +109,12 @@ class BorrowController extends GetxController {
       if (email == null) {
         throw Exception('Utilisateur non connecté');
       }
+
+      // Charger les emprunts de l'utilisateur
+      final borrowsResponse = await _borrowService.getUserBorrows(email);
+      userBorrows.value = borrowsResponse;
+
+      // Charger les demandes d'emprunt (garder la logique existante)
       borrows.value = await _borrowService.getBorrowDemandsByEmail(email);
     } catch (e) {
       error.value = e.toString();
