@@ -76,6 +76,12 @@ public class BookController {
         return this.bookService.checkOwnerBookByEmail(email,id);
     }
 
+    @GetMapping("/allBookWithinEmailOwner/{email}")
+    public List<Book> getAllBooksWithinEmailOwner(@PathVariable String email) {
+        return this.bookService.getAllBooksWithinEmailOwner(email);
+
+    }
+
 
 
 

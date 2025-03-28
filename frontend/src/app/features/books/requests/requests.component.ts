@@ -8,6 +8,7 @@ import { BorrowService } from 'src/app/core/services/borrow.service';
 })
 export class RequestsComponent implements OnInit{
   demands: any[] = [];  
+  stats : any
   
   
     constructor(private borrowService: BorrowService) {}
@@ -17,8 +18,17 @@ export class RequestsComponent implements OnInit{
       const email = user?.email; 
       if (email) {
         this.getRequests(email); 
+        this.getBorrowStatusUser(email)
       }
       
+    }
+    getBorrowStatusUser(email : any)
+    {
+      this.borrowService.getBorrowStatusUser(email).subscribe(
+        (stats : any) =>
+        {this.stats =stats
+        }
+      )
     }
 
     calculateDuration(demand: any): number {

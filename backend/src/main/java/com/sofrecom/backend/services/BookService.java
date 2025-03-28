@@ -54,4 +54,9 @@ public class BookService implements IBookService {
     public boolean checkOwnerBookByEmail(String email, Long id) {
         return this.bookRepository.checkOwnerBookByEmail(email,id);
     }
+
+    @Override
+    public List<Book> getAllBooksWithinEmailOwner(String email) {
+        return this.bookRepository.getAllBooksWithinEmailOwner(email);
+    }
 }

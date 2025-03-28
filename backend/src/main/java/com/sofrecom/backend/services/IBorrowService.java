@@ -1,5 +1,6 @@
 package com.sofrecom.backend.services;
 
+import com.sofrecom.backend.dtos.BorrowStatusUser;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 
@@ -16,4 +17,6 @@ public interface IBorrowService {
 
 
     List<Borrow> getBorrowRequestsByUserEmail(String email);
+
+    BorrowStatusUser getBorrowStatusUserByEmail(String email);
 }

@@ -15,4 +15,21 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
     @Query("SELECT  b FROM Borrow b WHERE b.borrower.email = :email")
     List<Borrow> getBorrowRequestsByUserEmail(@Param("email") String email);
+
+    @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'REJECTED' AND b.borrower.email = :email")
+    int getTotalRejectRequestByEmail(@Param("email") String email);
+
+    @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'APPROVED' AND b.borrower.email = :email")
+    int getTotalApprovedRequestByEmail(@Param("email") String email);
+
+    @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'PENDING' AND b.borrower.email = :email")
+    int getTotalPendingRequestByEmail(@Param("email") String email);
+
+    @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'IN_PROGRESS' AND b.borrower.email = :email")
+    int getTotalProgressRequestByEmail(@Param("email") String email);
+
+    //@Query("SELECT b from Borrow b where b.BorrowStatus = 'IN_PROGRESS' and b.borrowDate>")
+    //findBorrowInProgress(@Param("borrow") Borrow);
+
+
 }

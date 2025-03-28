@@ -1,6 +1,7 @@
 package com.sofrecom.backend.services;
 
 
+import com.sofrecom.backend.dtos.BorrowStatusUser;
 import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
@@ -32,6 +33,11 @@ public class BorrowService implements IBorrowService {
             borrower.setId(user.getId());
         }
         borrow.setBorrower(borrower);
+
+        //tester disponiblity of book in that period
+        //this.borrowRepository.findBorrowByD
+
+
         borrow.setBorrowStatus(BorrowStatus.PENDING);
         borrowRepository.save(borrow);
     }
@@ -62,5 +68,15 @@ public class BorrowService implements IBorrowService {
     @Override
     public List<Borrow> getBorrowRequestsByUserEmail(String email) {
         return this.borrowRepository.getBorrowRequestsByUserEmail(email);
+    }
+
+    @Override
+    public BorrowStatusUser getBorrowStatusUserByEmail(String email) {
+        BorrowStatusUser stats =  new BorrowStatusUser();
+        stats.setApproved(this.borrowRepository.getTotalApprovedRequestByEmail(email));
+        stats.setPending(this.borrowRepository.getTotalPendingRequestByEmail(email));
+        stats.setProgress(this.borrowRepository.getTotalProgressRequestByEmail(email));
+        stats.setRejected(this.borrowRepository.getTotalRejectRequestByEmail(email));
+        return stats;
     }
 }

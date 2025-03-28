@@ -16,7 +16,28 @@ export class BookGridComponent  implements OnInit{
 
   
   ngOnInit(): void {
-    this. getBooks()
+    //this. getBooks()
+    const user = JSON.parse(localStorage.getItem('user') || '{}'); 
+    const email = user?.email; 
+    if(email)
+    {
+      this.allBookWithinEmailOwner(email);
+    }
+
+
+  }
+  allBookWithinEmailOwner(email : any)
+  {
+    this.bookService.allBookWithinEmailOwner(email).subscribe(
+      (books : any) =>
+      {
+        this.books = books
+      },
+      (error) => {
+        console.error('Error fetching books:', error);
+      }
+
+    );
   }
 
   getBooks(): void {
