@@ -121,121 +121,101 @@ class MesEmpruntsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBorrowCard(Borrow borrow) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Image du livre
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: borrow.book?.coverUrl != null && borrow.book!.coverUrl.isNotEmpty
-                      ? Image.network(
-                          borrow.book!.coverUrl,
-                          width: 60,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 60,
-                            height: 80,
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.book, color: Colors.grey),
-                          ),
-                        )
-                      : Container(
-                          width: 60,
-                          height: 80,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.book, color: Colors.grey),
-                        ),
-                ),
-                const SizedBox(width: 12),
-                // Titre et auteur du livre
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        borrow.book?.title ?? 'Titre inconnu',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        borrow.book?.author ?? 'Auteur inconnu',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildBorrowStatus(borrow.borrowStatus.toString().split('.').last),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Dates d'emprunt
-            Text(
-              'Période d\'emprunt:',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-            Text(
-              'Du ${_formatDate(borrow.borrowDate)} au ${_formatDate(borrow.expectedReturnDate)}',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: const Text('Mes Emprunts'), elevation: 0),
-      body: RefreshIndicator(
-        onRefresh: () => _controller.refreshBorrows(),
-        child: Obx(() {
-          if (_controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      appBar: AppBar(
+        //title: const Text('Mes Emprunts'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _controller.refreshBorrows(),
+          ),
+        ],
+      ),
+      body: Obx(() {
+        if (_controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          if (_borrowController.borrows.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.book_outlined, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aucun emprunt en cours',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                ],
+        final borrows = _borrowController.userBorrows;
+        
+        if (borrows.isEmpty) {
+          return const Center(
+            child: Text('Vous n\'avez aucun emprunt en cours'),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: borrows.length,
+          itemBuilder: (context, index) {
+            final borrow = borrows[index];
+            return Card(
+              margin: const EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image de couverture
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: borrow.book?.coverUrl != null && borrow.book!.coverUrl.isNotEmpty
+                          ? Image.network(
+                              borrow.book!.coverUrl,
+                              width: 80,
+                              height: 120,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 80,
+                                height: 120,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.book, color: Colors.grey),
+                              ),
+                            )
+                          : Container(
+                              width: 80,
+                              height: 120,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.book, color: Colors.grey),
+                            ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Informations du livre
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            borrow.book?.title ?? 'Livre inconnu',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (borrow.book?.author != null)
+                            Text(
+                              borrow.book!.author,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          const SizedBox(height: 8),
+                          Text('Date de demande: ${_formatDate(borrow.requestDate)}'),
+                          Text('Date de retour prévue: ${_formatDate(borrow.expectedReturnDate)}'),
+                          const SizedBox(height: 4),
+                          _buildBorrowStatus(borrow.borrowStatus.toString().split('.').last),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: _borrowController.borrows.length,
-            itemBuilder: (context, index) {
-              final borrow = _borrowController.borrows[index];
-              return _buildBorrowCard(borrow);
-            },
-          );
-        }),
-      ),
+          },
+        );
+      }),
     );
   }
 }

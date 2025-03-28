@@ -235,6 +235,32 @@ class BorrowService extends GetxService {
     }
   }
 
+  // Récupérer les emprunts d'un utilisateur
+  Future<List<Borrow>> getUserBorrows(String userEmail) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/borrows/requests/$userEmail'),
+        headers: await getHeaders(),
+      );
+
+      print('getUserBorrows response: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        if (response.body.isEmpty) {
+          return [];
+        }
+        
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList.map((json) => Borrow.fromJson(json)).toList();
+      } else {
+        throw Exception('Erreur lors de la récupération des emprunts: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('getUserBorrows error: $e');
+      rethrow;
+    }
+  }
+
   Future<Borrow> processBorrowRequest(Borrow borrow, bool isApproved) async {
     try {
       final response = await http.put(
