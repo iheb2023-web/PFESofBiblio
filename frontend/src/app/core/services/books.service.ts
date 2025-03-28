@@ -34,6 +34,10 @@ export class BookService {
   {
     return this.http.get(this.URL + `/${id}`)
   }
+  allBookWithinEmailOwner(email : any)
+  {
+      return this.http.get(this.URL  + `/allBookWithinEmailOwner/${email}`)
+  }
 
   searchBooks(query: string): Observable<Book[]> {
     return this.http.get<any>(`${this.apiUrl}${query}`).pipe(

@@ -17,4 +17,7 @@ public interface IBookService {
     Book getBookById(Long id);
 
     boolean checkOwnerBookByEmail(String email, Long id);
+
+    List<Book> getAllBooksWithinEmailOwner(String email);
+
 }

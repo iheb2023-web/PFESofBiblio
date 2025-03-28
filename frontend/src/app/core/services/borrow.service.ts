@@ -19,6 +19,11 @@ export class BorrowService {
      getBorrowRequestsByUserEmail(email: string) {
         return this.http.get(this.URL+`/requests/${email}`) 
     }
+    
+    getBorrowStatusUser(email : any)
+    {
+        return this.http.get(this.URL + `/BorrowStatusUser/${email}`)
+    }
 
      getBorrowDemandsByUserEmail(email : any)
      {
