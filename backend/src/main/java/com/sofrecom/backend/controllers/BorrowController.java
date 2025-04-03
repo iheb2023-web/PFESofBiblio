@@ -1,6 +1,7 @@
 package com.sofrecom.backend.controllers;
 
 import com.sofrecom.backend.dtos.BorrowStatusUser;
+import com.sofrecom.backend.dtos.OccupiedDates;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 import com.sofrecom.backend.services.IBorrowService;
@@ -54,6 +55,11 @@ public class BorrowController {
     @GetMapping("/BorrowStatusUser/{email}")
     public BorrowStatusUser getBorrowStatusUserByEmail(@PathVariable String email) {
         return this.borrowService.getBorrowStatusUserByEmail(email);
+    }
+
+    @GetMapping("/BookOccupiedDates/{bookId}")
+    public List<OccupiedDates> getBookOccupiedDatesByBookId(@PathVariable Long bookId) {
+        return this.borrowService.getBookOccupiedDatesByBookId(bookId);
     }
 
 }

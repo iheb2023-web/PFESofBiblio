@@ -1,5 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { OccupiedDates } from "../dtos/OccupiedDates";
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +17,10 @@ export class BorrowService {
         
         return this.http.post(this.URL, borrow);
      }
+
+     getBookOccupiedDatesByBookId(bookId: number): Observable<OccupiedDates[]> {
+      return this.http.get<OccupiedDates[]>(this.URL + `/BookOccupiedDates/${bookId}`)
+    }
 
      getBorrowRequestsByUserEmail(email: string) {
         return this.http.get(this.URL+`/requests/${email}`) 
