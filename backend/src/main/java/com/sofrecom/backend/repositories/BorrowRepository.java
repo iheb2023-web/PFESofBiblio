@@ -1,5 +1,6 @@
 package com.sofrecom.backend.repositories;
 
+import com.sofrecom.backend.dtos.OccupiedDates;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,6 +28,13 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
     @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'IN_PROGRESS' AND b.borrower.email = :email")
     int getTotalProgressRequestByEmail(@Param("email") String email);
+
+    @Query("SELECT NEW com.sofrecom.backend.dtos.OccupiedDates(b.borrowDate, b.expectedReturnDate) " +
+            "FROM Borrow b " +
+            "WHERE (b.BorrowStatus = 'IN_PROGRESS' OR b.BorrowStatus = 'APPROVED' OR b.BorrowStatus = 'PENDING') " +
+            "AND b.book.id = :bookId " +
+            "AND b.borrowDate >= CURRENT_DATE")
+    List<OccupiedDates> getBookOccupiedDatesByBookId(@Param("bookId") Long bookId);
 
     //@Query("SELECT b from Borrow b where b.BorrowStatus = 'IN_PROGRESS' and b.borrowDate>")
     //findBorrowInProgress(@Param("borrow") Borrow);

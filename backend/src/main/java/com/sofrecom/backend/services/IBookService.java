@@ -1,5 +1,6 @@
 package com.sofrecom.backend.services;
 
+import com.sofrecom.backend.dtos.BookOwerDto;
 import com.sofrecom.backend.entities.Book;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public interface IBookService {
 
     List<Book> getAllBooksWithinEmailOwner(String email);
 
+    BookOwerDto getBookOwnerById(Long idbook);
 }
