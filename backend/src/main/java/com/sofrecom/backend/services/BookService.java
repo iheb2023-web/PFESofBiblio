@@ -1,5 +1,6 @@
 package com.sofrecom.backend.services;
 
+import com.sofrecom.backend.dtos.BookOwerDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.BookRepository;
@@ -58,5 +59,10 @@ public class BookService implements IBookService {
     @Override
     public List<Book> getAllBooksWithinEmailOwner(String email) {
         return this.bookRepository.getAllBooksWithinEmailOwner(email);
+    }
+
+    @Override
+    public BookOwerDto getBookOwnerById(Long idbook) {
+        return this.bookRepository.findBookOwerByIdBook(idbook);
     }
 }

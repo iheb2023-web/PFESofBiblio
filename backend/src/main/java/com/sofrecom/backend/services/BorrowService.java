@@ -2,6 +2,7 @@ package com.sofrecom.backend.services;
 
 
 import com.sofrecom.backend.dtos.BorrowStatusUser;
+import com.sofrecom.backend.dtos.OccupiedDates;
 import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
@@ -78,5 +79,10 @@ public class BorrowService implements IBorrowService {
         stats.setProgress(this.borrowRepository.getTotalProgressRequestByEmail(email));
         stats.setRejected(this.borrowRepository.getTotalRejectRequestByEmail(email));
         return stats;
+    }
+
+    @Override
+    public List<OccupiedDates> getBookOccupiedDatesByBookId(Long bookId) {
+        return this.borrowRepository.getBookOccupiedDatesByBookId(bookId);
     }
 }

@@ -1,5 +1,6 @@
 package com.sofrecom.backend.controllers;
 
+import com.sofrecom.backend.dtos.BookOwerDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.services.IBookService;
@@ -79,8 +80,13 @@ public class BookController {
     @GetMapping("/allBookWithinEmailOwner/{email}")
     public List<Book> getAllBooksWithinEmailOwner(@PathVariable String email) {
         return this.bookService.getAllBooksWithinEmailOwner(email);
-
     }
+
+    @GetMapping("/getBookOwner/{idbook}")
+    public BookOwerDto getBookOwner(@PathVariable Long idbook) {
+        return this.bookService.getBookOwnerById(idbook);
+    }
+
 
 
 
