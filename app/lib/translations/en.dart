@@ -18,6 +18,10 @@ const Map<String, String> en = {
   'scan_fingerprint': 'Scan your fingerprint to login',
   'authentication_successful': 'Authentication successful!',
 
+  
+
+
+
   // Validation messages
   'email_required': 'Email is required',
   'password_required': 'Password is required',

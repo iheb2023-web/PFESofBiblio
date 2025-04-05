@@ -22,21 +22,37 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
   final CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
 
-  // Map pour stocker les jours disponibles et indisponibles
-  final Map<DateTime, bool> _availabilityMap = {};
+  // Remplacer _availabilityMap par _occupiedDates
+  Map<DateTime, bool> _occupiedDates = {};
 
   final BorrowController _borrowController = Get.find<BorrowController>();
 
   @override
   void initState() {
     super.initState();
-    // Initialiser les disponibilités (exemple)
-    final now = DateTime.now();
-    for (int i = 0; i < 31; i++) {
-      final day = DateTime(now.year, now.month, now.day + i);
-      // Jour disponible (valeur true) ou indisponible (valeur false)
-      // On peut simuler des jours indisponibles, par exemple les weekends
-      _availabilityMap[day] = day.weekday != 6 && day.weekday != 7;
+    _loadOccupiedDates();
+  }
+
+  // Ajouter la méthode pour charger les dates occupées
+  void _loadOccupiedDates() async {
+    try {
+      final occupiedDates = await _borrowController.getOccupiedDatesByBookId(
+        widget.book.id!,
+      );
+
+      setState(() {
+        _occupiedDates = {
+          for (var date in occupiedDates)
+            DateTime(date.year, date.month, date.day): true,
+        };
+      });
+    } catch (e) {
+      debugPrint('Erreur lors du chargement des dates occupées: $e');
+      Get.rawSnackbar(
+        message: 'Erreur lors du chargement des dates',
+        backgroundColor: Colors.red[100]!,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -508,7 +524,6 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
 
       for (int i = 0; i < 7; i++) {
         if (dayCounter <= 0 || dayCounter > daysInMonth) {
-          // Jour hors du mois actuel
           days.add(const SizedBox(width: 30, height: 30));
         } else {
           final currentDate = DateTime(
@@ -519,7 +534,9 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
           final isSelected =
               dateEmprunt != null && isSameDay(currentDate, dateEmprunt) ||
               dateRetour != null && isSameDay(currentDate, dateRetour);
-          final isAvailable = _availabilityMap[currentDate] ?? true;
+
+          // Modifier la vérification de disponibilité
+          final isAvailable = !_occupiedDates.containsKey(currentDate);
 
           // Check if the current date is between start and end dates
           final isBetweenDates =
