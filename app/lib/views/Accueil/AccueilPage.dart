@@ -406,13 +406,31 @@ class _AccueilPageState extends State<AccueilPage>
                               height: 120,
                               width: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                Container(
+                              cacheWidth: 160, // 2x la largeur d'affichage pour une bonne qualité
+                              cacheHeight: 240, // 2x la hauteur d'affichage pour une bonne qualité
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
                                   height: 120,
                                   width: 80,
                                   color: Colors.grey[200],
-                                  child: const Icon(Icons.book),
-                                ),
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                height: 120,
+                                width: 80,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.book),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -514,16 +532,32 @@ class _AccueilPageState extends State<AccueilPage>
                               height: 200,
                               width: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(
-                                    height: 200,
-                                    color: Colors.grey[200],
-                                    child: const Icon(
-                                      Icons.book,
-                                      size: 50,
-                                      color: Colors.grey,
+                              cacheWidth: 600, // Limiter la taille en cache
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  height: 200,
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     ),
                                   ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                height: 200,
+                                color: Colors.grey[200],
+                                child: const Icon(
+                                  Icons.book,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
