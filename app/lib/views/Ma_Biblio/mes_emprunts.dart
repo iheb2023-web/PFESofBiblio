@@ -88,7 +88,7 @@ class MesEmpruntsPage extends StatelessWidget {
         textColor = AppTheme.warningColor;
         text = 'En attente';
         break;
-      case 'ACCEPTED':
+      case 'APPROVED':
         backgroundColor = AppTheme.successColor.withOpacity(0.1);
         textColor = AppTheme.successColor;
         text = 'Accepté';
