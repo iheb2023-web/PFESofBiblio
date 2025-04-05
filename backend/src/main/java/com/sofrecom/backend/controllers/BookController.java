@@ -1,6 +1,8 @@
 package com.sofrecom.backend.controllers;
 
 import com.sofrecom.backend.dtos.BookOwerDto;
+import com.sofrecom.backend.dtos.BookUpdateDto;
+import com.sofrecom.backend.dtos.UserUpdateDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.services.IBookService;
@@ -84,7 +86,19 @@ public class BookController {
 
     @GetMapping("/getBookOwner/{idbook}")
     public BookOwerDto getBookOwner(@PathVariable Long idbook) {
+
         return this.bookService.getBookOwnerById(idbook);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody BookUpdateDto book) {
+        Book updatedBook = bookService.updateBook(id, book);
+        return ResponseEntity.ok(updatedBook);
     }
 
 

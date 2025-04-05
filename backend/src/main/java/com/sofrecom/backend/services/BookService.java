@@ -1,6 +1,7 @@
 package com.sofrecom.backend.services;
 
 import com.sofrecom.backend.dtos.BookOwerDto;
+import com.sofrecom.backend.dtos.BookUpdateDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.BookRepository;
@@ -65,4 +66,44 @@ public class BookService implements IBookService {
     public BookOwerDto getBookOwnerById(Long idbook) {
         return this.bookRepository.findBookOwerByIdBook(idbook);
     }
+
+    @Override
+    public void deleteBook(Long id) {
+
+        this.bookRepository.deleteById(id);
+    }
+    @Override
+    public Book updateBook(Long id, BookUpdateDto BookDto) {
+        Book existingBook = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Book not found"));
+
+        if (BookDto.getTitle() != null) {
+            existingBook.setTitle(BookDto.getTitle());
+        }
+        if (BookDto.getAuthor() != null) {
+            existingBook.setAuthor(BookDto.getAuthor());
+        }
+        if (BookDto.getDescription() != null) {
+            existingBook.setDescription(BookDto.getDescription());
+        }
+        if (BookDto.getCoverUrl() != null) {
+            existingBook.setCoverUrl(BookDto.getCoverUrl());
+        }
+        if (BookDto.getPublishedDate() != null) {
+            existingBook.setPublishedDate(BookDto.getPublishedDate());
+        }
+        if (BookDto.getIsbn() != null) {
+            existingBook.setIsbn(BookDto.getIsbn());
+        }
+        if (BookDto.getCategory() != null) {
+            existingBook.setCategory(BookDto.getCategory());
+        }
+        if (BookDto.getPageCount() != 0) {
+            existingBook.setPageCount(BookDto.getPageCount());
+        }
+        if (BookDto.getLanguage() != null) {
+            existingBook.setLanguage(BookDto.getLanguage());
+        }
+        return bookRepository.save(existingBook);
+    }
+
 }

@@ -98,6 +98,54 @@ class MesLivresController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<bool> deleteBook(int bookId) async {
+    try {
+      isLoading.value = true;
+      final success = await BookService.deleteBook(bookId);
+
+      if (success) {
+        print('MesLivresController: Livre $bookId supprimé avec succès');
+        books.removeWhere((book) => book.id == bookId);
+        return true;
+      } else {
+        print('MesLivresController: Échec de la suppression du livre $bookId');
+        return false;
+      }
+    } catch (e) {
+      print('MesLivresController: Erreur lors de la suppression du livre: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<Book?> updateBook(int bookId, Map<String, dynamic> bookData) async {
+    try {
+      isLoading.value = true;
+      final updatedBook = await BookService.updateBook(bookId, bookData);
+
+      if (updatedBook != null) {
+        print('MesLivresController: Livre $bookId mis à jour avec succès');
+
+        // Mettre à jour le livre dans la liste locale
+        final index = books.indexWhere((book) => book.id == bookId);
+        if (index != -1) {
+          books[index] = updatedBook;
+        }
+
+        return updatedBook;
+      } else {
+        print('MesLivresController: Échec de la mise à jour du livre $bookId');
+        return null;
+      }
+    } catch (e) {
+      print('MesLivresController: Erreur lors de la mise à jour du livre: $e');
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
 
 class MesLivresPage extends GetView<ThemeController> {
@@ -112,9 +160,7 @@ class MesLivresPage extends GetView<ThemeController> {
     return GetBuilder<ThemeController>(
       builder:
           (themeController) => Scaffold(
-            appBar: AppBar(
-              elevation: 0,
-            ),
+            appBar: AppBar(elevation: 0),
             body: RefreshIndicator(
               onRefresh: () => bookController.refreshBooks(),
               child: Obx(() {
@@ -247,14 +293,14 @@ class MesLivresPage extends GetView<ThemeController> {
             child: Row(
               children: [
                 TextButton(
-                  onPressed: () {}, // Static for now
+                  onPressed: () => _showEditDialog(context, book),
                   child: Text(
                     'Modifier',
                     style: TextStyle(color: Colors.blue, fontSize: 14),
                   ),
                 ),
                 TextButton(
-                  onPressed: () {}, // Static for now
+                  onPressed: () => _showDeleteConfirmation(context, book),
                   child: Text(
                     'Supprimer',
                     style: TextStyle(color: Colors.red, fontSize: 14),
@@ -278,6 +324,172 @@ class MesLivresPage extends GetView<ThemeController> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Book book) {
+    final bookController = Get.find<MesLivresController>();
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmer la suppression'),
+          content: Text(
+            'Êtes-vous sûr de vouloir supprimer "${book.title}" de votre bibliothèque ?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                if (book.id != null) {
+                  final success = await bookController.deleteBook(book.id!);
+
+                  final snackBarText =
+                      success
+                          ? 'Livre supprimé avec succès'
+                          : 'Échec de la suppression du livre';
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(snackBarText),
+                      backgroundColor: success ? Colors.green : Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Supprimer', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(BuildContext context, Book book) {
+    final bookController = Get.find<MesLivresController>();
+
+    // Contrôleurs pour les champs de formulaire
+    final titleController = TextEditingController(text: book.title);
+    final authorController = TextEditingController(text: book.author);
+    final descriptionController = TextEditingController(text: book.description);
+    final coverUrlController = TextEditingController(text: book.coverUrl);
+    final publishedDateController = TextEditingController(
+      text: book.publishedDate,
+    );
+    final isbnController = TextEditingController(text: book.isbn);
+    final categoryController = TextEditingController(text: book.category);
+    final pageCountController = TextEditingController(
+      text: book.pageCount.toString(),
+    );
+    final languageController = TextEditingController(text: book.language);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Modifier le livre'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: InputDecoration(labelText: 'Titre'),
+                ),
+                TextFormField(
+                  controller: authorController,
+                  decoration: InputDecoration(labelText: 'Auteur'),
+                ),
+                TextFormField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                  maxLines: 3,
+                ),
+                TextFormField(
+                  controller: coverUrlController,
+                  decoration: InputDecoration(
+                    labelText: 'URL de la couverture',
+                  ),
+                ),
+                TextFormField(
+                  controller: publishedDateController,
+                  decoration: InputDecoration(labelText: 'Date de publication'),
+                ),
+                TextFormField(
+                  controller: isbnController,
+                  decoration: InputDecoration(labelText: 'ISBN'),
+                ),
+                TextFormField(
+                  controller: categoryController,
+                  decoration: InputDecoration(labelText: 'Catégorie'),
+                ),
+                TextFormField(
+                  controller: pageCountController,
+                  decoration: InputDecoration(labelText: 'Nombre de pages'),
+                  keyboardType: TextInputType.number,
+                ),
+                TextFormField(
+                  controller: languageController,
+                  decoration: InputDecoration(labelText: 'Langue'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (book.id != null) {
+                  // Préparer les données à mettre à jour
+                  final bookData = {
+                    'title': titleController.text,
+                    'author': authorController.text,
+                    'description': descriptionController.text,
+                    'coverUrl': coverUrlController.text,
+                    'publishedDate': publishedDateController.text,
+                    'isbn': isbnController.text,
+                    'category': categoryController.text,
+                    'pageCount': int.tryParse(pageCountController.text) ?? 0,
+                    'language': languageController.text,
+                  };
+
+                  Navigator.of(context).pop();
+
+                  // Effectuer la mise à jour
+                  final updatedBook = await bookController.updateBook(
+                    book.id!,
+                    bookData,
+                  );
+
+                  // Afficher un message de succès ou d'échec
+                  final snackBarText =
+                      updatedBook != null
+                          ? 'Livre mis à jour avec succès'
+                          : 'Échec de la mise à jour du livre';
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(snackBarText),
+                      backgroundColor:
+                          updatedBook != null ? Colors.green : Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text('Enregistrer', style: TextStyle(color: Colors.green)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
