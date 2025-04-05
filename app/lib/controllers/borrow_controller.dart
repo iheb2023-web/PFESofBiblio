@@ -6,12 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BorrowController extends GetxController {
-  final BorrowService _borrowService = Get.find<BorrowService>();
+  final BorrowService _borrowService = BorrowService();
   final AuthController _authController = Get.find<AuthController>();
 
   final RxList<Borrow> borrows = <Borrow>[].obs;
   final RxList<Borrow> ownerRequests = <Borrow>[].obs;
-  final RxList<Borrow> userBorrows = <Borrow>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
 
@@ -23,17 +22,33 @@ class BorrowController extends GetxController {
   }
 
   Future<void> loadOwnerRequests() async {
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-      final email = Get.find<AuthController>().currentUser.value?.email;
+      final email = _authController.currentUser.value?.email;
       if (email == null) {
         throw Exception('Utilisateur non connecté');
       }
-      final response = await _borrowService.getRequestsForOwner(email);
-      ownerRequests.value = response;
+      final requests = await _borrowService.getRequestsForOwner(email);
+
+      // Filtrer les données pour ne conserver que les informations nécessaires
+      ownerRequests.assignAll(
+        requests.map((request) {
+          return Borrow(
+            id: request.id,
+            borrowDate: request.borrowDate,
+            expectedReturnDate: request.expectedReturnDate,
+            borrowStatus: request.borrowStatus,
+            borrower: request.borrower,
+            book: request.book,
+          );
+        }).toList(),
+      );
+
+      print(
+        'ownerRequests: ${ownerRequests.length} demandes chargées',
+      ); // Log des données chargées
     } catch (e) {
-      error.value = e.toString();
-      print('Erreur lors du chargement des demandes: $e');
+      Get.snackbar('Erreur', 'Impossible de charger les demandes.');
     } finally {
       isLoading.value = false;
     }
@@ -109,12 +124,6 @@ class BorrowController extends GetxController {
       if (email == null) {
         throw Exception('Utilisateur non connecté');
       }
-
-      // Charger les emprunts de l'utilisateur
-      final borrowsResponse = await _borrowService.getUserBorrows(email);
-      userBorrows.value = borrowsResponse;
-
-      // Charger les demandes d'emprunt (garder la logique existante)
       borrows.value = await _borrowService.getBorrowDemandsByEmail(email);
     } catch (e) {
       error.value = e.toString();
@@ -159,6 +168,37 @@ class BorrowController extends GetxController {
     } catch (e) {
       error.value = e.toString();
       rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loadUserBorrows(String email) async {
+    try {
+      isLoading.value = true;
+      final borrows = await _borrowService.getUserBorrows(email);
+      this.borrows.assignAll(borrows);
+    } catch (e) {
+      print('Erreur lors du chargement des emprunts: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<List<DateTime>> getOccupiedDatesByBookId(int bookId) async {
+    try {
+      isLoading.value = true;
+      return await _borrowService.getOccupiedDatesByBookId(bookId);
+    } catch (e) {
+      error.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        'Impossible de récupérer les dates occupées',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+        colorText: AppTheme.errorColor,
+      );
+      return [];
     } finally {
       isLoading.value = false;
     }

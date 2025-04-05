@@ -32,17 +32,21 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('getRequestsForOwner response: ${response.statusCode} - ${response.body}');
+      print(
+        'getRequestsForOwner response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
         }
-        
+
         final List<dynamic> jsonList = jsonDecode(response.body);
         return jsonList.map((json) => Borrow.fromJson(json)).toList();
       } else {
-        throw Exception('Erreur lors de la récupération des demandes: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors de la récupération des demandes: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('getRequestsForOwner error: $e');
@@ -58,13 +62,17 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('acceptBorrowRequest response: ${response.statusCode} - ${response.body}');
+      print(
+        'acceptBorrowRequest response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
       } else {
-        throw Exception('Erreur lors de l\'acceptation de la demande: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors de l\'acceptation de la demande: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('acceptBorrowRequest error: $e');
@@ -80,13 +88,17 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('rejectBorrowRequest response: ${response.statusCode} - ${response.body}');
+      print(
+        'rejectBorrowRequest response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
       } else {
-        throw Exception('Erreur lors du refus de la demande: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors du refus de la demande: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('rejectBorrowRequest error: $e');
@@ -94,7 +106,12 @@ class BorrowService extends GetxService {
     }
   }
 
-  Future<Borrow> borrowBook(int bookId, String userEmail, DateTime borrowDate, DateTime returnDate) async {
+  Future<Borrow> borrowBook(
+    int bookId,
+    String userEmail,
+    DateTime borrowDate,
+    DateTime returnDate,
+  ) async {
     try {
       final Map<String, dynamic> requestBody = {
         'requestDate': DateTime.now().toIso8601String().split('T')[0],
@@ -103,12 +120,8 @@ class BorrowService extends GetxService {
         'expectedReturnDate': returnDate.toIso8601String().split('T')[0],
         'numberOfRenewals': 0,
         'borrowStatus': 'PENDING',
-        'borrower': {
-          'email': userEmail,
-        },
-        'book': {
-          'id': bookId
-        }
+        'borrower': {'email': userEmail},
+        'book': {'id': bookId},
       };
 
       print('Sending borrow request: ${jsonEncode(requestBody)}');
@@ -144,7 +157,7 @@ class BorrowService extends GetxService {
             ),
           );
         }
-        
+
         try {
           final responseData = jsonDecode(response.body);
           return Borrow.fromJson(responseData);
@@ -172,7 +185,9 @@ class BorrowService extends GetxService {
           );
         }
       } else {
-        throw Exception('Erreur lors de l\'emprunt du livre: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors de l\'emprunt du livre: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('borrowBook error: $e');
@@ -187,13 +202,15 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('getAllBorrows response: ${response.statusCode} - ${response.body}');
+      print(
+        'getAllBorrows response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
         }
-        
+
         try {
           final List<dynamic> jsonList = jsonDecode(response.body);
           return jsonList.map((json) => Borrow.fromJson(json)).toList();
@@ -202,7 +219,9 @@ class BorrowService extends GetxService {
           return [];
         }
       } else {
-        throw Exception('Erreur lors du chargement des emprunts: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors du chargement des emprunts: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('getAllBorrows error: $e');
@@ -217,17 +236,21 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('getBorrowDemandsByEmail response: ${response.statusCode} - ${response.body}');
+      print(
+        'getBorrowDemandsByEmail response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
         }
-        
+
         final List<dynamic> jsonList = jsonDecode(response.body);
         return jsonList.map((json) => Borrow.fromJson(json)).toList();
       } else {
-        throw Exception('Erreur lors de la récupération des demandes: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors de la récupération des demandes: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('getBorrowDemandsByEmail error: $e');
@@ -243,17 +266,21 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print('getUserBorrows response: ${response.statusCode} - ${response.body}');
+      print(
+        'getUserBorrows response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
         }
-        
+
         final List<dynamic> jsonList = jsonDecode(response.body);
         return jsonList.map((json) => Borrow.fromJson(json)).toList();
       } else {
-        throw Exception('Erreur lors de la récupération des emprunts: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors de la récupération des emprunts: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('getUserBorrows error: $e');
@@ -269,17 +296,63 @@ class BorrowService extends GetxService {
         body: jsonEncode(borrow.toJson()),
       );
 
-      print('processBorrowRequest response: ${response.statusCode} - ${response.body}');
+      print(
+        'processBorrowRequest response: ${response.statusCode} - ${response.body}',
+      );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
       } else {
-        throw Exception('Erreur lors du traitement de la demande: ${response.statusCode}');
+        throw Exception(
+          'Erreur lors du traitement de la demande: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('processBorrowRequest error: $e');
       rethrow;
+    }
+  }
+
+  Future<List<DateTime>> getOccupiedDatesByBookId(int bookId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/borrows/BookOccupiedDates/$bookId'),
+        headers: await getHeaders(),
+      );
+
+      print(
+        'getOccupiedDatesByBookId response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        List<DateTime> allDates = [];
+
+        for (var item in jsonList) {
+          DateTime fromDate = DateTime.parse(item['from']);
+          DateTime toDate = DateTime.parse(item['to']);
+
+          // Ajouter toutes les dates dans la plage
+          DateTime currentDate = fromDate;
+          while (currentDate.isBefore(toDate) ||
+              currentDate.isAtSameMomentAs(toDate)) {
+            allDates.add(
+              DateTime(currentDate.year, currentDate.month, currentDate.day),
+            );
+            currentDate = currentDate.add(const Duration(days: 1));
+          }
+        }
+
+        return allDates;
+      } else {
+        throw Exception(
+          'Erreur lors de la récupération des dates: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('getOccupiedDatesByBookId error: $e');
+      throw Exception('Erreur réseau: $e');
     }
   }
 }

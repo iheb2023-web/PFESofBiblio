@@ -6,6 +6,7 @@ import 'package:app/controllers/theme_controller.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:app/controllers/borrow_controller.dart';
 import 'package:app/views/Détails_Livre/details_livre.dart';
+import 'package:app/services/borrow_service.dart';
 
 class EmprunterLivre extends StatefulWidget {
   final Book book;
@@ -26,6 +27,7 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
   Map<DateTime, bool> _occupiedDates = {};
 
   final BorrowController _borrowController = Get.find<BorrowController>();
+  final BorrowService _borrowService = Get.find<BorrowService>();
 
   @override
   void initState() {
@@ -33,17 +35,17 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
     _loadOccupiedDates();
   }
 
-  // Ajouter la méthode pour charger les dates occupées
-  void _loadOccupiedDates() async {
+  // Charger les dates occupées pour ce livre
+  Future<void> _loadOccupiedDates() async {
     try {
       final occupiedDates = await _borrowController.getOccupiedDatesByBookId(
         widget.book.id!,
       );
-
       setState(() {
         _occupiedDates = {
-          for (var date in occupiedDates)
-            DateTime(date.year, date.month, date.day): true,
+          for (var occupiedDate in occupiedDates)
+            DateTime(occupiedDate.year, occupiedDate.month, occupiedDate.day):
+                true,
         };
       });
     } catch (e) {
@@ -511,12 +513,10 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
     final firstDayOfMonth = DateTime(_focusedDay.year, _focusedDay.month, 1);
     final firstWeekday = firstDayOfMonth.weekday;
 
-    // Calculer le nombre de lignes nécessaires
     final totalDays = firstWeekday - 1 + daysInMonth;
     final numberOfWeeks = (totalDays / 7).ceil();
 
     List<Widget> weeks = [];
-
     int dayCounter = 1 - (firstWeekday - 1);
 
     for (int week = 0; week < numberOfWeeks; week++) {
@@ -535,10 +535,8 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
               dateEmprunt != null && isSameDay(currentDate, dateEmprunt) ||
               dateRetour != null && isSameDay(currentDate, dateRetour);
 
-          // Modifier la vérification de disponibilité
-          final isAvailable = !_occupiedDates.containsKey(currentDate);
+          final isOccupied = _occupiedDates.containsKey(currentDate);
 
-          // Check if the current date is between start and end dates
           final isBetweenDates =
               dateEmprunt != null &&
               dateRetour != null &&
@@ -547,21 +545,60 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
 
           days.add(
             GestureDetector(
-              onTap: () {
-                if (isAvailable) {
-                  setState(() {
-                    if (dateEmprunt == null) {
-                      dateEmprunt = currentDate;
-                    } else if (dateRetour == null &&
-                        currentDate.isAfter(dateEmprunt!)) {
-                      dateRetour = currentDate;
-                    } else {
-                      dateEmprunt = currentDate;
-                      dateRetour = null;
-                    }
-                  });
-                }
-              },
+              onTap:
+                  isOccupied
+                      ? null // Désactive le tap pour les jours occupés
+                      : () {
+                        setState(() {
+                          // Si aucune date n'est sélectionnée, définir la date d'emprunt
+                          if (dateEmprunt == null) {
+                            dateEmprunt = currentDate;
+                          }
+                          // Si la date d'emprunt est déjà définie mais pas la date de retour
+                          else if (dateRetour == null &&
+                              currentDate.isAfter(dateEmprunt!)) {
+                            // Vérifier qu'aucun jour entre les deux dates n'est occupé
+                            bool periodContainsOccupiedDate = false;
+                            DateTime checkDate = dateEmprunt!.add(
+                              const Duration(days: 1),
+                            );
+
+                            while (checkDate.isBefore(currentDate)) {
+                              if (_occupiedDates.containsKey(
+                                DateTime(
+                                  checkDate.year,
+                                  checkDate.month,
+                                  checkDate.day,
+                                ),
+                              )) {
+                                periodContainsOccupiedDate = true;
+                                break;
+                              }
+                              checkDate = checkDate.add(
+                                const Duration(days: 1),
+                              );
+                            }
+
+                            if (!periodContainsOccupiedDate) {
+                              dateRetour = currentDate;
+                            } else {
+                              // Afficher un message d'erreur
+                              Get.rawSnackbar(
+                                message:
+                                    'La période sélectionnée contient des jours indisponibles',
+                                backgroundColor: Colors.red[100]!,
+                                snackPosition: SnackPosition.BOTTOM,
+                                duration: const Duration(seconds: 3),
+                              );
+                            }
+                          }
+                          // Réinitialiser la sélection et commencer une nouvelle
+                          else {
+                            dateEmprunt = currentDate;
+                            dateRetour = null;
+                          }
+                        });
+                      },
               child: Container(
                 width: 30,
                 height: 30,
@@ -569,9 +606,9 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                   color:
                       isSelected || isBetweenDates
                           ? Colors.blue
-                          : isAvailable
-                          ? Colors.green[100]
-                          : Colors.red[100],
+                          : isOccupied
+                          ? Colors.red[100]
+                          : Colors.green[100],
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -581,9 +618,9 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                       color:
                           isSelected || isBetweenDates
                               ? Colors.white
-                              : isAvailable
-                              ? Colors.black
-                              : Colors.red[900],
+                              : isOccupied
+                              ? Colors.red[900]
+                              : Colors.black,
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
                     ),

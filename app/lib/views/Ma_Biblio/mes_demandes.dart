@@ -4,203 +4,192 @@ import 'package:app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:app/services/storage_service.dart';
-import 'package:app/controllers/auth_controller.dart';
-import 'package:app/services/borrow_service.dart';
-
-class MesDemandesController extends GetxController {
-  final BorrowController _borrowController = Get.find<BorrowController>();
-  final AuthController _authController = Get.find<AuthController>();
-  final BorrowService _borrowService = Get.find<BorrowService>();
-  final _storageService = StorageService();
-  var isLoading = true.obs;
-  var pendingBorrows = <Borrow>[].obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    print('MesDemandesController: onInit called');
-    initializeAndLoadDemandes();
-
-    // Écouter les changements d'état de l'utilisateur
-    ever(_authController.currentUser, (_) {
-      print('MesDemandesController: Changement détecté dans currentUser');
-      loadDemandes();
-    });
-
-    // Rafraîchir automatiquement toutes les 30 secondes
-    Future.delayed(const Duration(seconds: 30), () {
-      loadDemandes();
-    });
-  }
-
-  Future<void> initializeAndLoadDemandes() async {
-    try {
-      print('MesDemandesController: Initializing storage service');
-      await _storageService.init();
-      await loadDemandes();
-    } catch (e) {
-      print('MesDemandesController: Error initializing: $e');
-    }
-  }
-
-  void updatePendingBorrows(List<Borrow> borrows) {
-    pendingBorrows.value = borrows
-        .where((borrow) => borrow.borrowStatus.toString().split('.').last == 'PENDING')
-        .toList();
-  }
-
-  Future<void> loadDemandes() async {
-    try {
-      print('MesDemandesController: Starting loadDemandes');
-      isLoading.value = true;
-
-      final email = _authController.currentUser.value?.email;
-      if (email == null) {
-        throw Exception('Utilisateur non connecté');
-      }
-
-      print('MesDemandesController: Loading demandes for user: $email');
-      final borrows = await _borrowService.getBorrowDemandsByEmail(email);
-      updatePendingBorrows(borrows);
-    } catch (e) {
-      print('MesDemandesController: Error loading demandes: $e');
-      pendingBorrows.value = [];
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> refreshDemandes() async {
-    print('MesDemandesController: Manual refresh of demandes');
-    await loadDemandes();
-  }
-
-  Future<void> handleBorrowRequest(Borrow borrow, bool isApproved) async {
-    try {
-      isLoading.value = true;
-      await _borrowService.processBorrowRequest(borrow, isApproved);
-      await loadDemandes(); // Recharger la liste après le traitement
-      Get.snackbar(
-        'Succès',
-        isApproved ? 'Demande acceptée' : 'Demande refusée',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppTheme.successColor.withOpacity(0.1),
-        colorText: AppTheme.successColor,
-        margin: const EdgeInsets.all(8),
-        borderRadius: 8,
-      );
-    } catch (e) {
-      print('Erreur lors du traitement de la demande: $e');
-      Get.snackbar(
-        'Erreur',
-        'Impossible de traiter la demande',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
-        colorText: AppTheme.errorColor,
-        margin: const EdgeInsets.all(8),
-        borderRadius: 8,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
-}
 
 class MesDemandesPage extends StatelessWidget {
-  final MesDemandesController controller = Get.put(MesDemandesController());
+  final BorrowController _borrowController = Get.find<BorrowController>();
 
   MesDemandesPage({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mes Demandes'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
-      ),
-      body: RefreshIndicator(
-        onRefresh: controller.refreshDemandes,
-        child: Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Non spécifié';
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
 
-          if (controller.pendingBorrows.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.book_outlined, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aucune demande en attente',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            );
-          }
+  Widget _buildBorrowStatus(String status) {
+    Color backgroundColor;
+    Color textColor;
+    String text;
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: controller.pendingBorrows.length,
-            itemBuilder: (context, index) {
-              final borrow = controller.pendingBorrows[index];
-              return _buildBorrowCard(borrow);
-            },
-          );
-        }),
+    switch (status) {
+      case 'PENDING':
+        backgroundColor = AppTheme.warningColor.withOpacity(0.1);
+        textColor = AppTheme.warningColor;
+        text = 'En attente';
+        break;
+      case 'ACCEPTED':
+        backgroundColor = AppTheme.successColor.withOpacity(0.1);
+        textColor = AppTheme.successColor;
+        text = 'Accepté';
+        break;
+      case 'REJECTED':
+        backgroundColor = AppTheme.errorColor.withOpacity(0.1);
+        textColor = AppTheme.errorColor;
+        text = 'Refusé';
+        break;
+      default:
+        backgroundColor = Colors.grey[100]!;
+        textColor = Colors.grey[900]!;
+        text = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
       ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: textColor,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(Borrow borrow) {
+    if (borrow.borrowStatus.toString().split('.').last != 'PENDING') {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: () => _borrowController.rejectRequest(borrow.id!),
+          style: TextButton.styleFrom(
+            foregroundColor: AppTheme.errorColor,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+          child: const Text('Refuser'),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          onPressed: () => _borrowController.acceptRequest(borrow.id!),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.successColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text('Accepter'),
+        ),
+      ],
     );
   }
 
   Widget _buildBorrowCard(Borrow borrow) {
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Vérifiez que les données sont bien affichées
+            Text(
+              'ID: ${borrow.id ?? 'Inconnu'}',
+            ), // Ajout temporaire pour déboguer
+            Text(
+              'Titre: ${borrow.book?.title ?? 'Titre inconnu'}',
+            ), // Ajout temporaire pour déboguer
+            // En-tête avec l'avatar et les informations de l'emprunteur
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Avatar de l'emprunteur
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.grey[200],
+                  child: Text(
+                    borrow.borrower?.firstname?.substring(0, 1).toUpperCase() ??
+                        '?',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Informations de l'emprunteur et dates
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${borrow.borrower?.firstname ?? ''} ${borrow.borrower?.lastname ?? ''}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Text(
+                        'Demande d\'emprunt',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                      Text(
+                        'Du ${_formatDate(borrow.borrowDate)} au ${_formatDate(borrow.expectedReturnDate)}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Informations du livre
+            Row(
               children: [
                 // Image du livre
-                if (borrow.book?.coverUrl != null && borrow.book!.coverUrl.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      borrow.book!.coverUrl,
-                      width: 80,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 80,
-                          height: 120,
-                          color: Colors.grey[200],
-                          child: Icon(Icons.book, color: Colors.grey[400]),
-                        );
-                      },
-                    ),
-                  )
-                else
-                  Container(
-                    width: 80,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(Icons.book, color: Colors.grey[400]),
-                  ),
-                const SizedBox(width: 16),
-                // Informations du livre
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child:
+                      borrow.book?.coverUrl != null &&
+                              borrow.book!.coverUrl.isNotEmpty
+                          ? Image.network(
+                            borrow.book!.coverUrl,
+                            width: 60,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  width: 60,
+                                  height: 80,
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.book,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                          )
+                          : Container(
+                            width: 60,
+                            height: 80,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.book, color: Colors.grey),
+                          ),
+                ),
+                const SizedBox(width: 12),
+                // Titre et auteur du livre
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,31 +197,12 @@ class MesDemandesPage extends StatelessWidget {
                       Text(
                         borrow.book?.title ?? 'Titre inconnu',
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      if (borrow.book?.author != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          borrow.book!.author,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 8),
                       Text(
-                        'Date de demande: ${borrow.requestDate != null ? DateFormat('dd/MM/yyyy').format(borrow.requestDate!) : 'Non spécifiée'}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                      Text(
-                        'Date d\'emprunt: ${borrow.borrowDate != null ? DateFormat('dd/MM/yyyy').format(borrow.borrowDate!) : 'Non spécifiée'}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                      Text(
-                        'Date de retour: ${borrow.expectedReturnDate != null ? DateFormat('dd/MM/yyyy').format(borrow.expectedReturnDate!) : 'Non spécifiée'}',
+                        borrow.book?.author ?? 'Auteur inconnu',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
@@ -241,30 +211,106 @@ class MesDemandesPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+            // Boutons d'action
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                TextButton(
-                  onPressed: () => controller.handleBorrowRequest(borrow, true),
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.successColor.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed:
+                        () => _borrowController.acceptRequest(borrow.id!),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Accepter'),
                   ),
-                  child: const Text('Accepter', style: TextStyle(color: AppTheme.successColor)),
                 ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: () => controller.handleBorrowRequest(borrow, false),
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.errorColor.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed:
+                        () => _borrowController.rejectRequest(borrow.id!),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Refuser'),
                   ),
-                  child: const Text('Refuser', style: TextStyle(color: AppTheme.errorColor)),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Demandes d\'emprunt'), elevation: 0),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          try {
+            await _borrowController.loadOwnerRequests();
+          } catch (e) {
+            // Ensure Snackbar is shown only when context is valid
+            if (context.mounted) {
+              Get.snackbar(
+                'Erreur',
+                'Impossible de charger les demandes: $e',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.red.withOpacity(0.8),
+                colorText: Colors.white,
+              );
+            }
+          }
+        },
+        child: Obx(() {
+          if (_borrowController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (_borrowController.ownerRequests.isEmpty) {
+            print(
+              'Aucune demande trouvée',
+            ); // Log si aucune demande n'est trouvée
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.book_outlined, size: 64, color: Colors.grey[400]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Aucune demande d\'emprunt',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          print(
+            'Demandes trouvées: ${_borrowController.ownerRequests.length}',
+          ); // Log des demandes trouvées
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: _borrowController.ownerRequests.length,
+            itemBuilder: (context, index) {
+              final borrow = _borrowController.ownerRequests[index];
+              print(
+                'Affichage de la demande: ${borrow.id}, Status: ${borrow.borrowStatus}',
+              ); // Log pour déboguer
+              return _buildBorrowCard(borrow);
+            },
+          );
+        }),
       ),
     );
   }

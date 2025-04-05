@@ -13,6 +13,7 @@ class AuthController extends GetxController {
   final Rx<User?> currentUser = Rx<User?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isLoggedIn = false.obs;
 
   String get baseUrl => AppConfig.apiBaseUrl;
 
@@ -35,6 +36,7 @@ class AuthController extends GetxController {
       if (token == null) {
         print('AuthController: Aucun token trouvé, déconnexion');
         currentUser.value = null;
+        isLoggedIn.value = false;
         update();
         return;
       }
@@ -52,6 +54,7 @@ class AuthController extends GetxController {
           if (user.id == null) {
             print('AuthController: ID utilisateur invalide, déconnexion');
             currentUser.value = null;
+            isLoggedIn.value = false;
             await _storageService.clearSession();
             update();
             return;
@@ -59,6 +62,7 @@ class AuthController extends GetxController {
 
           // Mettre à jour l'état de l'utilisateur
           currentUser.value = user;
+          isLoggedIn.value = true;
           print(
             'AuthController: État utilisateur mis à jour: ${user.toJson()}',
           );
@@ -68,6 +72,7 @@ class AuthController extends GetxController {
             'AuthController: Erreur lors de la création de l\'utilisateur: $e',
           );
           currentUser.value = null;
+          isLoggedIn.value = false;
           await _storageService.clearSession();
           update();
         }
@@ -76,12 +81,14 @@ class AuthController extends GetxController {
           'AuthController: Données de session invalides ou manquantes, déconnexion',
         );
         currentUser.value = null;
+        isLoggedIn.value = false;
         await _storageService.clearSession();
         update();
       }
     } catch (e) {
       print('AuthController: Erreur lors de la vérification du statut: $e');
       currentUser.value = null;
+      isLoggedIn.value = false;
       update();
     } finally {
       isLoading.value = false;
@@ -124,6 +131,7 @@ class AuthController extends GetxController {
 
       // Mettre à jour l'état de l'utilisateur
       currentUser.value = user;
+      isLoggedIn.value = true;
       print('AuthController: État utilisateur mis à jour: ${user.toJson()}');
       update();
 
@@ -152,6 +160,7 @@ class AuthController extends GetxController {
 
       // S'assurer que l'utilisateur est déconnecté
       currentUser.value = null;
+      isLoggedIn.value = false;
       update();
 
       Get.snackbar(
@@ -177,6 +186,7 @@ class AuthController extends GetxController {
       // Ensuite appeler le service de déconnexion
       await _authService.logout();
       currentUser.value = null;
+      isLoggedIn.value = false;
       update(); // Notifier GetX du changement
       print('AuthController: Déconnexion réussie');
 
@@ -200,6 +210,11 @@ class AuthController extends GetxController {
           'AuthController: Erreur supplémentaire lors du nettoyage: $storageError',
         );
       }
+
+      // S'assurer que l'utilisateur est déconnecté, même en cas d'erreur
+      currentUser.value = null;
+      isLoggedIn.value = false;
+      update();
 
       Get.snackbar(
         'Erreur',
@@ -301,11 +316,13 @@ class AuthController extends GetxController {
     }
   }
 
-  //vérifie si un utilisateur est connecté en fonction de currentUser
-  bool get isLoggedIn => currentUser.value != null;
   //renvoie le nom complet de l'utilisateur si l'utilisateur est connecté.
   String get userFullName =>
       currentUser.value != null
           ? '${currentUser.value!.firstname} ${currentUser.value!.lastname}'
           : '';
+
+  String? getCurrentUserEmail() {
+    return currentUser.value?.email;
+  }
 }
