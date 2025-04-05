@@ -1,6 +1,7 @@
 package com.sofrecom.backend.services;
 
 import com.sofrecom.backend.dtos.BookOwerDto;
+import com.sofrecom.backend.dtos.BookUpdateDto;
 import com.sofrecom.backend.entities.Book;
 
 import java.util.List;
@@ -22,4 +23,8 @@ public interface IBookService {
     List<Book> getAllBooksWithinEmailOwner(String email);
 
     BookOwerDto getBookOwnerById(Long idbook);
+
+    void deleteBook(Long id);
+
+    Book updateBook(Long id, BookUpdateDto BookDto);
 }
