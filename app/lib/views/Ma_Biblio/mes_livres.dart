@@ -160,7 +160,7 @@ class MesLivresPage extends GetView<ThemeController> {
     return GetBuilder<ThemeController>(
       builder:
           (themeController) => Scaffold(
-            appBar: AppBar(elevation: 0),
+            appBar: AppBar(elevation: 0, toolbarHeight: 10),
             body: RefreshIndicator(
               onRefresh: () => bookController.refreshBooks(),
               child: Obx(() {
