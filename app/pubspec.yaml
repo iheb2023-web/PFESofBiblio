@@ -42,7 +42,7 @@ dependencies:
   shared_preferences: ^2.5.2
   intl: ^0.18.0  # Ajout de la dépendance intl
   jwt_decoder: ^2.0.1  # Ajout de la dépendance jwt_decoder
-  dio: ^5.8.0+1
+  dio: ^5.3.2  # ou la version la plus récente
 
 dev_dependencies:
   flutter_test:
