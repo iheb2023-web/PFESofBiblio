@@ -8,62 +8,64 @@
         <!-- Card body START -->
         <div class="card-body">
             <div class="row g-4">
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
+                <!-- Approved -->
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="d-flex align-items-center">
-                        <!-- Icon -->
-                        <span class="display-6 text-success"> <i class="bi bi-check-circle"></i>
-                        </span>
-                        <!-- Content -->
+                        <span class="display-6 text-success"><i class="bi bi-check-circle"></i></span>
                         <div class="ms-3">
                             <h4 class="mb-0">{{stats.approved}}</h4>
                             <span>Approved</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
+        
+                <!-- Pending -->
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="d-flex align-items-center">
-                        <!-- Icon -->
-                        <span class="display-6 text-warning"> <i class="bi bi-hourglass"></i>
-                        </span>
-                        <!-- Content -->
+                        <span class="display-6 text-warning"><i class="bi bi-hourglass"></i></span>
                         <div class="ms-3">
                             <h4 class="mb-0">{{stats.pending}}</h4>
                             <span>Pending</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
+        
+                <!-- Rejected -->
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="d-flex align-items-center">
-                        <!-- Icon -->
-                        <span class="display-6 text-danger"> <i class="bi bi-x-circle" ></i></span>
-                        <!-- Content -->
+                        <span class="display-6 text-danger"><i class="bi bi-x-circle"></i></span>
                         <div class="ms-3">
                             <h4 class="mb-0">{{stats.rejected}}</h4>
                             <span>Rejected</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- Counter item -->
-                <div class="col-sm-6 col-xl-3">
+        
+                <!-- In Progress -->
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="d-flex align-items-center">
-                        <!-- Icon -->
-                        <span class="display-6 text-info"> <i class="bi bi-gear"></i> </span>
-                        <!-- Content -->
+                        <span class="display-6 text-info"><i class="bi bi-gear"></i></span>
                         <div class="ms-3">
                             <h4 class="mb-0">{{stats.progress}}</h4>
                             <span>In Progress</span>
                         </div>
                     </div>
                 </div>
-
+        
+                <!-- Returned -->
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                    <div class="d-flex align-items-center">
+                        <span class="display-6 text-secondary"><i class="bi bi-arrow-repeat"></i></span>
+                        <div class="ms-3">
+                            <h4 class="mb-0">{{stats.returned}}</h4>
+                            <span>Returned</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        
+        
         <!-- Card body END -->
     </div>
 </div>
@@ -154,9 +156,12 @@
                             <div *ngIf="demand.borrowStatus === 'PENDING'" class="badge text-bg-warning">PENDING</div>
                             <div *ngIf="demand.borrowStatus === 'REJECTED'" class="badge text-bg-danger">REJECTED</div>
                             <div *ngIf="demand.borrowStatus === 'APPROVED'" class="badge text-bg-success">APPROVED</div>
+                            <div *ngIf="demand.borrowStatus === 'IN_PROGRESS'" class="badge text-bg-info">IN_PROGRESS</div>
+                            <div *ngIf="demand.borrowStatus === 'RETURNED'" class="badge text-bg-secondary">RETURNED</div>
+
                         </div>
 
-                        <div class="col-sm-6 col-md-4" *ngIf="demand.borrowStatus === 'REJECTED' ||  demand.borrowStatus === 'APPROVED'">
+                        <div class="col-sm-6 col-md-4">
                             <span>Response Date</span>
                             <h6 class="mb-0">{{demand.responseDate}}</h6>
                         </div>

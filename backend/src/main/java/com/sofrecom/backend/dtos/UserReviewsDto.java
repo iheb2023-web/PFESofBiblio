@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BorrowStatusUser {
-    private int approved;
-    private int pending;
-    private int rejected;
-    private int progress;
-    private int returned;
-
+public class UserReviewsDto {
+    private Long id;
+    private String email;
+    private String firstname;
+    private String lastname;
+    private String image;
 }
