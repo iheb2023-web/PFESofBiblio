@@ -46,7 +46,7 @@ export class RequestsComponent implements OnInit{
     getRequests(email: string): void {
       this.borrowService.getBorrowRequestsByUserEmail(email).subscribe(
         (response : any) => {
-          this.demands = response; 
+          this.demands = response.reverse() 
           console.log(this.demands)
         },
         (error) => {

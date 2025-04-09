@@ -29,6 +29,9 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'IN_PROGRESS' AND b.borrower.email = :email")
     int getTotalProgressRequestByEmail(@Param("email") String email);
 
+    @Query("select count(b) from Borrow b   where  b.BorrowStatus = 'RETURNED' AND b.borrower.email = :email")
+    int getTotalReturnedRequestByEmail(@Param("email") String email);
+
     @Query("SELECT NEW com.sofrecom.backend.dtos.OccupiedDates(b.borrowDate, b.expectedReturnDate) " +
             "FROM Borrow b " +
             "WHERE (b.BorrowStatus = 'IN_PROGRESS' OR b.BorrowStatus = 'APPROVED' OR b.BorrowStatus = 'PENDING') " +
@@ -39,5 +42,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     //@Query("SELECT b from Borrow b where b.BorrowStatus = 'IN_PROGRESS' and b.borrowDate>")
     //findBorrowInProgress(@Param("borrow") Borrow);
 
+    @Query("select b from Borrow b where b.borrowDate = CURRENT_DATE and b.BorrowStatus = 'APPROVED'")
+    List<Borrow> findApprovedBorrowsToday();
 
 }
