@@ -14,6 +14,7 @@ import { NewPasswordComponent } from './features/new-password/new-password.compo
 import { SharedModule } from './features/shared/shared.module';
 import { HomeComponent } from './features/home/home.component';
 import { BooksModule } from './features/books/books.module';
+import { NotificationComponent } from './notification/notification.component';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { BooksModule } from './features/books/books.module';
     NotfoundComponent,
     NewPasswordComponent,
     HomeComponent,
+    NotificationComponent,
     
     
   ],

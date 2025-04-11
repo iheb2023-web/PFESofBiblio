@@ -13,7 +13,7 @@ export class BookService {
   constructor(private http: HttpClient) {}
 
   addBook(book : any, email : any){
-    return this.http.post(this.URL+ "/add"+ `/${email}`, book)
+    return this.http.post(this.URL+ "/add/socket"+ `/${email}`, book)
   }
   checkOwnerBookByEmail(email: any, id: any)
   {

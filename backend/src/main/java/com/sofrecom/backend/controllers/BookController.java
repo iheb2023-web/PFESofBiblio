@@ -102,7 +102,10 @@ public class BookController {
     }
 
 
-
+    @PostMapping("/add/socket/{email}")
+    public Book updateBook(@RequestBody Book book, @PathVariable String email) {
+        return bookService.AddBookSocket(book,email);
+    }
 
 
 }
