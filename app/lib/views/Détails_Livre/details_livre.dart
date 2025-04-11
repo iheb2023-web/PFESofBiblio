@@ -103,42 +103,50 @@ class _DetailsLivreState extends State<DetailsLivre>
             ElevatedButton(
               onPressed: () async {
                 final user = _authController.currentUser.value;
+
+                print("=== DEBUG REVIEW ADD ===");
+                print("user: $user");
+                print("user.id: ${user?.id}");
+                print("book: ${widget.book}");
+                print("book.id: ${widget.book.id}");
+                print("rating: $_rating");
+                print("comment: ${_commentController.text}");
+                print("date: ${DateTime.now().toIso8601String()}");
+                print("========================");
+
                 if (user == null || widget.book.id == null) {
                   Get.snackbar("Erreur", "Utilisateur ou livre introuvable");
                   return;
                 }
 
-                await _reviewController.addReview(
-                  Review(
-                    rating: _rating,
-                    comment: _commentController.text,
-                    userId: user.id!,
-                    bookId: widget.book.id!,
-                    publishedDate: DateTime.now().toIso8601String(),
-                  ),
-                );
+                try {
+                  await _reviewController.addReview(
+                    Review(
+                      rating: _rating,
+                      comment: _commentController.text,
+                      userId: user.id!,
+                      bookId: widget.book.id!,
+                      publishedDate: DateTime.now().toIso8601String(),
+                    ),
+                  );
 
-                Get.back(); // Fermer la boîte de dialogue
-                Get.snackbar(
-                  'thank_you'.tr,
-                  'review_added'.tr,
-                  snackPosition: SnackPosition.BOTTOM,
-                );
+                  Navigator.pop(context); // Fermer la boîte de dialogue
+
+                  // Utiliser Future.delayed pour retarder l'affichage de la snackbar
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    Get.snackbar(
+                      'thank_you'.tr,
+                      'review_added'.tr,
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  });
+                } catch (e) {
+                  print("Exception lors de l'ajout de review: $e");
+                  Get.snackbar("Erreur", "Impossible d'ajouter l'avis");
+                }
               },
               child: Text('publish'.tr),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // ... logique d'ajout d'avis
-            //     Get.back();
-            //     Get.snackbar(
-            //       'thank_you'.tr,
-            //       'review_added'.tr,
-            //       snackPosition: SnackPosition.BOTTOM,
-            //     );
-            //   },
-            //   child: Text('publish'.tr),
-            // ),
           ],
         );
       },

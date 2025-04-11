@@ -1,11 +1,12 @@
 class Review {
   final int? id;
-  final String comment;
+  final String comment; // contenu du commentaire
   final int rating;
   final String publishedDate;
   final int bookId;
-  final int userId;
-  final String? username; // optionnel pour afficher dans les DTO
+  final int? userId; // optionnel si on utilise l'email à l'envoi
+  final String? username;
+  String? userEmail; // pour l'envoi via email au lieu de userId
 
   Review({
     this.id,
@@ -13,29 +14,35 @@ class Review {
     required this.rating,
     required this.publishedDate,
     required this.bookId,
-    required this.userId,
+    this.userId,
     this.username,
+    this.userEmail,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
       id: json['id'],
-      comment: json['comment'],
-      rating: json['rating'],
-      publishedDate: json['publishedDate'],
-      bookId: json['book']['id'],
-      userId: json['user']['id'],
-      username: json['user']['username'],
+      comment: json['content'] ?? '',
+      rating: json['rating'] ?? 0,
+      publishedDate: json['publishedDate'] ?? '',
+      bookId: json['book']?['id'] ?? 0,
+      userId: json['user']?['id'],
+      username: json['user']?['username'],
+      userEmail: json['user']?['email'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'comment': comment,
+    final Map<String, dynamic> jsonMap = {
+      'content': comment,
       'rating': rating,
-      'publishedDate': publishedDate,
       'book': {'id': bookId},
-      'user': {'id': userId},
     };
+
+    if (userEmail != null) {
+      jsonMap['user'] = {'email': userEmail};
+    }
+
+    return jsonMap;
   }
 }

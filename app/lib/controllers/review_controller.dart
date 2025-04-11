@@ -35,35 +35,23 @@ class ReviewController extends GetxController {
       isLoading.value = true;
       error.value = '';
 
-      final email = AuthController().currentUser.value?.email;
+      final email = _authController.currentUser.value?.email;
       if (email == null) {
         error.value = 'User not authenticated';
         return false;
       }
 
-      final reviewJson = {
-        'content': review.comment,
-        'rating': review.rating,
-        'book': {'id': review.bookId},
-        'user': {'email': email},
-      };
+      // Ajout de l'email avant envoi
+      review.userEmail = email;
 
-      final response = await GetConnect().post(
-        'https://api.example.com/reviews',
-        reviewJson,
-        headers: {
-          'Authorization': 'Bearer ${_authController.currentUser.value?.token}',
-          'Content-Type': 'application/json',
-        },
-      );
+      final addedReview = await ReviewService.addReview(review);
 
-      if (response.statusCode == 201) {
-        final newReview = Review.fromJson(response.body);
-        reviews.add(newReview);
-        userReviews.add(newReview);
+      if (addedReview != null) {
+        reviews.add(addedReview);
+        userReviews.add(addedReview);
         return true;
       } else {
-        error.value = response.body['message'] ?? 'Unknown error';
+        error.value = 'Échec ajout review';
         return false;
       }
     } catch (e) {
@@ -73,55 +61,6 @@ class ReviewController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  // Future<bool> deleteReview(int reviewId) async {
-  //   try {
-  //     isLoading.value = true;
-  //     error.value = '';
-
-  //     final success = await ReviewService.deleteReview(reviewId);
-  //     if (success) {
-  //       reviews.removeWhere((review) => review.id == reviewId);
-  //       userReviews.removeWhere((review) => review.id == reviewId);
-  //       return true;
-  //     }
-  //     error.value = 'Échec de la suppression du review';
-  //     return false;
-  //   } catch (e) {
-  //     error.value = 'Erreur lors de la suppression du review: $e';
-  //     print(error.value);
-  //     return false;
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
-  // Future<Review?> updateReview(
-  //   int reviewId,
-  //   Map<String, dynamic> reviewData,
-  // ) async {
-  //   try {
-  //     isLoading.value = true;
-  //     error.value = '';
-
-  //     final updatedReview = await ReviewService.updateReview(
-  //       reviewId,
-  //       reviewData,
-  //     );
-  //     if (updatedReview != null) {
-  //       _updateReviewInLists(updatedReview);
-  //       return updatedReview;
-  //     }
-  //     error.value = 'Échec de la mise à jour du review';
-  //     return null;
-  //   } catch (e) {
-  //     error.value = 'Erreur lors de la mise à jour du review: $e';
-  //     print(error.value);
-  //     return null;
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
 
   void _updateReviewInLists(Review updatedReview) {
     final lists = [reviews, userReviews];
