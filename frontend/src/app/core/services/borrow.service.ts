@@ -40,4 +40,9 @@ export class BorrowService {
      {
         return this.http.put(this.URL+`/approved/${approved}`, borrow)
      }
+
+     getBorrowById(id : any)
+     {
+      return this.http.get(this.URL + `/${id}`)
+     }
 }

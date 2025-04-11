@@ -27,4 +27,6 @@ public interface IBookService {
     void deleteBook(Long id);
 
     Book updateBook(Long id, BookUpdateDto BookDto);
+
+    public Book AddBookSocket(Book book,String email);
 }

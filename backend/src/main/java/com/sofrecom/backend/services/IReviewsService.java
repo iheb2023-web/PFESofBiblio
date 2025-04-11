@@ -11,4 +11,8 @@ public interface IReviewsService {
     List<Reviews> getAllReviews();
 
     List<ReviewsDto> getReviewsByIdBook(Long id);
+
+    Reviews updateReviews(Long idReview, Reviews reviews);
+
+    void deleteReviews(Long id);
 }
