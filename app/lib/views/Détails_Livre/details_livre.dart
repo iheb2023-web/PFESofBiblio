@@ -23,6 +23,21 @@ class _DetailsLivreState extends State<DetailsLivre>
   bool _isRotating = false;
   final ReviewController _reviewController = Get.find<ReviewController>();
   final AuthController _authController = Get.find<AuthController>();
+  String _formatDate(String isoDate) {
+    final date = DateTime.parse(isoDate);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 7) {
+      return "${date.day}/${date.month}/${date.year}";
+    } else if (difference.inDays >= 1) {
+      return "Il y a ${difference.inDays} jours";
+    } else if (difference.inHours >= 1) {
+      return "Il y a ${difference.inHours} heures";
+    } else {
+      return "Il y a quelques minutes";
+    }
+  }
 
   @override
   void initState() {
@@ -31,6 +46,8 @@ class _DetailsLivreState extends State<DetailsLivre>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
+    // Appel pour charger les avis par book ID
+    _reviewController.loadReviewsForBook(widget.book.id!);
   }
 
   @override
@@ -521,6 +538,48 @@ class _DetailsLivreState extends State<DetailsLivre>
               const SizedBox(height: 24),
 
               // Section avis
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //         children: [
+              //           Text(
+              //             'reader_reviews'.tr,
+              //             style: const TextStyle(
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //           IconButton(
+              //             icon: const Icon(Icons.add_circle_outline),
+              //             onPressed: _showAddReviewDialog,
+              //           ),
+              //         ],
+              //       ),
+              //       const SizedBox(height: 16),
+              //       // Liste des avis
+              //       _buildAvis(
+              //         nom: "Marie Dupont",
+              //         note: 5,
+              //         commentaire:
+              //             "Un chef-d'œuvre intemporel qui touche le cœur.",
+              //         date: "Il y a 2 jours",
+              //         photoUrl: null,
+              //       ),
+              //       const SizedBox(height: 16),
+              //       _buildAvis(
+              //         nom: "Jean Martin",
+              //         note: 4,
+              //         commentaire: "Une belle histoire qui fait réfléchir.",
+              //         date: "Il y a 1 semaine",
+              //         photoUrl: null,
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -543,27 +602,34 @@ class _DetailsLivreState extends State<DetailsLivre>
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Liste des avis
-                    _buildAvis(
-                      nom: "Marie Dupont",
-                      note: 5,
-                      commentaire:
-                          "Un chef-d'œuvre intemporel qui touche le cœur.",
-                      date: "Il y a 2 jours",
-                      photoUrl: null,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildAvis(
-                      nom: "Jean Martin",
-                      note: 4,
-                      commentaire: "Une belle histoire qui fait réfléchir.",
-                      date: "Il y a 1 semaine",
-                      photoUrl: null,
-                    ),
+
+                    // Liste dynamique des avis
+                    Obx(() {
+                      final reviews = _reviewController.reviews;
+                      if (reviews.isEmpty) {
+                        return const Text("Aucun avis pour le moment.");
+                      }
+                      return Column(
+                        children:
+                            reviews.map((review) {
+                              return Column(
+                                children: [
+                                  _buildAvis(
+                                    nom: review.username ?? "Utilisateur",
+                                    note: review.rating,
+                                    commentaire: review.comment,
+                                    date: _formatDate(review.publishedDate),
+                                    photoUrl: null,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
             ],
           ),
