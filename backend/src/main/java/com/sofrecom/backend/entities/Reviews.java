@@ -29,7 +29,6 @@ public class Reviews {
     private User user;
 
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
 }
