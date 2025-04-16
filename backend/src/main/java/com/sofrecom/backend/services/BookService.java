@@ -23,6 +23,7 @@ public class BookService implements IBookService {
 
     @Override
     public Book addBook(Book book) {
+        book.setAddedDate(LocalDate.now());
         return this.bookRepository.save(book);
     }
 

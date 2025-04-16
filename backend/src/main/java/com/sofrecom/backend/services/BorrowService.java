@@ -91,8 +91,8 @@ public class BorrowService implements IBorrowService {
 
 
     //@Scheduled(cron = "0 0 0 * * *")
-    //@Scheduled(fixedRate = 10000) // every 10 seconds
-    @Scheduled(cron = "0 * * * * *") // every minute
+    @Scheduled(fixedRate = 15000) // every 10 seconds
+   // @Scheduled(cron = "0 * * * * *") // every minute
     public void updateBorrowStatuses() {
         List<Borrow> borrows = this.borrowRepository.findApprovedBorrowsToday();
         for (Borrow borrow : borrows) {
@@ -102,8 +102,8 @@ public class BorrowService implements IBorrowService {
     }
 
     //@Scheduled(cron = "0 0 0 * * *")
-    //@Scheduled(fixedRate = 10000) // every 10 seconds
-    @Scheduled(cron = "0 * * * * *") // every minute
+    @Scheduled(fixedRate = 15000) // every 10 seconds
+    //@Scheduled(cron = "0 * * * * *") // every minute
     public void updateBorrowStatusesToReturned() {
         List<Borrow> borrows = this.borrowRepository.findProgressBorrowsEndToday();
         for (Borrow borrow : borrows) {
