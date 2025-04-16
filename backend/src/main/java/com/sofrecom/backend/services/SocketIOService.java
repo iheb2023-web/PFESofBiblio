@@ -22,14 +22,20 @@ public class SocketIOService {
 
     @PostConstruct
     public void start() {
-        server.addConnectListener(client -> System.out.println("Client connected: " + client.getSessionId()));
-        server.addDisconnectListener(client -> System.out.println("Client disconnected: " + client.getSessionId()));
+        server.addConnectListener(client -> {
+            System.out.println("Backend: Client connecté: " + client.getSessionId());
+        });
+        server.addDisconnectListener(client -> {
+            System.out.println("Backend: Client déconnecté: " + client.getSessionId());
+        });
         server.start();
+        System.out.println("Backend: Serveur WebSocket démarré sur le port 9092");
     }
 
     @PreDestroy
     public void stop() {
         server.stop();
+        System.out.println("Backend: Serveur WebSocket arrêté");
     }
 
     // Method to broadcast book update notification
@@ -39,7 +45,10 @@ public class SocketIOService {
 
 
     public void sendProcessBorrowRequestNotification(Long borrowId) {
+        //server.getBroadcastOperations().sendEvent("processBorrowRequest", borrowId);
+        System.out.println("Backend: Envoi de l'événement processBorrowRequest avec borrowId: " + borrowId);
         server.getBroadcastOperations().sendEvent("processBorrowRequest", borrowId);
+        System.out.println("Backend: Événement processBorrowRequest envoyé");
     }
 
 

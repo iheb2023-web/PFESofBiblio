@@ -36,8 +36,9 @@ class Book {
   // Conversion d'un JSON en objet Book
   factory Book.fromJson(Map<String, dynamic> json) {
     final ownerJson = json['owner'] as Map<String, dynamic>?;
-    final ownerId = ownerJson != null ? ownerJson['id'] as int? : json['ownerId'] as int?;
-    
+    final ownerId =
+        ownerJson != null ? ownerJson['id'] as int? : json['ownerId'] as int?;
+
     return Book(
       id: json['id'] as int?,
       title: json['title'] ?? '',

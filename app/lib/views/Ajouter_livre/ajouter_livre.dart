@@ -223,7 +223,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     Icons.arrow_back,
                     color: Theme.of(context).appBarTheme.iconTheme?.color,
                   ),
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
                 elevation: 0,
               ),

@@ -316,7 +316,7 @@ class _DetailsLivreState extends State<DetailsLivre>
                 padding: const EdgeInsets.all(16.0),
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
 

@@ -373,6 +373,7 @@ class MesLivresPage extends GetView<ThemeController> {
 
   void _showEditDialog(BuildContext context, Book book) {
     final bookController = Get.find<MesLivresController>();
+    final _formKey = GlobalKey<FormState>();
 
     // Contrôleurs pour les champs de formulaire
     final titleController = TextEditingController(text: book.title);
@@ -393,103 +394,187 @@ class MesLivresPage extends GetView<ThemeController> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Modifier le livre'),
+          title: const Text('Modifier le livre'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: titleController,
-                  decoration: InputDecoration(labelText: 'Titre'),
-                ),
-                TextFormField(
-                  controller: authorController,
-                  decoration: InputDecoration(labelText: 'Auteur'),
-                ),
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'Description'),
-                  maxLines: 3,
-                ),
-                TextFormField(
-                  controller: coverUrlController,
-                  decoration: InputDecoration(
-                    labelText: 'URL de la couverture',
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTextFormField(
+                    controller: titleController,
+                    label: 'Titre*',
+                    icon: Icons.title,
+                    validator:
+                        (value) =>
+                            value?.isEmpty ?? true
+                                ? 'Le titre est requis'
+                                : null,
                   ),
-                ),
-                TextFormField(
-                  controller: publishedDateController,
-                  decoration: InputDecoration(labelText: 'Date de publication'),
-                ),
-                TextFormField(
-                  controller: isbnController,
-                  decoration: InputDecoration(labelText: 'ISBN'),
-                ),
-                TextFormField(
-                  controller: categoryController,
-                  decoration: InputDecoration(labelText: 'Catégorie'),
-                ),
-                TextFormField(
-                  controller: pageCountController,
-                  decoration: InputDecoration(labelText: 'Nombre de pages'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextFormField(
-                  controller: languageController,
-                  decoration: InputDecoration(labelText: 'Langue'),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: authorController,
+                    label: 'Auteur*',
+                    icon: Icons.person,
+                    validator:
+                        (value) =>
+                            value?.isEmpty ?? true
+                                ? 'L\'auteur est requis'
+                                : null,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: descriptionController,
+                    label: 'Description',
+                    icon: Icons.description,
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: coverUrlController,
+                    label: 'URL de la couverture',
+                    icon: Icons.link,
+                  ),
+                  if (coverUrlController.text.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        coverUrlController.text,
+                        height: 100,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (context, error, stackTrace) => Container(
+                              height: 100,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image),
+                            ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: publishedDateController,
+                    label: 'Date de publication',
+                    icon: Icons.calendar_today,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: isbnController,
+                    label: 'ISBN',
+                    icon: Icons.numbers,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: categoryController,
+                    label: 'Catégorie',
+                    icon: Icons.category,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: pageCountController,
+                    label: 'Nombre de pages',
+                    icon: Icons.format_list_numbered,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextFormField(
+                    controller: languageController,
+                    label: 'Langue',
+                    icon: Icons.language,
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Annuler'),
+              child: const Text('Annuler'),
             ),
             TextButton(
               onPressed: () async {
-                if (book.id != null) {
-                  // Préparer les données à mettre à jour
-                  final bookData = {
-                    'title': titleController.text,
-                    'author': authorController.text,
-                    'description': descriptionController.text,
-                    'coverUrl': coverUrlController.text,
-                    'publishedDate': publishedDateController.text,
-                    'isbn': isbnController.text,
-                    'category': categoryController.text,
-                    'pageCount': int.tryParse(pageCountController.text) ?? 0,
-                    'language': languageController.text,
-                  };
+                if (_formKey.currentState?.validate() ?? false) {
+                  if (book.id != null) {
+                    // Préparer les données à mettre à jour
+                    final bookData = {
+                      'title': titleController.text,
+                      'author': authorController.text,
+                      'description': descriptionController.text,
+                      'coverUrl': coverUrlController.text,
+                      'publishedDate': publishedDateController.text,
+                      'isbn': isbnController.text,
+                      'category': categoryController.text,
+                      'pageCount': int.tryParse(pageCountController.text) ?? 0,
+                      'language': languageController.text,
+                    };
 
-                  Navigator.of(context).pop();
+                    Navigator.of(context).pop();
 
-                  // Effectuer la mise à jour
-                  final updatedBook = await bookController.updateBook(
-                    book.id!,
-                    bookData,
-                  );
-
-                  // Afficher un message de succès ou d'échec
-                  final snackBarText =
-                      updatedBook != null
-                          ? 'Livre mis à jour avec succès'
-                          : 'Échec de la mise à jour du livre';
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(snackBarText),
-                      backgroundColor:
-                          updatedBook != null ? Colors.green : Colors.red,
-                    ),
-                  );
+                    // Effectuer la mise à jour avec gestion des erreurs
+                    try {
+                      final updatedBook = await bookController.updateBook(
+                        book.id!,
+                        bookData,
+                      );
+                      Get.snackbar(
+                        updatedBook != null ? 'Succès' : 'Erreur',
+                        updatedBook != null
+                            ? 'Livre mis à jour avec succès'
+                            : 'Échec de la mise à jour du livre',
+                        backgroundColor:
+                            updatedBook != null
+                                ? Colors.green.withOpacity(0.9)
+                                : Colors.red.withOpacity(0.9),
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    } catch (e) {
+                      Get.snackbar(
+                        'Erreur',
+                        'Une erreur s\'est produite : $e',
+                        backgroundColor: Colors.red.withOpacity(0.9),
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  }
                 }
               },
-              child: Text('Enregistrer', style: TextStyle(color: Colors.green)),
+              child: const Text(
+                'Enregistrer',
+                style: TextStyle(color: Colors.green),
+              ),
             ),
           ],
         );
       },
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int? maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+      ),
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
     );
   }
 }

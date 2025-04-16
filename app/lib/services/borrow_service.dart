@@ -3,7 +3,6 @@ import 'package:app/models/borrow.dart';
 import 'package:app/models/book.dart';
 import 'package:app/enums/borrow_status.dart';
 import 'package:app/services/storage_service.dart';
-import 'package:app/models/user_model.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
