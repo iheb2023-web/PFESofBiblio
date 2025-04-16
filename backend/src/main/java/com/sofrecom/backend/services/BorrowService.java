@@ -20,6 +20,7 @@ import java.util.List;
 public class BorrowService implements IBorrowService {
     private final BorrowRepository borrowRepository;
     private final UserRepository userRepository;
+    private final SocketIOService socketIOService;
 
     public List<Borrow> findAll() {
         return borrowRepository.findAll();
@@ -52,6 +53,8 @@ public class BorrowService implements IBorrowService {
         {
             borrow.setBorrowStatus(BorrowStatus.REJECTED);
         }
+
+        socketIOService.sendProcessBorrowRequestNotification(borrow.getId());
         return borrowRepository.save(borrow);
     }
 
@@ -94,6 +97,17 @@ public class BorrowService implements IBorrowService {
         List<Borrow> borrows = this.borrowRepository.findApprovedBorrowsToday();
         for (Borrow borrow : borrows) {
             borrow.setBorrowStatus(BorrowStatus.IN_PROGRESS);
+        }
+        borrowRepository.saveAll(borrows);
+    }
+
+    //@Scheduled(cron = "0 0 0 * * *")
+    //@Scheduled(fixedRate = 10000) // every 10 seconds
+    @Scheduled(cron = "0 * * * * *") // every minute
+    public void updateBorrowStatusesToReturned() {
+        List<Borrow> borrows = this.borrowRepository.findProgressBorrowsEndToday();
+        for (Borrow borrow : borrows) {
+            borrow.setBorrowStatus(BorrowStatus.RETURNED);
         }
         borrowRepository.saveAll(borrows);
     }

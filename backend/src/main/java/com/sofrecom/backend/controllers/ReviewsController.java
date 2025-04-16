@@ -31,4 +31,13 @@ public class ReviewsController {
     public List<ReviewsDto> getReviewsByIdBook(@PathVariable Long id) {
         return this.reviewsService.getReviewsByIdBook(id);
     }
+    @PutMapping("/{idReview}")
+    public Reviews updateReviews(@PathVariable Long idReview, @RequestBody Reviews reviews) {
+        return this.reviewsService.updateReviews(idReview,reviews);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteReviews(@PathVariable Long id) {
+        this.reviewsService.deleteReviews(id);
+    }
 }

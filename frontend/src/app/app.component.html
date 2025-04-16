@@ -1,1 +1,46 @@
+
+<!-- app.component.html -->
+<!-- app.component.html -->
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+  <div class="toast-container top-0 end-0 p-3 position-fixed">
+    <ng-container *ngFor="let toast of toasts">
+      <div
+        *ngIf="toast.message.borrower?.email === email"
+        #toastRef
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        [attr.data-toast-id]="toast.id"
+      >
+        <div class="toast-header">
+          <strong class="me-auto">
+            <i class="bi bi-patch-check-fill text-success me-2"></i>New Notification
+          </strong>
+          <small class="text-body-secondary">Just now</small>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="toast-body">
+          <img
+            [src]="'assets/images/avatar/10.jpg'"
+            alt="User Profile"
+            class="rounded-circle"
+            width="40"
+            height="40"
+          />
+          The owner of the book <b>{{ toast.message.book.title }}</b> has <b>{{ toast.message.borrowStatus }} your demand.</b>.
+          <a [routerLink]="['/home/books/library/requests']">Check your library</a>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+
+
   <router-outlet></router-outlet>

@@ -2,24 +2,42 @@ import 'package:app/models/book.dart';
 import 'package:app/views/Emprunter/emprunter_livre.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:app/controllers/review_controller.dart';
+import 'package:app/controllers/auth_controller.dart';
+import 'package:app/models/review.dart';
 
 class DetailsLivre extends StatefulWidget {
   final Book book;
 
-  const DetailsLivre({
-    super.key,
-    required this.book,
-  });
+  const DetailsLivre({super.key, required this.book});
 
   @override
   State<DetailsLivre> createState() => _DetailsLivreState();
 }
 
-class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderStateMixin {
+class _DetailsLivreState extends State<DetailsLivre>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _commentController = TextEditingController();
   int _rating = 0;
   late AnimationController _animationController;
   bool _isRotating = false;
+  final ReviewController _reviewController = Get.find<ReviewController>();
+  final AuthController _authController = Get.find<AuthController>();
+  String _formatDate(String isoDate) {
+    final date = DateTime.parse(isoDate);
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays > 7) {
+      return "${date.day}/${date.month}/${date.year}";
+    } else if (difference.inDays >= 1) {
+      return "Il y a ${difference.inDays} jours";
+    } else if (difference.inHours >= 1) {
+      return "Il y a ${difference.inHours} heures";
+    } else {
+      return "Il y a quelques minutes";
+    }
+  }
 
   @override
   void initState() {
@@ -28,6 +46,8 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
       duration: const Duration(seconds: 2),
       vsync: this,
     );
+    // Appel pour charger les avis par book ID
+    _reviewController.loadReviewsForBook(widget.book.id!);
   }
 
   @override
@@ -75,10 +95,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               const SizedBox(height: 16),
               const Text(
                 'Votre avis',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -101,14 +118,49 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               child: Text('cancel'.tr),
             ),
             ElevatedButton(
-              onPressed: () {
-                // ... logique d'ajout d'avis
-                Get.back();
-                Get.snackbar(
-                  'thank_you'.tr,
-                  'review_added'.tr,
-                  snackPosition: SnackPosition.BOTTOM,
-                );
+              onPressed: () async {
+                final user = _authController.currentUser.value;
+
+                print("=== DEBUG REVIEW ADD ===");
+                print("user: $user");
+                print("user.id: ${user?.id}");
+                print("book: ${widget.book}");
+                print("book.id: ${widget.book.id}");
+                print("rating: $_rating");
+                print("comment: ${_commentController.text}");
+                print("date: ${DateTime.now().toIso8601String()}");
+                print("========================");
+
+                if (user == null || widget.book.id == null) {
+                  Get.snackbar("Erreur", "Utilisateur ou livre introuvable");
+                  return;
+                }
+
+                try {
+                  await _reviewController.addReview(
+                    Review(
+                      rating: _rating,
+                      comment: _commentController.text,
+                      userId: user.id!,
+                      bookId: widget.book.id!,
+                      publishedDate: DateTime.now().toIso8601String(),
+                    ),
+                  );
+
+                  Navigator.pop(context); // Fermer la boîte de dialogue
+
+                  // Utiliser Future.delayed pour retarder l'affichage de la snackbar
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    Get.snackbar(
+                      'thank_you'.tr,
+                      'review_added'.tr,
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  });
+                } catch (e) {
+                  print("Exception lors de l'ajout de review: $e");
+                  Get.snackbar("Erreur", "Impossible d'ajouter l'avis");
+                }
               },
               child: Text('publish'.tr),
             ),
@@ -132,107 +184,122 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          height: 500,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              // Barre supérieure avec titre et bouton fermer
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Vue 3D - ${widget.book.title}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      builder:
+          (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              height: 500,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  // Barre supérieure avec titre et bouton fermer
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-              ),
-              // Visualiseur 3D
-              Expanded(
-                child: Center(
-                  child: AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, child) {
-                      return Transform.rotate(
-                        angle: _isRotating ? _animationController.value * 2 * 3.14159 : 0,
-                        child: Container(
-                          width: 200,
-                          height: 300,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: DecorationImage(
-                              image: NetworkImage(widget.book.coverUrl),
-                              fit: BoxFit.cover,
-                              onError: (exception, stackTrace) => const Icon(Icons.book),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Vue 3D - ${widget.book.title}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: widget.book.coverUrl.isEmpty
-                            ? const Center(child: Icon(Icons.book, size: 50))
-                            : null,
                         ),
-                      );
-                    },
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-              // Contrôles
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _isRotating = !_isRotating;
-                          if (_isRotating) {
-                            _animationController.repeat();
-                          } else {
-                            _animationController.stop();
-                          }
-                        });
-                      },
-                      icon: Icon(_isRotating ? Icons.stop : Icons.play_arrow),
-                      label: Text(_isRotating ? 'Arrêter' : 'Faire tourner'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                  // Visualiseur 3D
+                  Expanded(
+                    child: Center(
+                      child: AnimatedBuilder(
+                        animation: _animationController,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle:
+                                _isRotating
+                                    ? _animationController.value * 2 * 3.14159
+                                    : 0,
+                            child: Container(
+                              width: 200,
+                              height: 300,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                image: DecorationImage(
+                                  image: NetworkImage(widget.book.coverUrl),
+                                  fit: BoxFit.cover,
+                                  onError:
+                                      (exception, stackTrace) =>
+                                          const Icon(Icons.book),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child:
+                                  widget.book.coverUrl.isEmpty
+                                      ? const Center(
+                                        child: Icon(Icons.book, size: 50),
+                                      )
+                                      : null,
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  // Contrôles
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isRotating = !_isRotating;
+                              if (_isRotating) {
+                                _animationController.repeat();
+                              } else {
+                                _animationController.stop();
+                              }
+                            });
+                          },
+                          icon: Icon(
+                            _isRotating ? Icons.stop : Icons.play_arrow,
+                          ),
+                          label: Text(
+                            _isRotating ? 'Arrêter' : 'Faire tourner',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
   }
 
@@ -273,7 +340,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                                 image: DecorationImage(
                                   image: NetworkImage(widget.book.coverUrl),
                                   fit: BoxFit.cover,
-                                  onError: (exception, stackTrace) => const Icon(Icons.book),
+                                  onError:
+                                      (exception, stackTrace) =>
+                                          const Icon(Icons.book),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -283,9 +352,12 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                                   ),
                                 ],
                               ),
-                              child: widget.book.coverUrl.isEmpty
-                                ? const Center(child: Icon(Icons.book, size: 50))
-                                : null,
+                              child:
+                                  widget.book.coverUrl.isEmpty
+                                      ? const Center(
+                                        child: Icon(Icons.book, size: 50),
+                                      )
+                                      : null,
                             ),
                           ),
                           Positioned(
@@ -331,7 +403,10 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                             children: List.generate(5, (index) {
                               return Icon(
                                 Icons.star,
-                                color: index < widget.book.rating ? Colors.amber : Colors.grey[300],
+                                color:
+                                    index < widget.book.rating
+                                        ? Colors.amber
+                                        : Colors.grey[300],
                                 size: 20,
                               );
                             }),
@@ -343,7 +418,9 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Get.to(() => EmprunterLivre(book: widget.book));
+                                    Get.to(
+                                      () => EmprunterLivre(book: widget.book),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue,
@@ -377,14 +454,21 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.green, size: 16),
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 16,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             "Disponible",
@@ -408,7 +492,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               const SizedBox(height: 24),
 
               // À propos du livre
-               Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,10 +507,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                     SizedBox(height: 8),
                     Text(
                       "Le Petit Prince est une œuvre de langue française, la plus connue d'Antoine de Saint-Exupéry. Publié en 1943 à New York simultanément à sa traduction anglaise...",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        height: 1.5,
-                      ),
+                      style: TextStyle(color: Colors.grey, height: 1.5),
                     ),
                   ],
                 ),
@@ -457,6 +538,48 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               const SizedBox(height: 24),
 
               // Section avis
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Row(
+              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //         children: [
+              //           Text(
+              //             'reader_reviews'.tr,
+              //             style: const TextStyle(
+              //               fontSize: 20,
+              //               fontWeight: FontWeight.bold,
+              //             ),
+              //           ),
+              //           IconButton(
+              //             icon: const Icon(Icons.add_circle_outline),
+              //             onPressed: _showAddReviewDialog,
+              //           ),
+              //         ],
+              //       ),
+              //       const SizedBox(height: 16),
+              //       // Liste des avis
+              //       _buildAvis(
+              //         nom: "Marie Dupont",
+              //         note: 5,
+              //         commentaire:
+              //             "Un chef-d'œuvre intemporel qui touche le cœur.",
+              //         date: "Il y a 2 jours",
+              //         photoUrl: null,
+              //       ),
+              //       const SizedBox(height: 16),
+              //       _buildAvis(
+              //         nom: "Jean Martin",
+              //         note: 4,
+              //         commentaire: "Une belle histoire qui fait réfléchir.",
+              //         date: "Il y a 1 semaine",
+              //         photoUrl: null,
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -479,26 +602,34 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // Liste des avis
-                    _buildAvis(
-                      nom: "Marie Dupont",
-                      note: 5,
-                      commentaire: "Un chef-d'œuvre intemporel qui touche le cœur.",
-                      date: "Il y a 2 jours",
-                      photoUrl: null,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildAvis(
-                      nom: "Jean Martin",
-                      note: 4,
-                      commentaire: "Une belle histoire qui fait réfléchir.",
-                      date: "Il y a 1 semaine",
-                      photoUrl: null,
-                    ),
+
+                    // Liste dynamique des avis
+                    Obx(() {
+                      final reviews = _reviewController.reviews;
+                      if (reviews.isEmpty) {
+                        return const Text("Aucun avis pour le moment.");
+                      }
+                      return Column(
+                        children:
+                            reviews.map((review) {
+                              return Column(
+                                children: [
+                                  _buildAvis(
+                                    nom: review.username ?? "Utilisateur",
+                                    note: review.rating,
+                                    commentaire: review.comment,
+                                    date: _formatDate(review.publishedDate),
+                                    photoUrl: null,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            }).toList(),
+                      );
+                    }),
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
             ],
           ),
@@ -534,10 +665,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
               ),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],
           ),
@@ -571,9 +699,12 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: photoUrl != null 
-                      ? NetworkImage(photoUrl) as ImageProvider
-                      : const AssetImage('assets/images/default_profile.png'),
+                    image:
+                        photoUrl != null
+                            ? NetworkImage(photoUrl) as ImageProvider
+                            : const AssetImage(
+                              'assets/images/default_profile.png',
+                            ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -586,16 +717,11 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
                   children: [
                     Text(
                       nom,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       date,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
                 ),
@@ -616,12 +742,7 @@ class _DetailsLivreState extends State<DetailsLivre> with SingleTickerProviderSt
           // Commentaire
           Padding(
             padding: const EdgeInsets.only(left: 52),
-            child: Text(
-              commentaire,
-              style: const TextStyle(
-                height: 1.4,
-              ),
-            ),
+            child: Text(commentaire, style: const TextStyle(height: 1.4)),
           ),
         ],
       ),

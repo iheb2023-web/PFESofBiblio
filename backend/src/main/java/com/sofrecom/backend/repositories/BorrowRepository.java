@@ -45,4 +45,7 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     @Query("select b from Borrow b where b.borrowDate = CURRENT_DATE and b.BorrowStatus = 'APPROVED'")
     List<Borrow> findApprovedBorrowsToday();
 
+    @Query("select b from Borrow b where b.expectedReturnDate = CURRENT_DATE and b.BorrowStatus = 'IN_PROGRESS'")
+    List<Borrow> findProgressBorrowsEndToday();
+
 }

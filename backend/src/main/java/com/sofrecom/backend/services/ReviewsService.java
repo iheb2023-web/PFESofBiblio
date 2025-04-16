@@ -36,4 +36,19 @@ public class ReviewsService implements IReviewsService {
         return this.reviewsRepository.getReviewsByIdBook(id);
     }
 
+    @Override
+    public Reviews updateReviews(Long idReview, Reviews reviews) {
+       Reviews reviewsEntity = this.reviewsRepository.findById(idReview).orElse(null);
+        assert reviewsEntity != null;
+        reviewsEntity.setContent(reviews.getContent());
+        reviewsEntity.setRating(reviews.getRating());
+        reviewsEntity.setUpdatedAt(LocalDateTime.now());
+        return this.reviewsRepository.save(reviewsEntity);
+    }
+
+    @Override
+    public void deleteReviews(Long id) {
+        reviewsRepository.deleteById(id);
+    }
+
 }

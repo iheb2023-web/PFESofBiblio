@@ -128,7 +128,12 @@
                       </div>
               
                       <!-- Title -->
-                      <h5 class="card-title mb-1"><a href="book-detail.html">{{ demand.book.title }}</a></h5>
+                      <h5 class="card-title mb-1">
+                        <a [routerLink]="['/home/books/details/', demand.book.id]">
+                          {{ demand.book.title }}
+                        </a>
+                      </h5>
+                      
                       <small class="text-success">{{ demand.book.author }}</small>
 
                       <br>
