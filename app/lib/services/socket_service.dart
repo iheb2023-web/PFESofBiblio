@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/foundation.dart';
@@ -8,8 +9,7 @@ class SocketService {
   final _borrowRequestSubject = BehaviorSubject<dynamic>();
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
-  static const String _wsUrlEmulator =
-      'http://10.0.2.2:9092'; // Socket.IO utilise http pour l'initialisation
+  static const String _wsUrlEmulator = 'http://10.0.2.2:9092';
   static const String _wsUrlPhysical = 'http://192.168.1.100:9092';
   static const int _maxReconnectAttempts = 10;
   final String _wsUrl;
@@ -80,14 +80,6 @@ class SocketService {
           print('SocketService: Connexion WebSocket fermée');
         }
         _scheduleReconnect();
-      });
-
-      // Simulation d'un événement pour tester
-      Future.delayed(const Duration(seconds: 5), () {
-        if (kDebugMode) {
-          print('SocketService: Simulation de réception de borrowId: 12345');
-        }
-        _borrowRequestSubject.add('12345');
       });
     } catch (e) {
       if (kDebugMode) {

@@ -30,7 +30,6 @@ class BorrowController extends GetxController {
       }
       final requests = await _borrowService.getRequestsForOwner(email);
 
-      // Filtrer les données pour ne conserver que les informations nécessaires
       ownerRequests.assignAll(
         requests.map((request) {
           return Borrow(
@@ -44,9 +43,7 @@ class BorrowController extends GetxController {
         }).toList(),
       );
 
-      print(
-        'ownerRequests: ${ownerRequests.length} demandes chargées',
-      ); // Log des données chargées
+      print('ownerRequests: ${ownerRequests.length} demandes chargées');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de charger les demandes.');
     } finally {
@@ -59,7 +56,7 @@ class BorrowController extends GetxController {
       isLoading.value = true;
       error.value = '';
       await _borrowService.acceptBorrowRequest(borrowId);
-      await loadOwnerRequests(); // Recharger la liste après acceptation
+      await loadOwnerRequests();
       Get.snackbar(
         'Succès',
         'Demande d\'emprunt acceptée',
@@ -90,7 +87,7 @@ class BorrowController extends GetxController {
       isLoading.value = true;
       error.value = '';
       await _borrowService.rejectBorrowRequest(borrowId);
-      await loadOwnerRequests(); // Recharger la liste après refus
+      await loadOwnerRequests();
       Get.snackbar(
         'Succès',
         'Demande d\'emprunt refusée',
@@ -162,7 +159,6 @@ class BorrowController extends GetxController {
         returnDate,
       );
 
-      // Recharger la liste des emprunts après succès
       await loadAllBorrows();
       return borrow;
     } catch (e) {
