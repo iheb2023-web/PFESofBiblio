@@ -33,7 +33,7 @@ build_backend:
       - backend/pom.xml        # Sauvegarde du fichier de configuration Maven
     expire_in: 1 week          # Expiration des artefacts après une semaine
   only:
-    - devops
+    - main
 
 # -------- BUILD DU FRONTEND --------
 build_frontend:
@@ -49,7 +49,7 @@ build_frontend:
       - frontend/package.json  # Sauvegarde du fichier des dépendances
     expire_in: 1 week
   only:
-    - devops
+    - main
 
 # -------- BUILD DE L'APPLICATION MOBILE (FLUTTER) --------
 build_flutter:
@@ -78,7 +78,7 @@ build_flutter:
       - app/.pub-cache  # Cache des dépendances Flutter
       - app/build       # Cache des fichiers de build
   only:
-    - devops
+    - main
   timeout: 1h  # Limite le temps d'exécution à 1 heure
 
 # -------- SCAN DE SÉCURITÉ AVEC GITLEAKS est un outil de sécurité utilisé pour détecter et prévenir les fuites de secrets dans les dépôts Git --------
@@ -92,7 +92,7 @@ security_scan:
       - gitleaks-report.json  # Sauvegarde du rapport de scan
     expire_in: 1 week
   only:
-    - devops
+    - main
 
 # -------- SCAN DES VULNÉRABILITÉS AVEC TRIVY --------
 security_scan_trivy:
@@ -111,7 +111,7 @@ security_scan_trivy:
     - trivy fs --severity HIGH,CRITICAL app/build/app/outputs/flutter-apk/app-release.apk || echo "Scan APK terminé"
   allow_failure: true  # Ne bloque pas le pipeline en cas d'erreur
   only:
-    - devops
+    - main
 
 # -------- ANALYSE DES MÉTRIQUES (TAILLE DES BUILDS) --------
 analyze_metrics:
@@ -132,7 +132,7 @@ analyze_metrics:
       - metrics.txt  # Sauvegarde du fichier contenant les métriques
     expire_in: 1 week
   only:
-    - devops
+    - main
 
 # -------- PRÉPARATION DES FICHIERS AVANT DÉPLOIEMENT --------
 package_artifacts:
@@ -153,7 +153,7 @@ package_artifacts:
       - release/  # Sauvegarde du dossier release contenant les artefacts finaux
     expire_in: 1 week
   only:
-    - devops
+    - main
 
 # -------- DÉPLOIEMENT (SIMULATION) --------
 deploy:
@@ -170,4 +170,4 @@ deploy:
     - ls -lh app/build/app/outputs/flutter-apk/app-release.apk
     - echo "Déploiement du backend, frontend et Flutter terminé avec succès"
   only:
-    - devops
+    - main
