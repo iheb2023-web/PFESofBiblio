@@ -16,13 +16,16 @@ import java.util.List;
 public class ReviewsService implements IReviewsService {
     private final ReviewsRepository reviewsRepository;
     private final UserRepository userRepository;
+    private final SocketIOService socketIOService;
 
     @Override
     public Reviews addReviews(Reviews reviews) {
         User user = userRepository.findByEmail(reviews.getUser().getEmail()).orElse(null);
         reviews.setUser(user);
         reviews.setCreatedAt(LocalDateTime.now());
-        return reviewsRepository.save(reviews);
+        Reviews addedReview = reviewsRepository.save(reviews);
+        this.socketIOService.sendAddReviewNotification(addedReview.getId());
+        return addedReview;
 
     }
 
@@ -50,5 +53,11 @@ public class ReviewsService implements IReviewsService {
     public void deleteReviews(Long id) {
         reviewsRepository.deleteById(id);
     }
+
+    @Override
+    public Reviews getReviewById(Long id) {
+        return this.reviewsRepository.findById(id).orElse(null);
+    }
+
 
 }

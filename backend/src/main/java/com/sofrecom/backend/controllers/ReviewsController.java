@@ -40,4 +40,9 @@ public class ReviewsController {
     public void deleteReviews(@PathVariable Long id) {
         this.reviewsService.deleteReviews(id);
     }
+
+    @GetMapping("/getReviewById/{id}")
+    public Reviews getReviewById(@PathVariable Long id) {
+        return this.reviewsService.getReviewById(id);
+    }
 }

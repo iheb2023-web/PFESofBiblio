@@ -27,5 +27,10 @@ export class ReviewsService {
     {
         return this.http.post(`${this.URL}`,reviews);
     }
-    
+
+    getReviewById(id : any)
+    {
+        return this.http.get(`${this.URL}/getReviewById/${id}`)
+    }
+
 }

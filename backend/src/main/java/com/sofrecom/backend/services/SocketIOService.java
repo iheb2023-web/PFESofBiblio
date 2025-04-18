@@ -51,5 +51,13 @@ public class SocketIOService {
         System.out.println("Backend: Événement processBorrowRequest envoyé");
     }
 
+    public void sendDemandNotification(Long borrowId) {
+        server.getBroadcastOperations().sendEvent("processDemand", borrowId);
+    }
+
+    public void sendAddReviewNotification(Long reviewId) {
+        server.getBroadcastOperations().sendEvent("addReview", reviewId);
+    }
+
 
 }

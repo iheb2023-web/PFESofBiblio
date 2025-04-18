@@ -15,4 +15,6 @@ public interface IReviewsService {
     Reviews updateReviews(Long idReview, Reviews reviews);
 
     void deleteReviews(Long id);
+
+    Reviews getReviewById(Long id);
 }

@@ -9,9 +9,16 @@ import {
 import { SocketService } from './core/services/socket.service';
 import { BorrowService } from './core/services/borrow.service';
 import { BookService } from './core/services/books.service';
-import { forkJoin } from 'rxjs';
+import { Subscription } from 'rxjs';
+import { ReviewsService } from './core/services/reviews.service';
 
 declare var bootstrap: any;
+
+interface Toast {
+  id: number;
+  type: 'ProcessBorrowRequest' | 'ProcessDemand' | 'addReview';
+  content: any;
+}
 
 @Component({
   selector: 'app-root',
@@ -19,66 +26,107 @@ declare var bootstrap: any;
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
-  notification: any | null = null;
-  toasts: { id: number; message: any }[] = [];  // Array to store multiple toasts
-  toastIdCounter = 0;  // Counter to give each toast a unique ID
-  owner : any = null
-  email : any = null
+  toasts: Toast[] = [];
+  toastIdCounter = 0;
+  owner: any = null;
+  email: string | null = null;
+  localUser: any = null;
+  private subscriptions: Subscription[] = []; // Store subscriptions for cleanup
 
-  @ViewChildren('toastRef') toastRefs!: QueryList<any>; // To handle all toast references
+  @ViewChildren('toastRef') toastRefs!: QueryList<any>;
 
   constructor(
     private socketService: SocketService,
     private borrowService: BorrowService,
-    
-    
+    private bookService: BookService,
+    private reviewService : ReviewsService
   ) {}
 
   ngOnInit() {
+    this.loadUserData();
     this.listenSendProcessBorrowRequestNotification();
+    this.listenProcessDemandNotification();
+    this.listenAddReviewNotification();
   }
 
   ngOnDestroy() {
+    // Unsubscribe from all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
     this.socketService.disconnect();
   }
 
   ngAfterViewInit() {
     this.toastRefs.changes.subscribe((elements: QueryList<any>) => {
-      // When toast references change (new toast added), show them
       elements.toArray().forEach((toastElement) => {
-        const toast = new bootstrap.Toast(toastElement.nativeElement,  { autohide: false });
+        const toast = new bootstrap.Toast(toastElement.nativeElement, { autohide: true, delay: 35000 });
         toast.show();
       });
     });
   }
 
   listenSendProcessBorrowRequestNotification() {
-    this.loadUserData()
-    this.socketService.listenSendProcessBorrowRequestNotification().subscribe((data) => {
+    const sub = this.socketService.listenSendProcessBorrowRequestNotification().subscribe((data: any) => {
       this.borrowService.getBorrowById(data).subscribe((borrow: any) => {
-        console.log('Socket process', borrow);
-        borrow.owner = this.owner
-        this.addToast(borrow);
+        this.bookService.getBookOwnerById(borrow.book.id).subscribe((owner: any) => {
+          borrow.owner = owner;
+          this.addToast(borrow, 'ProcessBorrowRequest');
+        });
       });
     });
+    this.subscriptions.push(sub);
   }
 
-  addToast(message: any) {
+  listenProcessDemandNotification() {
+    const sub = this.socketService.listenProcessDemandNotification().subscribe((data: any) => {
+      this.borrowService.getBorrowById(data).subscribe((borrow: any) => {
+        this.bookService.getBookOwnerById(borrow.book.id).subscribe((owner: any) => {
+          borrow.owner = owner;
+          this.addToast(borrow, 'ProcessDemand');
+        });
+      });
+    });
+    this.subscriptions.push(sub);
+  }
+
+  listenAddReviewNotification()
+  {
+    const sub = this.socketService.listenAddReviewNotification().subscribe((data: any) => {
+      this.reviewService.getReviewById(data).subscribe((reviews : any)=> {
+        this.bookService.getBookOwnerById(reviews.book.id).subscribe((owner: any) => {
+          reviews.book.owner = owner;
+          this.addToast(reviews, 'addReview');
+        });
+      })
+    });
+    this.subscriptions.push(sub);
+  }
+
+  addToast(content: any, type: 'ProcessBorrowRequest' | 'ProcessDemand' | 'addReview') {
+    // Prevent duplicate toasts (e.g., check if a toast with the same borrow ID exists)
+    const borrowId = content.id; // Assuming borrow object has an 'id' property
+    if (this.toasts.some(toast => toast.content.id === borrowId && toast.type === type)) {
+      return; // Skip if a toast for this borrow ID and type already exists
+    }
+
     const id = ++this.toastIdCounter;
-    this.toasts.push({ id, message });
+    this.toasts.push({ id, content, type });
 
-    // Remove the toast after delay (5 seconds)
-   /* setTimeout(() => {
-      this.toasts = this.toasts.filter((toast) => toast.id !== id);
-    }, 500000000);*/
+    // Automatically remove the toast after 5 seconds
+    setTimeout(() => {
+      this.removeToast(id);
+    }, 25000);
   }
 
+  removeToast(id: number) {
+    this.toasts = this.toasts.filter(toast => toast.id !== id);
+  }
 
   loadUserData(): void {
     const userData = localStorage.getItem('user');
     if (userData) {
       const user = JSON.parse(userData);
       this.email = user.email;
+      this.localUser = user;
     }
   }
 }

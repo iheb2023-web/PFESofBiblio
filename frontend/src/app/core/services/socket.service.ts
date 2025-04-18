@@ -6,6 +6,7 @@ import { io, Socket } from 'socket.io-client';
   providedIn: 'root' // Ensures singleton instance
 })
 export class SocketService {
+ 
   private socket: Socket;
 
   constructor() {
@@ -29,12 +30,28 @@ export class SocketService {
     });
   }
 
-  listenSendProcessBorrowRequestNotification() {
+  listenSendProcessBorrowRequestNotification(): Observable<any> {
     return new Observable<any>((observer) => {
       this.socket.on('processBorrowRequest', (data: any) => {
         observer.next(data);
       });
     });
+  }
+
+  listenProcessDemandNotification(): Observable<any> {
+    return new Observable<any>((observer) => {
+      this.socket.on('processDemand', (data: any) => {
+        observer.next(data);
+      });
+    });
+  }
+
+  listenAddReviewNotification(): Observable<any> {
+    return new Observable<any>((observer) => {
+        this.socket.on('addReview', (data: any) => {
+          observer.next(data);
+        });
+      });
   }
 
   disconnect() {

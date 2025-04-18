@@ -115,8 +115,8 @@ public class BookService implements IBookService {
         book.setOwner(user);
 
         // Send notification via Socket.IO
-        String notification = "Book added: " + book.getTitle();
-        socketIOService.sendBookUpdateNotification(notification);
+        //String notification = "Book added: " + book.getTitle();
+        //socketIOService.sendBookUpdateNotification(notification);
 
         return this.bookRepository.save(book);
     }
