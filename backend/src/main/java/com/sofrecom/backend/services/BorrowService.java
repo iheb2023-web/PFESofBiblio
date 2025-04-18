@@ -40,7 +40,8 @@ public class BorrowService implements IBorrowService {
 
 
         borrow.setBorrowStatus(BorrowStatus.PENDING);
-        borrowRepository.save(borrow);
+        Borrow b =borrowRepository.save(borrow);
+        socketIOService.sendDemandNotification(b.getId());
     }
 
     public Borrow  processBorrowRequest(Borrow borrow, boolean isApproved)

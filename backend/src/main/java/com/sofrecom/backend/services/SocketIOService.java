@@ -42,5 +42,13 @@ public class SocketIOService {
         server.getBroadcastOperations().sendEvent("processBorrowRequest", borrowId);
     }
 
+    public void sendDemandNotification(Long borrowId) {
+        server.getBroadcastOperations().sendEvent("processDemand", borrowId);
+    }
+
+    public void sendAddReviewNotification(Long reviewId) {
+        server.getBroadcastOperations().sendEvent("addReview", reviewId);
+    }
+
 
 }
