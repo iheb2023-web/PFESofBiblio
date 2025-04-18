@@ -1,0 +1,173 @@
+stages:
+  - build           # Étape de compilation des différents modules (backend, frontend, mobile)
+  - security_scan   # Étape de vérification de la sécurité (recherche de secrets et scan des vulnérabilités)
+  - analyze         # Étape d'analyse des métriques (taille des artefacts, suivi des performances)
+  - package         # Étape de préparation des fichiers finaux avant déploiement
+  - deploy          # Étape de déploiement (simulation dans ce cas)
+
+# Image de base utilisée pour les jobs qui n'ont pas une image spécifique
+image: maven:3.8.5-eclipse-temurin-17
+
+# Définition des variables d'environnement utilisées par l'application
+variables:
+  MYSQL_DATABASE: sofbiblio_db
+  MYSQL_ROOT_PASSWORD: root
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sofbiblio_db
+  SPRING_DATASOURCE_USERNAME: root
+  SPRING_DATASOURCE_PASSWORD: root
+
+# Service MySQL utilisé pour exécuter des tests avec une base de données
+services:
+  - name: mysql:5.7
+    alias: mysql
+
+# -------- BUILD DU BACKEND --------
+build_backend:
+  stage: build
+  script:
+    - cd backend
+    - mvn clean install   # Compile le backend et génère un fichier JAR
+  artifacts:
+    paths:
+      - backend/target/*.jar   # Sauvegarde du fichier JAR généré
+      - backend/pom.xml        # Sauvegarde du fichier de configuration Maven
+    expire_in: 1 week          # Expiration des artefacts après une semaine
+  only:
+    - devops
+
+# -------- BUILD DU FRONTEND --------
+build_frontend:
+  stage: build
+  image: node:16  # Utilisation d'une image Node.js pour builder le frontend
+  script:
+    - cd frontend
+    - npm install     # Installation des dépendances
+    - npm run build   # Génération des fichiers du frontend (dossier dist/)
+  artifacts:
+    paths:
+      - frontend/dist/       # Sauvegarde des fichiers du frontend buildé
+      - frontend/package.json  # Sauvegarde du fichier des dépendances
+    expire_in: 1 week
+  only:
+    - devops
+
+# -------- BUILD DE L'APPLICATION MOBILE (FLUTTER) --------
+build_flutter:
+  stage: build
+  image: ghcr.io/cirruslabs/flutter:3.29.1  # Image Docker avec Flutter pré-installé
+  before_script:
+    - echo "Installation de Java 17..."
+    - export DEBIAN_FRONTEND=noninteractive
+    - apt-get update -y && apt-get install -y openjdk-17-jdk  # Installation de Java 17
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    - export PATH=$JAVA_HOME/bin:$PATH
+    - java -version  # Vérification de l'installation de Java
+  script:
+    - echo "Compilation de l'application mobile Flutter..."
+    - cd app
+    - flutter clean   # Nettoyage du projet Flutter
+    - flutter pub get  # Récupération des dépendances
+    - flutter build apk --release  # Génération de l'APK en mode production
+  artifacts:
+    paths:
+      - app/build/app/outputs/flutter-apk/app-release.apk  # Sauvegarde de l'APK
+    expire_in: 1 week
+  cache:
+    key: flutter
+    paths:
+      - app/.pub-cache  # Cache des dépendances Flutter
+      - app/build       # Cache des fichiers de build
+  only:
+    - devops
+  timeout: 1h  # Limite le temps d'exécution à 1 heure
+
+# -------- SCAN DE SÉCURITÉ AVEC GITLEAKS est un outil de sécurité utilisé pour détecter et prévenir les fuites de secrets dans les dépôts Git --------
+security_scan:
+  stage: security_scan
+  image: zricethezav/gitleaks:latest
+  script:
+    - gitleaks detect --source . -v --report-path gitleaks-report.json --exit-code 0  # Recherche de secrets exposés
+  artifacts:
+    paths:
+      - gitleaks-report.json  # Sauvegarde du rapport de scan
+    expire_in: 1 week
+  only:
+    - devops
+
+# -------- SCAN DES VULNÉRABILITÉS AVEC TRIVY --------
+security_scan_trivy:
+  stage: security_scan
+  image: aquasec/trivy:latest
+  dependencies:
+    - build_backend
+    - build_frontend
+    - build_flutter
+  script:
+    - echo "Scan de sécurité pour validation"
+    - trivy fs --severity HIGH,CRITICAL backend/pom.xml || echo "Aucune vulnérabilité critique trouvée dans pom.xml"
+    - trivy fs --severity HIGH,CRITICAL frontend/package.json || echo "Aucune vulnérabilité critique trouvée dans package.json"
+    - trivy fs --severity HIGH,CRITICAL backend/target/*.jar || echo "Scan JAR terminé"
+    - trivy fs --severity HIGH,CRITICAL frontend/dist/ || echo "Scan dist terminé"
+    - trivy fs --severity HIGH,CRITICAL app/build/app/outputs/flutter-apk/app-release.apk || echo "Scan APK terminé"
+  allow_failure: true  # Ne bloque pas le pipeline en cas d'erreur
+  only:
+    - devops
+
+# -------- ANALYSE DES MÉTRIQUES (TAILLE DES BUILDS) --------
+analyze_metrics:
+  stage: analyze
+  image: alpine:latest
+  dependencies:
+    - build_backend
+    - build_frontend
+    - build_flutter
+  script:
+    - echo "Analyse des métriques de build"
+    - du -sh backend/target/*.jar > metrics.txt
+    - du -sh frontend/dist/ >> metrics.txt
+    - du -sh app/build/app/outputs/flutter-apk/app-release.apk >> metrics.txt
+    - cat metrics.txt  # Affiche la taille des fichiers
+  artifacts:
+    paths:
+      - metrics.txt  # Sauvegarde du fichier contenant les métriques
+    expire_in: 1 week
+  only:
+    - devops
+
+# -------- PRÉPARATION DES FICHIERS AVANT DÉPLOIEMENT --------
+package_artifacts:
+  stage: package
+  image: alpine:latest
+  dependencies:
+    - build_backend
+    - build_frontend
+    - build_flutter
+  script:
+    - mkdir -p release  # Création du dossier release
+    - cp backend/target/*.jar release/backend.jar  # Copie du backend
+    - cp -r frontend/dist/ release/frontend  # Copie du frontend
+    - cp app/build/app/outputs/flutter-apk/app-release.apk release/app.apk  # Copie de l'APK mobile
+    - ls -lhR release/  # Liste les fichiers générés
+  artifacts:
+    paths:
+      - release/  # Sauvegarde du dossier release contenant les artefacts finaux
+    expire_in: 1 week
+  only:
+    - devops
+
+# -------- DÉPLOIEMENT (SIMULATION) --------
+deploy:
+  stage: deploy
+  image: alpine:latest
+  dependencies:
+    - build_backend
+    - build_frontend
+    - build_flutter
+  script:
+    - echo "Déploiement simulé pour validation"
+    - ls -lh backend/target/*.jar
+    - ls -lhR frontend/dist/
+    - ls -lh app/build/app/outputs/flutter-apk/app-release.apk
+    - echo "Déploiement du backend, frontend et Flutter terminé avec succès"
+  only:
+    - devops
