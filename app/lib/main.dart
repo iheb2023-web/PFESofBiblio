@@ -8,10 +8,13 @@ import 'package:app/services/storage_service.dart';
 import 'package:app/views/NavigationMenu.dart';
 import 'package:app/bindings/app_binding.dart';
 import 'package:app/views/Ma_Biblio/mes_demandes.dart';
-import 'package:app/services/socket_service.dart'; // Importez le SocketService
+import 'package:app/services/socket_service.dart';
+import 'package:app/services/notification_service.dart'; // NEW
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ on initialise le binding
+  //init notif service
+  NotiService().iniNotification(); // ✅ on initialise le service de notification
 
   final storageService = StorageService();
   await storageService.init();
@@ -60,30 +63,13 @@ class MyApp extends StatelessWidget {
                 : const Onboardingscreen(),
       ),
       builder: (context, child) {
-        // Ajouter un listener pour les notifications Socket
+        // NEW: Utilise la notification locale au lieu de Snackbar
         final socketService = Get.find<SocketService>();
         socketService.listenForBorrowRequestUpdates().listen((data) {
-          //Afficher une notification (SnackBar) lorsque des données sont reçues
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Votre demande d’emprunt numero : "$data" a été acceptée.',
-              ),
-              duration: const Duration(seconds: 5),
-              backgroundColor: Colors.green,
-            ),
+          NotiService().showNotification(
+            title: 'Demande acceptée',
+            body: 'demande d’emprunt numéro "$data" a été acceptée.',
           );
-          //   Get.snackbar(
-          //     'Demande acceptée ✅',
-          //     'Votre demande d’emprunt numéro "$data" a été acceptée.',
-          //     snackPosition: SnackPosition.TOP,
-          //     backgroundColor: Colors.green,
-          //     colorText: Colors.white,
-          //     duration: const Duration(seconds: 4),
-          //     margin: const EdgeInsets.all(12),
-          //     borderRadius: 10,
-          //     icon: const Icon(Icons.check_circle, color: Colors.white),
-          //   );
         });
 
         return MediaQuery(
