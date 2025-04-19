@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:app/models/review.dart';
-import 'package:app/services/review_service.dart';
 import 'package:app/controllers/auth_controller.dart';
+import 'package:app/services/review_service.dart';
 
 class ReviewController extends GetxController {
   final RxList<Review> reviews = <Review>[].obs;
