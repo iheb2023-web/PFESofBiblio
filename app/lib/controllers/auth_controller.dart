@@ -184,7 +184,7 @@ class AuthController extends GetxController {
       // D'abord effacer les données locales
       await _storageService.clearSession();
       // Ensuite appeler le service de déconnexion
-      await _authService.logout();
+      // await _authService.logout();
       currentUser.value = null;
       isLoggedIn.value = false;
       update(); // Notifier GetX du changement

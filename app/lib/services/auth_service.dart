@@ -157,10 +157,7 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-      // Nettoyer d'abord les données locales
       await _storageService.clearSession();
-
-      // Ensuite, essayer de notifier le serveur si possible
       try {
         final response = await http.post(
           Uri.parse('$baseUrl/users/logout'),
@@ -176,7 +173,6 @@ class AuthService {
         print(
           'AuthService: Erreur lors de la notification de déconnexion au serveur: $e',
         );
-        // On continue même si la notification au serveur échoue
       }
     } catch (e) {
       print('AuthService: Erreur lors de la déconnexion: $e');
@@ -184,6 +180,34 @@ class AuthService {
       throw Exception('Erreur lors de la déconnexion: $e');
     }
   }
+
+  // Future<void> logout() async {
+  //   try {
+  //     // 1. D'abord notifier le serveur
+  //     final token =
+  //         await _storageService
+  //             .getAuthToken(); // Récupérer le token avant clear
+  //     final response = await http.post(
+  //       Uri.parse('$baseUrl/users/logout'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'Authorization': 'Bearer $token', // Utiliser le token directement
+  //       },
+  //     );
+
+  //     if (response.statusCode != 200) {
+  //       print('Erreur serveur lors de la déconnexion: ${response.statusCode}');
+  //     }
+
+  //     // 2. Puis nettoyer le stockage local
+  //     await _storageService.clearSession();
+  //   } catch (e) {
+  //     print('Erreur lors de la déconnexion: $e');
+  //     // Nettoyer quand même le stockage local en cas d'erreur
+  //     await _storageService.clearSession();
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> requestPasswordReset(String email) async {
     try {
@@ -259,6 +283,26 @@ class AuthService {
       }
     } catch (e) {
       throw Exception('Erreur lors de la mise à jour du profil: $e');
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUserById(int id) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/$id'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception('Échec de la récupération du user');
+      }
+    } catch (e) {
+      print('Erreur getuserbyid: $e');
+      return null;
     }
   }
 }

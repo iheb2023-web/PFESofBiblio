@@ -1,0 +1,2 @@
+C:/SoftGit/sofbiblio/app/android/app/.cxx/RelWithDebInfo/121m3656/x86/CMakeFiles/edit_cache.dir
+C:/SoftGit/sofbiblio/app/android/app/.cxx/RelWithDebInfo/121m3656/x86/CMakeFiles/rebuild_cache.dir

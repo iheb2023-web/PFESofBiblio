@@ -89,9 +89,9 @@ class MesDemandesController extends GetxController {
       Get.snackbar(
         'Succès',
         isApproved ? 'Demande acceptée' : 'Demande refusée',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppTheme.successColor.withOpacity(0.1),
-        colorText: AppTheme.successColor,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color.fromARGB(255, 3, 62, 224),
+        colorText: Colors.white,
         margin: const EdgeInsets.all(8),
         borderRadius: 8,
       );

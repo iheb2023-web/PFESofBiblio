@@ -64,4 +64,25 @@ class ReviewService {
     }
     return [];
   }
+
+  // Récupérer un avis par ID
+  static Future<Review?> getReviewById(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/getReviewById/$id'),
+        headers: await AuthService.getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        return Review.fromJson(json.decode(response.body));
+      } else {
+        print(
+          "Erreur récupération review par ID: ${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      print("Erreur dans getReviewById: $e");
+    }
+    return null;
+  }
 }

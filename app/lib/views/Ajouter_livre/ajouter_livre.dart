@@ -176,7 +176,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         Get.snackbar(
           'Information',
           'Aucun livre trouvé avec ces critères',
-          snackPosition: SnackPosition.TOP,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Theme.of(context).cardColor,
           colorText: Theme.of(context).textTheme.bodyLarge?.color,
         );
@@ -188,7 +188,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       Get.snackbar(
         'Erreur',
         'Une erreur est survenue lors de la recherche',
-        snackPosition: SnackPosition.TOP,
+        snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
@@ -503,7 +503,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         Get.snackbar(
           'Erreur',
           'Vous devez être connecté pour ajouter un livre',
-          snackPosition: SnackPosition.TOP,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
@@ -515,7 +515,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
         Get.snackbar(
           'Erreur',
           'Le titre et l\'auteur sont requis',
-          snackPosition: SnackPosition.TOP,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
@@ -566,7 +566,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           Get.snackbar(
             'Succès',
             'Le livre a été ajouté avec succès',
-            snackPosition: SnackPosition.TOP,
+            snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.green,
             colorText: Colors.white,
             duration: const Duration(seconds: 2),
@@ -578,7 +578,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           Get.snackbar(
             'Erreur',
             'Une erreur est survenue lors de l\'ajout du livre',
-            snackPosition: SnackPosition.TOP,
+            snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red,
             colorText: Colors.white,
           );
@@ -590,7 +590,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       Get.snackbar(
         'Erreur',
         'Une erreur est survenue lors de l\'ajout du livre',
-        snackPosition: SnackPosition.TOP,
+        snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );

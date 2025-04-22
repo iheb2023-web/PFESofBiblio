@@ -8,49 +8,83 @@ class BookService {
   static const String googleBooksUrl =
       'https://www.googleapis.com/books/v1/volumes';
 
-  // Get all books
   static Future<List<Book>> getAllBooks() async {
+    http.Response? response; // Déclarer response en dehors du try
+
     try {
-      final response = await http.get(
+      response = await http.get(
         Uri.parse(baseUrl),
-        headers: await AuthService.getHeaders(),
+        headers: {...await AuthService.getHeaders(), 'Accept-Charset': 'utf-8'},
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Book.fromJson(json)).toList();
+        // Premier essai avec UTF-8
+        try {
+          final String decodedBody = utf8.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          return data.map((json) => Book.fromJson(json)).toList();
+        } on FormatException {
+          // Fallback en latin1 si UTF-8 échoue
+          final String decodedBody = latin1.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          return data.map((json) => Book.fromJson(json)).toList();
+        }
       }
-      throw Exception('Failed to load books');
+      throw Exception('Failed to load books (Status: ${response.statusCode})');
     } catch (e) {
       print('Error getting all books: $e');
+      if (response != null) {
+        print('Response body: ${response.body}');
+        print('Response headers: ${response.headers}');
+      }
       return [];
     }
   }
 
-  // Get books by user
   static Future<List<Book>> getBooksByUser(int userId) async {
+    http.Response? response; // Déclarer en dehors du try pour accès dans catch
+
     try {
       print('BookService: Récupération des livres pour l\'utilisateur $userId');
-      final headers = await AuthService.getHeaders();
+      final headers = {
+        ...await AuthService.getHeaders(),
+        'Accept-Charset': 'utf-8', // Ajout du charset
+      };
       print('BookService: Headers de la requête: $headers');
 
       final url = '$baseUrl/user/$userId';
       print('BookService: URL de la requête: $url');
 
-      final response = await http.get(Uri.parse(url), headers: headers);
+      response = await http.get(Uri.parse(url), headers: headers);
 
       print('BookService: Status code de la réponse: ${response.statusCode}');
-      print('BookService: Corps de la réponse: ${response.body}');
+      print('BookService: Headers de la réponse: ${response.headers}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        final books = data.map((json) => Book.fromJson(json)).toList();
-        print('BookService: ${books.length} livres récupérés');
-        return books;
+        // Tentative de décodage UTF-8 d'abord
+        try {
+          final String decodedBody = utf8.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final books = data.map((json) => Book.fromJson(json)).toList();
+          print('BookService: ${books.length} livres récupérés (UTF-8)');
+          return books;
+        } on FormatException {
+          // Fallback latin1 si UTF-8 échoue
+          final String decodedBody = latin1.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final books = data.map((json) => Book.fromJson(json)).toList();
+          print(
+            'BookService: ${books.length} livres récupérés (latin1 fallback)',
+          );
+          return books;
+        }
       }
       throw Exception('Échec du chargement des livres: ${response.statusCode}');
     } catch (e) {
       print('BookService: Erreur lors de la récupération des livres: $e');
+      if (response != null) {
+        print('BookService: Corps brut de la réponse: ${response.bodyBytes}');
+      }
       return [];
     }
   }
@@ -188,6 +222,25 @@ class BookService {
       );
     } catch (e) {
       print('Erreur lors de la mise à jour du livre: $e');
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getBookOwner(int bookId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/getBookOwner/$bookId'),
+        headers: await AuthService.getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data; // ou tu peux faire une classe BookOwnerDto si tu veux
+      } else {
+        throw Exception('Échec de la récupération du propriétaire');
+      }
+    } catch (e) {
+      print('Erreur getBookOwner: $e');
       return null;
     }
   }

@@ -33,7 +33,7 @@ class _AccueilPageState extends State<AccueilPage>
   ];
 
   String? selectedCategory;
-  final BookController _bookController = Get.find<BookController>();
+  late BookController _bookController; // Retirer l'initialisation directe
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -44,27 +44,22 @@ class _AccueilPageState extends State<AccueilPage>
   // Liste des membres avec leurs prêts
   final List<Member> members = List.generate(
     10,
-    (index) => Member(
-      'Membre ${index + 1}',
-      (10 - index) * 5,
-    ),
-  )..sort(
-    (a, b) => b.loans.compareTo(a.loans),
-  );
+    (index) => Member('Membre ${index + 1}', (10 - index) * 5),
+  )..sort((a, b) => b.loans.compareTo(a.loans));
 
   @override
   void initState() {
     super.initState();
+    // Initialiser BookController dans initState
+    _bookController = Get.find<BookController>();
+
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
 
     _animation = Tween<double>(begin: 0, end: 5).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
     // Load books when the page is initialized
@@ -145,7 +140,10 @@ class _AccueilPageState extends State<AccueilPage>
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
                   'active_members'.tr,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               SizedBox(
@@ -235,9 +233,7 @@ class _AccueilPageState extends State<AccueilPage>
                   fit: BoxFit.cover,
                   frameRate: FrameRate(60),
                   repeat: true,
-                  options: LottieOptions(
-                    enableMergePaths: true,
-                  ),
+                  options: LottieOptions(enableMergePaths: true),
                 ),
               ),
             ),
@@ -250,79 +246,85 @@ class _AccueilPageState extends State<AccueilPage>
 
   Widget _buildCategoryChips() {
     return GetBuilder<ThemeController>(
-      builder: (controller) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          children: [
-            for (String category in categories)
-              Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedCategory = selectedCategory == category ? null : category;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(25),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: selectedCategory == category
-                            ? AppTheme.primaryColor
-                            : (controller.isDarkMode 
-                                ? AppTheme.darkSurfaceColor 
-                                : AppTheme.lightSurfaceColor),
+      builder:
+          (controller) => SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                for (String category in categories)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedCategory =
+                                selectedCategory == category ? null : category;
+                          });
+                        },
                         borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: selectedCategory == category
-                              ? AppTheme.primaryColor
-                              : controller.isDarkMode
-                                  ? Colors.white24
-                                  : Colors.grey[300]!,
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          if (selectedCategory == category)
-                            BoxShadow(
-                              color: AppTheme.primaryColor.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                selectedCategory == category
+                                    ? AppTheme.primaryColor
+                                    : (controller.isDarkMode
+                                        ? AppTheme.darkSurfaceColor
+                                        : AppTheme.lightSurfaceColor),
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              color:
+                                  selectedCategory == category
+                                      ? AppTheme.primaryColor
+                                      : controller.isDarkMode
+                                      ? Colors.white24
+                                      : Colors.grey[300]!,
+                              width: 1,
                             ),
-                        ],
-                      ),
-                      child: Text(
-                        category,
-                        style: TextStyle(
-                          color: selectedCategory == category
-                              ? Colors.white
-                              : (controller.isDarkMode 
-                                  ? Colors.white70
-                                  : AppTheme.lightTextColor),
-                          fontWeight: selectedCategory == category
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 14,
+                            boxShadow: [
+                              if (selectedCategory == category)
+                                BoxShadow(
+                                  color: AppTheme.primaryColor.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                            ],
+                          ),
+                          child: Text(
+                            category,
+                            style: TextStyle(
+                              color:
+                                  selectedCategory == category
+                                      ? Colors.white
+                                      : (controller.isDarkMode
+                                          ? Colors.white70
+                                          : AppTheme.lightTextColor),
+                              fontWeight:
+                                  selectedCategory == category
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
     );
   }
 
   Widget _buildBookSection(String title) {
     List<Book> sectionBooks = [];
-    
+
     // Select the appropriate book list based on the section title
     if (title == 'popular_books'.tr) {
       sectionBooks = _bookController.popularBooks;
@@ -356,7 +358,10 @@ class _AccueilPageState extends State<AccueilPage>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
@@ -406,9 +411,15 @@ class _AccueilPageState extends State<AccueilPage>
                               height: 120,
                               width: 80,
                               fit: BoxFit.cover,
-                              cacheWidth: 160, // 2x la largeur d'affichage pour une bonne qualité
-                              cacheHeight: 240, // 2x la hauteur d'affichage pour une bonne qualité
-                              loadingBuilder: (context, child, loadingProgress) {
+                              cacheWidth:
+                                  160, // 2x la largeur d'affichage pour une bonne qualité
+                              cacheHeight:
+                                  240, // 2x la hauteur d'affichage pour une bonne qualité
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
                                 if (loadingProgress == null) return child;
                                 return Container(
                                   height: 120,
@@ -425,12 +436,13 @@ class _AccueilPageState extends State<AccueilPage>
                                   ),
                                 );
                               },
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                height: 120,
-                                width: 80,
-                                color: Colors.grey[200],
-                                child: const Icon(Icons.book),
-                              ),
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                    height: 120,
+                                    width: 80,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.book),
+                                  ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -468,7 +480,9 @@ class _AccueilPageState extends State<AccueilPage>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'borrowed_times'.trParams({'count': '${book.borrowCount}'}),
+                                      'borrowed_times'.trParams({
+                                        'count': '${book.borrowCount}',
+                                      }),
                                       style: const TextStyle(
                                         color: Colors.blue,
                                         fontSize: 12,
@@ -481,7 +495,8 @@ class _AccueilPageState extends State<AccueilPage>
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     ElevatedButton(
-                                      onPressed: book.isAvailable ? () {} : null,
+                                      onPressed:
+                                          book.isAvailable ? () {} : null,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.blue,
                                         padding: const EdgeInsets.symmetric(
@@ -490,7 +505,9 @@ class _AccueilPageState extends State<AccueilPage>
                                         minimumSize: const Size(120, 36),
                                       ),
                                       child: Text(
-                                        book.isAvailable ? 'borrow'.tr : 'unavailable'.tr,
+                                        book.isAvailable
+                                            ? 'borrow'.tr
+                                            : 'unavailable'.tr,
                                         style: const TextStyle(
                                           color: Colors.white,
                                         ),
@@ -533,7 +550,11 @@ class _AccueilPageState extends State<AccueilPage>
                               width: double.infinity,
                               fit: BoxFit.cover,
                               cacheWidth: 600, // Limiter la taille en cache
-                              loadingBuilder: (context, child, loadingProgress) {
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
                                 if (loadingProgress == null) return child;
                                 return Container(
                                   height: 200,
@@ -549,15 +570,16 @@ class _AccueilPageState extends State<AccueilPage>
                                   ),
                                 );
                               },
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                height: 200,
-                                color: Colors.grey[200],
-                                child: const Icon(
-                                  Icons.book,
-                                  size: 50,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                    height: 200,
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.book,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
                             ),
                           ),
                           const SizedBox(height: 8),
