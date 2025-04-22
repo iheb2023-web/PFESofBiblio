@@ -39,6 +39,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "borrower")
     private List<Borrow>  borrows;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Preference preference;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
