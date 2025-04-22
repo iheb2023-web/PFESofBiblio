@@ -397,13 +397,30 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                                         );
 
                                         // Succès - afficher le snackbar
-                                        Get.rawSnackbar(
-                                          message: 'Livre réservé avec succès',
-                                          backgroundColor: Colors.green[100]!,
-                                          snackPosition: SnackPosition.TOP,
-                                          duration: const Duration(seconds: 2),
-                                          margin: const EdgeInsets.all(16),
+                                        // Get.rawSnackbar(
+                                        //   message: 'Livre réservé avec succès',
+                                        //   backgroundColor: Colors.green[100]!,
+                                        //   snackPosition: SnackPosition.TOP,
+                                        //   duration: const Duration(seconds: 2),
+                                        //   margin: const EdgeInsets.all(16),
+                                        //   borderRadius: 8,
+                                        // );:
+                                        Get.snackbar(
+                                          'Succès',
+                                          'Livre réservé avec succès',
+                                          snackPosition:
+                                              SnackPosition
+                                                  .BOTTOM, // ou SnackPosition.TOP selon ton design
+                                          backgroundColor: Colors.green,
+                                          colorText: Colors.white,
                                           borderRadius: 8,
+                                          margin: const EdgeInsets.all(16),
+                                          duration: const Duration(seconds: 2),
+                                          icon: const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          shouldIconPulse: false,
                                         );
 
                                         // Attendre que le snackbar soit visible avant de naviguer

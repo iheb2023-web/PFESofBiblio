@@ -354,4 +354,29 @@ class BorrowService extends GetxService {
       throw Exception('Erreur réseau: $e');
     }
   }
+
+  Future<Borrow> getBorrowById(int borrowId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/borrows/$borrowId'),
+        headers: await getHeaders(),
+      );
+
+      print(
+        'getBorrowById response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return Borrow.fromJson(responseData);
+      } else {
+        throw Exception(
+          'Erreur lors de la récupération de l\'emprunt: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('getBorrowById error: $e');
+      rethrow;
+    }
+  }
 }

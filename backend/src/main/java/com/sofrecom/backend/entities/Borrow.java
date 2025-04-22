@@ -25,7 +25,7 @@ public class Borrow {
     private LocalDate expectedReturnDate;
     private int numberOfRenewals ;
     @Enumerated(EnumType.STRING)
-    private BorrowStatus BorrowStatus;
+    private BorrowStatus BorrowStatus; // je changer BorrowStatus BorrowStatus par BorrowStatus borrowStatus pour que le sérialiseur JSON va bien le sérialiser par défaut
 
 
     @ManyToOne
