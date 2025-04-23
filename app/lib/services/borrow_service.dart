@@ -433,4 +433,48 @@ class BorrowService extends GetxService {
       rethrow;
     }
   }
+
+  Future<void> cancelWhileInProgress(int borrowId) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/borrows/cancelWhileInProgress/$borrowId'),
+        headers: await getHeaders(),
+      );
+
+      print(
+        'cancelWhileInProgress response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Erreur lors de l\'annulation de l\'emprunt en cours: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('cancelWhileInProgress error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> cancelPendingOrApproved(int borrowId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/borrows/cancelPendingOrApproved/$borrowId'),
+        headers: await getHeaders(),
+      );
+
+      print(
+        'cancelPendingOrApproved response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Erreur lors de l\'annulation de l\'emprunt en attente ou approuvé: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('cancelPendingOrApproved error: $e');
+      rethrow;
+    }
+  }
 }

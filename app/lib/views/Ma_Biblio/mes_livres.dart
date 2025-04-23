@@ -308,7 +308,10 @@ class MesLivresPage extends GetView<ThemeController> {
                 ),
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: () => Get.to(() => MesDemandesPage()),
+                  onPressed:
+                      () => Get.to(
+                        () => MesDemandesPage(bookId: book.id.toString()),
+                      ),
                   icon: const Icon(
                     Icons.visibility_outlined,
                     size: 16,

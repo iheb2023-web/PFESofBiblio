@@ -4,6 +4,7 @@ import 'package:app/models/borrow.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:app/services/borrow_service.dart';
 
 class MesEmpruntsPage extends StatefulWidget {
   const MesEmpruntsPage({super.key});
@@ -54,8 +55,8 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
         break;
 
       case 'IN_PROGRESS':
-        backgroundColor = Colors.amber[100]!;
-        textColor = Colors.amber[900]!;
+        backgroundColor = const Color.fromARGB(255, 208, 208, 224)!;
+        textColor = const Color.fromARGB(255, 70, 179, 194)!;
         text = 'En cours';
         break;
 
@@ -79,6 +80,11 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
   }
 
   Widget _buildBorrowCard(Borrow borrow) {
+    final status = borrow.borrowStatus?.toString().split('.').last ?? 'UNKNOWN';
+    final showCancelButton =
+        status == 'PENDING' || status == 'APPROVED' || status == 'IN_PROGRESS';
+    final isInProgress = status == 'IN_PROGRESS';
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -126,10 +132,7 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 16),
-                      _buildBorrowStatus(
-                        borrow.borrowStatus?.toString().split('.').last ??
-                            'UNKNOWN',
-                      ),
+                      _buildBorrowStatus(status),
                     ],
                   ),
                 ),
@@ -173,6 +176,42 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
                 ),
               ],
             ),
+            if (showCancelButton) ...[
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed:
+                      () =>
+                          isInProgress
+                              ? _showCancelInProgressConfirmation(borrow)
+                              : _showCancelConfirmation(borrow),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        isInProgress ? Colors.orange[50] : Colors.red[50],
+                    foregroundColor:
+                        isInProgress ? Colors.orange[800] : Colors.red[800],
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color:
+                            isInProgress
+                                ? Colors.orange[300]!
+                                : Colors.red[300]!,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
+                  child: Text(
+                    isInProgress ? 'Annuler l\'emprunt' : 'Annuler la demande',
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -321,6 +360,70 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
           );
         }),
       ),
+    );
+  }
+
+  void _showCancelConfirmation(Borrow borrow) {
+    final borrowController = Get.find<BorrowController>();
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Confirmer l\'annulation'),
+        content: Text(
+          'Êtes-vous sûr de vouloir annuler l\'emprunt de "${borrow.book?.title ?? 'ce livre'}" ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(), // Fermer le dialog
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back(); // Fermer le dialog
+              await Future.delayed(
+                const Duration(milliseconds: 150),
+              ); // Laisse le temps à la fermeture
+
+              try {
+                await borrowController.cancelBorrow(borrow.id!);
+              } catch (e) {}
+            },
+            child: const Text('Confirmer', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+      barrierDismissible:
+          false, // L'utilisateur ne peut pas fermer en cliquant dehors
+    );
+  }
+
+  void _showCancelInProgressConfirmation(Borrow borrow) {
+    final borrowController = Get.find<BorrowController>();
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Confirmer l\'annulation'),
+        content: Text(
+          'Êtes-vous sûr de vouloir annuler l\'emprunt en cours de "${borrow.book?.title ?? 'ce livre'}" ?',
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () async {
+              Get.back(); // Fermer la boîte
+              await Future.delayed(
+                const Duration(milliseconds: 150),
+              ); // Petite pause pour assurer la fermeture
+
+              try {
+                await borrowController.cancelWhileInProgress(borrow.id!);
+              } catch (e) {}
+            },
+            child: const Text('Confirmer', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+      barrierDismissible: false, // Pour éviter de fermer en cliquant dehors
     );
   }
 }

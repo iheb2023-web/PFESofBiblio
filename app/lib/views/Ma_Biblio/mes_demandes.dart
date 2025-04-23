@@ -1,4 +1,3 @@
-//
 import 'package:app/controllers/borrow_controller.dart';
 import 'package:app/models/borrow.dart';
 import 'package:app/theme/app_theme.dart';
@@ -16,6 +15,13 @@ class MesDemandesController extends GetxController {
   final _storageService = StorageService();
   var isLoading = true.obs;
   var pendingBorrows = <Borrow>[].obs;
+  String? bookId; // Ajout d'un champ pour stocker l'ID du livre
+
+  // Méthode pour initialiser avec un ID de livre
+  void initWithBookId(String id) {
+    bookId = id;
+    initializeAndLoadDemandes();
+  }
 
   @override
   void onInit() {
@@ -67,7 +73,26 @@ class MesDemandesController extends GetxController {
 
       print('MesDemandesController: Loading demandes for user: $email');
       final borrows = await _borrowService.getBorrowDemandsByEmail(email);
-      updatePendingBorrows(borrows);
+      print('MesDemandesController: Retrieved ${borrows.length} borrows');
+
+      // Ajouter des logs pour inspecter les emprunts
+      for (var borrow in borrows) {
+        print(
+          'Borrow: bookId=${borrow.book?.id}, status=${borrow.borrowStatus}, title=${borrow.book?.title}',
+        );
+      }
+
+      // Filtrer par bookId si spécifié
+      final filteredBorrows =
+          bookId != null
+              ? borrows.where((b) => b.book?.id.toString() == bookId).toList()
+              : borrows;
+
+      print(
+        'MesDemandesController: Filtered ${filteredBorrows.length} borrows for bookId=$bookId',
+      );
+
+      updatePendingBorrows(filteredBorrows);
     } catch (e) {
       print('MesDemandesController: Error loading demandes: $e');
       pendingBorrows.value = [];
@@ -113,9 +138,20 @@ class MesDemandesController extends GetxController {
 }
 
 class MesDemandesPage extends StatelessWidget {
+  // final MesDemandesController controller = Get.put(MesDemandesController());
+
+  // MesDemandesPage({Key? key}) : super(key: key);
+  final String? bookId; // Paramètre optionnel pour l'ID du livre
   final MesDemandesController controller = Get.put(MesDemandesController());
 
-  MesDemandesPage({Key? key}) : super(key: key);
+  MesDemandesPage({Key? key, this.bookId}) : super(key: key) {
+    // Initialiser le contrôleur avec l'ID du livre si fourni
+    if (bookId != null) {
+      controller.initWithBookId(bookId!);
+    } else {
+      controller.initializeAndLoadDemandes();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
