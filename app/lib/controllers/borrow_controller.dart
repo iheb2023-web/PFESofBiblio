@@ -199,4 +199,56 @@ class BorrowController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> cancelBorrow(int borrowId) async {
+    try {
+      isLoading.value = true;
+      await _borrowService.cancelPendingOrApproved(borrowId);
+      // await loadUserBorrows(currentUserEmail.value);
+      Get.snackbar(
+        'Succès',
+        'Emprunt supprimé avec succès',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Échec de l\'annulation: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> cancelWhileInProgress(int borrowId) async {
+    try {
+      isLoading.value = true;
+      await _borrowService.cancelWhileInProgress(borrowId);
+      // Rafraîchir la liste des emprunts
+      // await loadUserBorrows(currentUserEmail.value);
+      Get.snackbar(
+        'Succès',
+        'Emprunt en cours annulé avec succès',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Échec de l\'annulation: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
