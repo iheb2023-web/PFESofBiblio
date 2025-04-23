@@ -23,7 +23,8 @@ public interface IBorrowService {
 
     List<OccupiedDates> getBookOccupiedDatesByBookId(Long bookId);
 
+    void cancelWhileInProgress(Long idBorrow);
+
     void cancelPendingOrApproved(Long idBorrow);
 
-    void cancelWhileInProgress(Long idBorrow);
 }

@@ -47,16 +47,6 @@ export class BorrowService {
       return this.http.get(this.URL + `/${id}`)
      }
 
-     cancel(id: any, actionText: string) {
-      if(actionText ==="cancel")
-      {
-         this.cancelPendingOrApproved(id)
-      }
-      else{
-         this.cancelWhileInProgress(id)
-      }
-    }
-
      cancelPendingOrApproved(id : any)
      {
       return this.http.delete(this.URL+`/cancelPendingOrApproved/${id}`)
