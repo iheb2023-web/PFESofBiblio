@@ -45,4 +45,14 @@ export class BorrowService {
      {
       return this.http.get(this.URL + `/${id}`)
      }
+
+     cancelPendingOrApproved(id : any)
+     {
+      return this.http.delete(this.URL+`/cancelPendingOrApproved/${id}`)
+     }
+
+     cancelWhileInProgress(id : any)
+     {
+      return this.http.put(this.URL+`/cancelWhileInProgress/${id}`,{})
+     }
 }

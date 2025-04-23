@@ -90,7 +90,6 @@ public class BorrowService implements IBorrowService {
         return this.borrowRepository.getBookOccupiedDatesByBookId(bookId);
     }
 
-
     //@Scheduled(cron = "0 0 0 * * *")
     @Scheduled(fixedRate = 15000) // every 10 seconds
    // @Scheduled(cron = "0 * * * * *") // every minute
@@ -111,5 +110,20 @@ public class BorrowService implements IBorrowService {
             borrow.setBorrowStatus(BorrowStatus.RETURNED);
         }
         borrowRepository.saveAll(borrows);
+    }
+
+    @Override
+    public void cancelPendingOrApproved(Long idBorrow) {
+        this.borrowRepository.deleteById(idBorrow);
+    }
+
+    @Override
+    public void cancelWhileInProgress(Long idBorrow) {
+        Borrow borrow = this.borrowRepository.findById(idBorrow).orElse(null);
+        assert borrow != null;
+        borrow.setBorrowStatus(BorrowStatus.RETURNED);
+        borrow.setExpectedReturnDate(LocalDate.now());
+        this.borrowRepository.save(borrow);
+
     }
 }
