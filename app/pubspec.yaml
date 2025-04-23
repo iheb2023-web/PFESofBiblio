@@ -39,7 +39,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0  # Vérifiez la dernière version sur pub.dev
   lottie: ^3.1.3
   get: ^4.6.6
-  shared_preferences: ^2.5.2
+  shared_preferences: ^2.5.3
   intl: ^0.18.0  # Ajout de la dépendance intl
   jwt_decoder: ^2.0.1  # Ajout de la dépendance jwt_decoder
   dio: ^5.3.2  # ou la version la plus récente
