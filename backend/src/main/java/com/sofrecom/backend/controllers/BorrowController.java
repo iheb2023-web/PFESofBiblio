@@ -62,4 +62,14 @@ public class BorrowController {
         return this.borrowService.getBookOccupiedDatesByBookId(bookId);
     }
 
+    @DeleteMapping("/cancelPendingOrApproved/{idBorrow}")
+    public void cancelPendingOrApproved(@PathVariable Long idBorrow) {
+        this.borrowService.cancelPendingOrApproved(idBorrow);
+    }
+
+    @PutMapping("/cancelWhileInProgress/{idBorrow}")
+    public void cancelWhileInProgress(@PathVariable Long idBorrow) {
+        this.borrowService.cancelWhileInProgress(idBorrow);
+    }
+
 }

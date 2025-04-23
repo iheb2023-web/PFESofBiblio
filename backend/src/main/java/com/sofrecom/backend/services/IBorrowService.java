@@ -22,4 +22,8 @@ public interface IBorrowService {
     BorrowStatusUser getBorrowStatusUserByEmail(String email);
 
     List<OccupiedDates> getBookOccupiedDatesByBookId(Long bookId);
+
+    void cancelPendingOrApproved(Long idBorrow);
+
+    void cancelWhileInProgress(Long idBorrow);
 }

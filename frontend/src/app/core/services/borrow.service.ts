@@ -7,6 +7,7 @@ import { OccupiedDates } from "../dtos/OccupiedDates";
   providedIn: 'root'
 })
 export class BorrowService {
+
  
     private URL ='http://localhost:8080/borrows';
 
@@ -44,5 +45,25 @@ export class BorrowService {
      getBorrowById(id : any)
      {
       return this.http.get(this.URL + `/${id}`)
+     }
+
+     cancel(id: any, actionText: string) {
+      if(actionText ==="cancel")
+      {
+         this.cancelPendingOrApproved(id)
+      }
+      else{
+         this.cancelWhileInProgress(id)
+      }
+    }
+
+     cancelPendingOrApproved(id : any)
+     {
+      return this.http.delete(this.URL+`/cancelPendingOrApproved/${id}`)
+     }
+
+     cancelWhileInProgress(id : any)
+     {
+      return this.http.put(this.URL+`/cancelWhileInProgress/${id}`,{})
      }
 }
