@@ -34,16 +34,31 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
         textColor = Colors.orange[900]!;
         text = 'En attente';
         break;
+
       case 'APPROVED':
         backgroundColor = Colors.green[100]!;
         textColor = Colors.green[900]!;
         text = 'Accepté';
         break;
+
       case 'REJECTED':
         backgroundColor = Colors.red[100]!;
         textColor = Colors.red[900]!;
         text = 'Refusé';
         break;
+
+      case 'RETURNED':
+        backgroundColor = Colors.blue[100]!;
+        textColor = Colors.blue[900]!;
+        text = 'Terminé';
+        break;
+
+      case 'IN_PROGRESS':
+        backgroundColor = Colors.amber[100]!;
+        textColor = Colors.amber[900]!;
+        text = 'En cours';
+        break;
+
       default:
         backgroundColor = Colors.grey[100]!;
         textColor = Colors.grey[900]!;
@@ -208,9 +223,11 @@ class _MesEmpruntsPageState extends State<MesEmpruntsPage> {
 
     final filters = [
       {'label': 'Tous', 'value': 'TOUS'},
-      {'label': 'En cours de lecture', 'value': 'APPROVED'},
+      {'label': 'En cours de lecture', 'value': 'IN_PROGRESS'},
       {'label': 'En attente', 'value': 'PENDING'},
-      {'label': 'Terminés', 'value': 'REJECTED'},
+      {'label': 'Accepté', 'value': 'APPROVED'},
+      {'label': 'Terminé', 'value': 'RETURNED'},
+      {'label': 'Refusé', 'value': 'REJECTED'},
     ];
 
     return Scaffold(

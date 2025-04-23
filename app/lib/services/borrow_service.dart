@@ -229,61 +229,115 @@ class BorrowService extends GetxService {
   }
 
   Future<List<Borrow>> getBorrowDemandsByEmail(String email) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/borrows/demands/$email'),
-        headers: await getHeaders(),
-      );
+    http.Response? response; // Déclaration pour accès dans catch
 
-      print(
-        'getBorrowDemandsByEmail response: ${response.statusCode} - ${response.body}',
-      );
+    try {
+      print('BorrowService: Récupération des demandes d\'emprunt pour $email');
+
+      final headers = {
+        ...await getHeaders(),
+        'Accept-Charset': 'utf-8', // Ajout du charset pour la requête
+      };
+      print('BorrowService: Headers de la requête: $headers');
+
+      final url = '$baseUrl/borrows/demands/$email';
+      print('BorrowService: URL de la requête: $url');
+
+      response = await http.get(Uri.parse(url), headers: headers);
+
+      print('BorrowService: Status code de la réponse: ${response.statusCode}');
+      print('BorrowService: Headers de la réponse: ${response.headers}');
 
       if (response.statusCode == 200) {
-        if (response.body.isEmpty) {
+        if (response.bodyBytes.isEmpty) {
+          print('BorrowService: Corps de réponse vide');
           return [];
         }
 
-        final List<dynamic> jsonList = jsonDecode(response.body);
-        return jsonList.map((json) => Borrow.fromJson(json)).toList();
+        try {
+          final decodedBody = utf8.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final borrows = data.map((json) => Borrow.fromJson(json)).toList();
+          print('BorrowService: ${borrows.length} demandes récupérées (UTF-8)');
+          return borrows;
+        } on FormatException {
+          final decodedBody = latin1.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final borrows = data.map((json) => Borrow.fromJson(json)).toList();
+          print(
+            'BorrowService: ${borrows.length} demandes récupérées (latin1 fallback)',
+          );
+          return borrows;
+        }
       } else {
         throw Exception(
           'Erreur lors de la récupération des demandes: ${response.statusCode}',
         );
       }
     } catch (e) {
-      print('getBorrowDemandsByEmail error: $e');
-      rethrow;
+      print('BorrowService: Erreur lors de la récupération des demandes: $e');
+      if (response != null) {
+        print('BorrowService: Corps brut de la réponse: ${response.bodyBytes}');
+      }
+      return [];
     }
   }
 
   // Récupérer les emprunts d'un utilisateur
   Future<List<Borrow>> getUserBorrows(String userEmail) async {
+    http.Response? response; // Pour accès en cas d'erreur
+
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/borrows/requests/$userEmail'),
-        headers: await getHeaders(),
+      print(
+        'BorrowService: Récupération des emprunts pour l\'utilisateur $userEmail',
       );
 
-      print(
-        'getUserBorrows response: ${response.statusCode} - ${response.body}',
-      );
+      final headers = {
+        ...await getHeaders(),
+        'Accept-Charset': 'utf-8', // Ajout du charset
+      };
+      print('BorrowService: Headers de la requête: $headers');
+
+      final url = '$baseUrl/borrows/requests/$userEmail';
+      print('BorrowService: URL de la requête: $url');
+
+      response = await http.get(Uri.parse(url), headers: headers);
+
+      print('BorrowService: Status code de la réponse: ${response.statusCode}');
+      print('BorrowService: Headers de la réponse: ${response.headers}');
 
       if (response.statusCode == 200) {
-        if (response.body.isEmpty) {
+        if (response.bodyBytes.isEmpty) {
+          print('BorrowService: Corps de réponse vide');
           return [];
         }
 
-        final List<dynamic> jsonList = jsonDecode(response.body);
-        return jsonList.map((json) => Borrow.fromJson(json)).toList();
+        try {
+          final decodedBody = utf8.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final borrows = data.map((json) => Borrow.fromJson(json)).toList();
+          print('BorrowService: ${borrows.length} emprunts récupérés (UTF-8)');
+          return borrows;
+        } on FormatException {
+          final decodedBody = latin1.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          final borrows = data.map((json) => Borrow.fromJson(json)).toList();
+          print(
+            'BorrowService: ${borrows.length} emprunts récupérés (latin1 fallback)',
+          );
+          return borrows;
+        }
       } else {
         throw Exception(
           'Erreur lors de la récupération des emprunts: ${response.statusCode}',
         );
       }
     } catch (e) {
-      print('getUserBorrows error: $e');
-      rethrow;
+      print('BorrowService: Erreur lors de la récupération des emprunts: $e');
+      if (response != null) {
+        print('BorrowService: Corps brut de la réponse: ${response.bodyBytes}');
+      }
+      return [];
     }
   }
 
