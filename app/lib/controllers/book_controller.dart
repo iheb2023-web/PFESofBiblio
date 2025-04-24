@@ -4,7 +4,9 @@ import 'package:app/services/book_service.dart';
 import 'package:app/controllers/auth_controller.dart';
 
 class BookController extends GetxController {
-  final RxList<Book> books = <Book>[].obs;
+  final RxList<Book> allBooks = <Book>[].obs; // Tous les livres sans filtre
+  final RxList<Book> books =
+      <Book>[].obs; // Livres filtrés (autres utilisateurs)
   final RxList<Book> userBooks = <Book>[].obs;
   final RxList<Book> popularBooks = <Book>[].obs;
   final RxList<Book> recommendedBooks = <Book>[].obs;
@@ -26,6 +28,7 @@ class BookController extends GetxController {
     ever(_authController.currentUser, (user) {
       if (user != null) {
         loadUserBooks();
+        _filterBooks(); // Re-filtrer quand l'utilisateur change
       } else {
         userBooks.clear();
       }
@@ -38,23 +41,8 @@ class BookController extends GetxController {
       error.value = '';
 
       final loadedBooks = await BookService.getAllBooks();
-      books.value = loadedBooks;
-
-      // Sort books by different criteria for each section
-      popularBooks.value = List.from(loadedBooks)
-        ..sort((a, b) => b.borrowCount.compareTo(a.borrowCount));
-      if (popularBooks.length > 10)
-        popularBooks.value = popularBooks.sublist(0, 10);
-
-      recommendedBooks.value = List.from(loadedBooks)
-        ..sort((a, b) => b.rating.compareTo(a.rating));
-      if (recommendedBooks.length > 10)
-        recommendedBooks.value = recommendedBooks.sublist(0, 10);
-
-      // Sort by newest first (assuming publishedDate is in ISO format)
-      newBooks.value = List.from(loadedBooks)
-        ..sort((a, b) => b.publishedDate.compareTo(a.publishedDate));
-      if (newBooks.length > 10) newBooks.value = newBooks.sublist(0, 10);
+      allBooks.value = loadedBooks;
+      _filterBooks(); // Appliquer le filtre après chargement
     } catch (e) {
       error.value = 'Error loading books: $e';
       print(error.value);
@@ -62,6 +50,77 @@ class BookController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void _filterBooks() {
+    final currentUserId = _authController.currentUser.value?.id;
+    print('Filtering books for user: $currentUserId');
+    print('All books count: ${allBooks.length}');
+
+    books.value =
+        currentUserId == null
+            ? List.from(allBooks)
+            : allBooks.where((book) {
+              print('Book ${book.id} - Owner: ${book.ownerId}');
+              return book.ownerId != currentUserId;
+            }).toList();
+
+    print('Filtered books count: ${books.length}');
+    _updateSortedLists();
+  }
+
+  void _updateSortedLists() {
+    // Popular books (most borrowed)
+    popularBooks.value = List.from(books)
+      ..sort((a, b) => b.borrowCount.compareTo(a.borrowCount));
+    if (popularBooks.length > 10) {
+      popularBooks.value = popularBooks.sublist(0, 10);
+    }
+
+    // Recommended books (highest rated)
+    recommendedBooks.value = List.from(books)
+      ..sort((a, b) => b.rating.compareTo(a.rating));
+    if (recommendedBooks.length > 10) {
+      recommendedBooks.value = recommendedBooks.sublist(0, 10);
+    }
+
+    // New arrivals (most recent)
+    newBooks.value = List.from(books)
+      ..sort((a, b) => b.publishedDate.compareTo(a.publishedDate));
+    if (newBooks.length > 10) {
+      newBooks.value = newBooks.sublist(0, 10);
+    }
+  }
+
+  // Future<void> loadAllBooks() async {
+  //   try {
+  //     isLoading.value = true;
+  //     error.value = '';
+
+  //     final loadedBooks = await BookService.getAllBooks();
+  //     books.value = loadedBooks;
+
+  //     // Sort books by different criteria for each section
+  //     popularBooks.value = List.from(loadedBooks)
+  //       ..sort((a, b) => b.borrowCount.compareTo(a.borrowCount));
+  //     if (popularBooks.length > 10)
+  //       popularBooks.value = popularBooks.sublist(0, 10);
+
+  //     recommendedBooks.value = List.from(loadedBooks)
+  //       ..sort((a, b) => b.rating.compareTo(a.rating));
+  //     if (recommendedBooks.length > 10)
+  //       recommendedBooks.value = recommendedBooks.sublist(0, 10);
+
+  //     // Sort by newest first (assuming publishedDate is in ISO format)
+  //     newBooks.value = List.from(loadedBooks)
+  //       ..sort((a, b) => b.publishedDate.compareTo(a.publishedDate));
+  //     if (newBooks.length > 10) newBooks.value = newBooks.sublist(0, 10);
+  //   } catch (e) {
+  //     error.value = 'Error loading books: $e';
+  //     print(error.value);
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 
   Future<void> loadUserBooks() async {
     try {
@@ -196,5 +255,6 @@ class BookController extends GetxController {
         list[index] = updatedBook;
       }
     }
+    _filterBooks(); // Re-filtrer après mise à jour
   }
 }

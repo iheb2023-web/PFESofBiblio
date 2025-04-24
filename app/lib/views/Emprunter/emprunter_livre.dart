@@ -396,15 +396,6 @@ class _EmprunterLivreState extends State<EmprunterLivre> {
                                           dateRetour!,
                                         );
 
-                                        // Succès - afficher le snackbar
-                                        // Get.rawSnackbar(
-                                        //   message: 'Livre réservé avec succès',
-                                        //   backgroundColor: Colors.green[100]!,
-                                        //   snackPosition: SnackPosition.TOP,
-                                        //   duration: const Duration(seconds: 2),
-                                        //   margin: const EdgeInsets.all(16),
-                                        //   borderRadius: 8,
-                                        // );:
                                         Get.snackbar(
                                           'Succès',
                                           'Livre réservé avec succès',
