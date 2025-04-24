@@ -1,0 +1,49 @@
+<div class="container">
+    <div class="header">
+      <button (click)="prevStep()">&larr;</button>
+      <h2>Complete Your Profile</h2>
+      <button (click)="onSubmit()">Skip</button>
+    </div>
+  
+    <div class="progress-bar">
+      Step {{ currentStep }} of {{ totalSteps }}
+    </div>
+  
+    <form [formGroup]="preferenceForm" (ngSubmit)="onSubmit()">
+      <!-- Step 1: Book Length -->
+      <div *ngIf="currentStep === 1">
+        <h3>How many pages do you prefer to read?</h3>
+        <p>Select the preferred book length</p>
+        <div class="options">
+          <label *ngFor="let length of bookLengths">
+            <input type="radio" formControlName="preferredBookLength" [value]="length" />
+            {{ length }}
+          </label>
+        </div>
+        <button type="button" (click)="nextStep()">Continue</button>
+      </div>
+  
+      <!-- Step 2: Genres -->
+      <div *ngIf="currentStep === 2">
+        <h3>What are your interests?</h3>
+        <p>Select topics that interest you to personalize your experience</p>
+        <div class="options">
+          <label *ngFor="let genre of genres">
+            <input type="checkbox" [value]="genre" (change)="onGenreChange($event)" />
+            {{ genre }}
+          </label>
+        </div>
+        <button type="button" (click)="prevStep()">Back</button>
+        <button type="button" (click)="nextStep()">Continue</button>
+      </div>
+  
+      <!-- Step 3: Final Step (Optional) -->
+      <div *ngIf="currentStep === 3">
+        <h3>Review Your Preferences</h3>
+        <p>Book Length: {{ preferenceForm.value.preferredBookLength }}</p>
+        <p>Genres: {{ preferenceForm.value.favoriteGenres.join(', ') }}</p>
+        <button type="button" (click)="prevStep()">Back</button>
+        <button type="submit">Finish</button>
+      </div>
+    </form>
+  </div>

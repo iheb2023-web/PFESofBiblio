@@ -5,8 +5,10 @@ import { ForgetPasswordComponent } from './features/forget-password/forget-passw
 import { NotfoundComponent } from './features/notfound/notfound.component';
 import { NewPasswordComponent } from './features/new-password/new-password.component';
 import { HomeComponent } from './features/home/home.component';
+import { PreferenceStepsComponent } from './features/preference-steps/preference-steps.component';
 
 const routes: Routes = [
+  {path : 'pref' ,component: PreferenceStepsComponent},
    { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {

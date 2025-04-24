@@ -2,7 +2,6 @@ package com.sofrecom.backend.services;
 
 import com.sofrecom.backend.dtos.BorrowStatusUser;
 import com.sofrecom.backend.dtos.OccupiedDates;
-import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 
 import java.util.List;
@@ -27,4 +26,7 @@ public interface IBorrowService {
 
     void cancelPendingOrApproved(Long idBorrow);
 
+    List<OccupiedDates> getBookOccupiedDatesUpdatedBorrow(Long bookId, Long borrowId);
+
+    Borrow updateBorrowWhilePending(Borrow borrow);
 }

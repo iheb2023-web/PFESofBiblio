@@ -118,6 +118,16 @@ public class BorrowService implements IBorrowService {
     }
 
     @Override
+    public List<OccupiedDates> getBookOccupiedDatesUpdatedBorrow(Long bookId, Long borrowId) {
+        return this.borrowRepository.getBookOccupiedDatesByBookIdForUpdatedBorrow(bookId, borrowId);
+    }
+
+    @Override
+    public Borrow updateBorrowWhilePending(Borrow borrow) {
+        return this.borrowRepository.save(borrow);
+    }
+
+    @Override
     public void cancelWhileInProgress(Long idBorrow) {
         Borrow borrow = this.borrowRepository.findById(idBorrow).orElse(null);
         assert borrow != null;

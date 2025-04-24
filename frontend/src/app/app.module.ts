@@ -15,6 +15,7 @@ import { SharedModule } from './features/shared/shared.module';
 import { HomeComponent } from './features/home/home.component';
 import { BooksModule } from './features/books/books.module';
 import { NotificationComponent } from './notification/notification.component';
+import { PreferenceStepsComponent } from './features/preference-steps/preference-steps.component';
 
 
 @NgModule({
@@ -26,6 +27,8 @@ import { NotificationComponent } from './notification/notification.component';
     NewPasswordComponent,
     HomeComponent,
     NotificationComponent,
+    PreferenceStepsComponent
+    
     
     
   ],

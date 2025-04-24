@@ -72,4 +72,17 @@ public class BorrowController {
         this.borrowService.cancelPendingOrApproved(idBorrow);
     }
 
+    @GetMapping("/getBookOccupiedDatesUpdatedBorrow/{bookId}/{borrowId}")
+    public List<OccupiedDates> getBookOccupiedDatesUpdatedBorrow(@PathVariable Long bookId , @PathVariable Long borrowId) {
+        return this.borrowService.getBookOccupiedDatesUpdatedBorrow(bookId, borrowId);
+    }
+
+    @PutMapping("/updateBorrowWhilePending")
+    public Borrow updateBorrowWhilePending(@RequestBody Borrow borrow) {
+         return this.borrowService.updateBorrowWhilePending(borrow);
+    }
+
+
+
+
 }

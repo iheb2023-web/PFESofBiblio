@@ -48,4 +48,12 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     @Query("select b from Borrow b where b.expectedReturnDate = CURRENT_DATE and b.BorrowStatus = 'IN_PROGRESS'")
     List<Borrow> findProgressBorrowsEndToday();
 
+
+    @Query("SELECT NEW com.sofrecom.backend.dtos.OccupiedDates(b.borrowDate, b.expectedReturnDate) " +
+            "FROM Borrow b " +
+            "WHERE (b.BorrowStatus = 'IN_PROGRESS' OR b.BorrowStatus = 'APPROVED' OR b.BorrowStatus = 'PENDING') " +
+            "AND b.book.id = :bookId  AND b.id != :borrowId " +
+            "AND b.borrowDate >= CURRENT_DATE")
+    List<OccupiedDates> getBookOccupiedDatesByBookIdForUpdatedBorrow(@Param("bookId") Long bookId, @Param("borrowId") Long borrowId);
+
 }
