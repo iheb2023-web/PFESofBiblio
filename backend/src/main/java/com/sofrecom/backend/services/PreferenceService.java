@@ -23,7 +23,7 @@ public class PreferenceService implements IPreferenceService {
 
     @Override
     public Preference addPreference(PreferenceDto preference) {
-        User user =  this.userRepository.findById(preference.getUser().getId()).orElse(null);
+        User user =  this.userRepository.findById(preference.getUserId()).orElse(null);
         
         Preference newPreference =Preference.builder()
                 .preferredBookLength(preference.getPreferredBookLength())

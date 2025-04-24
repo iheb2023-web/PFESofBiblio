@@ -19,7 +19,8 @@ public class PreferenceDto {
     private List<String> preferredLanguages;
     private List<String> favoriteAuthors;
     private String type;
-    private User user;
+    //private User user;
+    private Long userId;
 
 
 
