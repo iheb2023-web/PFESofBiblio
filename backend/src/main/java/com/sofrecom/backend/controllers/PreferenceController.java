@@ -1,5 +1,6 @@
 package com.sofrecom.backend.controllers;
 
+import com.sofrecom.backend.dtos.PreferenceDto;
 import com.sofrecom.backend.entities.Preference;
 import com.sofrecom.backend.services.IPreferenceService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class PreferenceController {
     }
 
     @PostMapping()
-    public Preference addPreference(@RequestBody Preference preference) {
+    public Preference addPreference(@RequestBody PreferenceDto preference) {
         return this.preferenceService.addPreference(preference);
     }
 

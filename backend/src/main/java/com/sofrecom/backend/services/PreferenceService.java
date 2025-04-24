@@ -1,7 +1,10 @@
 package com.sofrecom.backend.services;
 
+import com.sofrecom.backend.dtos.PreferenceDto;
 import com.sofrecom.backend.entities.Preference;
+import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.PreferenceRepository;
+import com.sofrecom.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +14,7 @@ import java.util.List;
 public class PreferenceService implements IPreferenceService {
 
     private final PreferenceRepository preferenceRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<Preference> getPreferences() {
@@ -18,8 +22,19 @@ public class PreferenceService implements IPreferenceService {
     }
 
     @Override
-    public Preference addPreference(Preference preference) {
-        return this.preferenceRepository.save(preference);
-
+    public Preference addPreference(PreferenceDto preference) {
+        User user =  this.userRepository.findById(preference.getUser().getId()).orElse(null);
+        
+        Preference newPreference =Preference.builder()
+                .preferredBookLength(preference.getPreferredBookLength())
+                .favoriteGenres(preference.getFavoriteGenres())
+                .preferredLanguages(preference.getPreferredLanguages())
+                .favoriteAuthors(preference.getFavoriteAuthors())
+                .type(preference.getType())
+                .user(user)
+                .build();
+        return this.preferenceRepository.save(newPreference);
     }
+
+
 }

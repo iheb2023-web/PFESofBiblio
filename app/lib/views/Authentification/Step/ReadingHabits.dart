@@ -46,6 +46,7 @@ class _ReadingHabitsState extends State<ReadingHabits> {
         _controller.updateTempPreference(
           preferredLanguages: [selectedLanguage!],
         );
+        print('Langues enregistrées: $selectedLanguage');
       }
 
       // 2. Auteurs préférés
@@ -60,18 +61,21 @@ class _ReadingHabitsState extends State<ReadingHabits> {
       }
 
       _controller.updateTempPreference(favoriteAuthors: selectedAuthors);
+      print('Auteurs enregistrés: $selectedAuthors');
 
       // 3. Type de lecture
       if (readingType != null) {
         _controller.updateTempPreference(type: readingType!);
+        print('Type enregistré: $readingType');
       }
 
       // Soumission finale
-      await _controller.submitPreference(
-        _controller.tempPreference.value.userId!,
-      );
+      await _controller.submitPreference(); // Pas besoin de passer userId
+      print('Préférences soumises avec succès');
+      Get.offAll(() => const NavigationMenu());
     } catch (e) {
-      Get.snackbar('Error', 'Failed to save preferences');
+      print('Erreur lors de l\'enregistrement des préférences: $e');
+      Get.snackbar('Erreur', 'Échec de l\'enregistrement des préférences: $e');
       rethrow;
     }
   }
