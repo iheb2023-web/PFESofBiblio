@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/views/Authentification/Step/ReadingHabits.dart';
+import 'package:app/controllers/preferences_controller.dart'; // Import du contrôleur
 
 class PageCountPreference extends StatefulWidget {
   const PageCountPreference({super.key});
@@ -10,6 +11,9 @@ class PageCountPreference extends StatefulWidget {
 }
 
 class _PageCountPreferenceState extends State<PageCountPreference> {
+  final PreferenceController _controller =
+      Get.find(); // Récupération du contrôleur
+
   int? selectedOption;
 
   final List<Map<String, dynamic>> pageRanges = [
@@ -34,6 +38,12 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
       'range': '400+',
     },
   ];
+  void _savePreferredLength() {
+    if (selectedOption != null) {
+      final selectedRange = pageRanges[selectedOption!]['range'] as String;
+      _controller.updateTempPreference(preferredBookLength: selectedRange);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +79,10 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
               // Titre
               Text(
                 'complete_profile'.tr,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 20),
@@ -105,7 +118,10 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
               // Question
               Text(
                 'how_many_pages'.tr,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 10),
@@ -205,6 +221,7 @@ class _PageCountPreferenceState extends State<PageCountPreference> {
                   onPressed:
                       selectedOption != null
                           ? () {
+                            _savePreferredLength(); // Sauvegarde la préférence
                             Get.to(() => const ReadingHabits());
                           }
                           : null,

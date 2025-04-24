@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/views/Authentification/Step/PageCountPreference.dart';
+import 'package:app/controllers/preferences_controller.dart'; // Importez le contrôleur
 
 class PreferencesPage extends StatefulWidget {
   const PreferencesPage({super.key});
@@ -10,26 +11,35 @@ class PreferencesPage extends StatefulWidget {
 }
 
 class _PreferencesPageState extends State<PreferencesPage> {
-  // Liste étendue des intérêts avec leurs icônes
+  final PreferenceController _controller = Get.find();
   final List<Map<String, dynamic>> interests = [
-    {'name': 'Technologie', 'icon': Icons.computer, 'selected': false},
-    {'name': 'Design', 'icon': Icons.brush, 'selected': false},
-    {'name': 'Business', 'icon': Icons.business, 'selected': false},
-    {'name': 'Fitness', 'icon': Icons.fitness_center, 'selected': false},
-    {'name': 'Musique', 'icon': Icons.music_note, 'selected': false},
-    {'name': 'Écriture', 'icon': Icons.edit, 'selected': false},
-    {'name': 'Photo', 'icon': Icons.camera_alt, 'selected': false},
-    {'name': 'Gaming', 'icon': Icons.sports_esports, 'selected': false},
-    {'name': 'Cuisine', 'icon': Icons.restaurant, 'selected': false},
-    {'name': 'Voyage', 'icon': Icons.flight, 'selected': false},
+    {'name': 'Fiction', 'icon': Icons.menu_book, 'selected': false},
     {'name': 'Science', 'icon': Icons.science, 'selected': false},
+    {'name': 'History', 'icon': Icons.history_edu, 'selected': false},
+    {'name': 'Biography', 'icon': Icons.person, 'selected': false},
+    {'name': 'Fantasy', 'icon': Icons.auto_stories, 'selected': false},
+    {'name': 'Romance', 'icon': Icons.favorite, 'selected': false},
+    {'name': 'Mystery', 'icon': Icons.visibility, 'selected': false},
+    {'name': 'Horror', 'icon': Icons.nightlight_round, 'selected': false},
+    {'name': 'Science Fiction', 'icon': Icons.rocket_launch, 'selected': false},
+    {'name': 'Poetry', 'icon': Icons.format_quote, 'selected': false},
+    {'name': 'Travel', 'icon': Icons.flight, 'selected': false},
+    {'name': 'Health', 'icon': Icons.local_hospital, 'selected': false},
+    {'name': 'Cooking', 'icon': Icons.restaurant, 'selected': false},
+    {'name': 'Comics', 'icon': Icons.theater_comedy, 'selected': false},
     {'name': 'Art', 'icon': Icons.palette, 'selected': false},
-    {'name': 'Sport', 'icon': Icons.sports_basketball, 'selected': false},
-    {'name': 'Nature', 'icon': Icons.eco, 'selected': false},
-    {'name': 'Cinéma', 'icon': Icons.movie, 'selected': false},
   ];
 
   int selectedCount = 0;
+  void _saveSelectedGenres() {
+    final selectedGenres =
+        interests
+            .where((interest) => interest['selected'] == true)
+            .map((interest) => interest['name'] as String)
+            .toList();
+
+    _controller.updateTempPreference(favoriteGenres: selectedGenres);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +75,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
               // Titre
               Text(
                 'complete_profile'.tr,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 20),
@@ -101,7 +114,10 @@ class _PreferencesPageState extends State<PreferencesPage> {
               // Question
               Text(
                 'what_interests'.tr,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
 
               const SizedBox(height: 10),
@@ -190,6 +206,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                   onPressed:
                       selectedCount > 0
                           ? () {
+                            _saveSelectedGenres();
                             Get.to(() => const PageCountPreference());
                           }
                           : null,

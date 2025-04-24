@@ -1,4 +1,6 @@
+import 'package:app/controllers/preferences_controller.dart';
 import 'package:app/controllers/review_controller.dart';
+import 'package:app/services/preferences_service.dart';
 import 'package:app/services/review_service.dart';
 import 'package:app/services/socket_service.dart';
 import 'package:get/get.dart';
@@ -34,6 +36,7 @@ class AppBinding extends Bindings {
     Get.lazyPut(() => BorrowService(), fenix: true);
     Get.lazyPut(() => ReviewService(), fenix: true);
     Get.lazyPut(() => SocketService(), fenix: true);
+    Get.lazyPut(() => PreferenceService(), fenix: true);
 
     // Controllers
     Get.lazyPut(() => ThemeController(), fenix: true);
@@ -41,5 +44,6 @@ class AppBinding extends Bindings {
     Get.lazyPut(() => BookController(), fenix: true); // ✅ Important ici
     Get.lazyPut(() => BorrowController(), fenix: true);
     Get.lazyPut(() => ReviewController(), fenix: true);
+    Get.lazyPut(() => PreferenceController(), fenix: true);
   }
 }
