@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:app/controllers/auth_controller.dart';
+import 'package:app/models/user_model.dart';
 import 'package:app/views/Authentification/login/LoginPage.dart';
+import 'dart:io';
 
 class ProfilePage extends GetView<AuthController> {
   const ProfilePage({super.key});
@@ -37,7 +41,6 @@ class ProfilePage extends GetView<AuthController> {
         return SingleChildScrollView(
           child: Column(
             children: [
-              // Section profil
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -50,13 +53,26 @@ class ProfilePage extends GetView<AuthController> {
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Colors.blueAccent,
-                          child: Text(
-                            user.firstname.substring(0, 1).toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 40,
-                              color: Colors.white,
-                            ),
-                          ),
+                          backgroundImage:
+                              user.image != null
+                                  ? NetworkImage(
+                                    '${user.image}?t=${DateTime.now().millisecondsSinceEpoch}',
+                                  )
+                                  : null,
+                          child:
+                              user.image == null
+                                  ? Text(
+                                    user.firstname.isNotEmpty
+                                        ? user.firstname
+                                            .substring(0, 1)
+                                            .toUpperCase()
+                                        : '',
+                                    style: const TextStyle(
+                                      fontSize: 40,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : null,
                         ),
                         CircleAvatar(
                           radius: 18,
@@ -67,13 +83,8 @@ class ProfilePage extends GetView<AuthController> {
                               size: 18,
                               color: Colors.blue,
                             ),
-                            onPressed: () {
-                              // Logique pour changer la photo de profil
-                              Get.snackbar(
-                                'Photo de profil',
-                                'Fonctionnalité de changement de photo à implémenter',
-                                snackPosition: SnackPosition.BOTTOM,
-                              );
+                            onPressed: () async {
+                              await _pickAndUploadImage();
                             },
                           ),
                         ),
@@ -97,8 +108,6 @@ class ProfilePage extends GetView<AuthController> {
                   ],
                 ),
               ),
-
-              // Options du profil
               const SizedBox(height: 10),
               _buildProfileOption(
                 context,
@@ -106,7 +115,7 @@ class ProfilePage extends GetView<AuthController> {
                 title: 'Éditer le profil',
                 subtitle: 'Modifier vos informations personnelles',
                 onTap: () {
-                  _navigateToEditProfile(context, user);
+                  Get.to(() => EditProfilePage(user: user));
                 },
               ),
               _buildDivider(),
@@ -116,23 +125,10 @@ class ProfilePage extends GetView<AuthController> {
                 title: 'Confidentialité et sécurité',
                 subtitle: 'Gérer les paramètres de confidentialité',
                 onTap: () {
-                  _navigateToPrivacySecurity(context);
+                  Get.to(() => const PrivacySecurityPage());
                 },
               ),
               _buildDivider(),
-              _buildProfileOption(
-                context,
-                icon: Icons.notifications_none,
-                title: 'Notifications',
-                subtitle: 'Gérer vos préférences de notifications',
-                onTap: () {
-                  _navigateToNotifications(context);
-                },
-              ),
-              _buildDivider(),
-              const SizedBox(height: 20),
-
-              // Bouton de déconnexion
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -142,7 +138,6 @@ class ProfilePage extends GetView<AuthController> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      // Confirmation de déconnexion
                       Get.defaultDialog(
                         title: 'Confirmation',
                         middleText:
@@ -207,22 +202,102 @@ class ProfilePage extends GetView<AuthController> {
     return const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16);
   }
 
-  void _navigateToEditProfile(BuildContext context, dynamic user) {
-    Get.to(() => EditProfilePage(user: user));
-  }
+  Future<void> _pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await Get.bottomSheet<XFile?>(
+      Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera),
+              title: const Text('Prendre une photo'),
+              onTap: () async {
+                final picked = await picker.pickImage(
+                  source: ImageSource.camera,
+                );
+                Get.back(result: picked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () async {
+                final picked = await picker.pickImage(
+                  source: ImageSource.gallery,
+                );
+                Get.back(result: picked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cancel),
+              title: const Text('Annuler'),
+              onTap: () => Get.back(),
+            ),
+          ],
+        ),
+      ),
+    );
 
-  void _navigateToPrivacySecurity(BuildContext context) {
-    Get.to(() => const PrivacySecurityPage());
-  }
+    if (image != null) {
+      try {
+        final String? imageUrl = await controller.uploadProfileImage(
+          File(image.path),
+        );
+        if (imageUrl != null) {
+          // Update local user state immediately
+          final updatedUser = User(
+            id: controller.currentUser.value!.id,
+            firstname: controller.currentUser.value!.firstname,
+            lastname: controller.currentUser.value!.lastname,
+            email: controller.currentUser.value!.email,
+            phone: controller.currentUser.value!.phone,
+            job: controller.currentUser.value!.job,
+            birthday: controller.currentUser.value!.birthday,
+            image: imageUrl,
+            role: controller.currentUser.value!.role,
+          );
+          controller.currentUser.value = updatedUser;
 
-  void _navigateToNotifications(BuildContext context) {
-    Get.to(() => const NotificationsPage());
+          Get.showSnackbar(
+            const GetSnackBar(
+              message: 'Photo de profil mise à jour',
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+              snackPosition: SnackPosition.BOTTOM,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 3));
+        } else {
+          Get.showSnackbar(
+            const GetSnackBar(
+              message: 'Échec de l\'upload de l\'image',
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+              snackPosition: SnackPosition.BOTTOM,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 3));
+        }
+      } catch (e) {
+        print('Error uploading image: $e');
+        Get.showSnackbar(
+          GetSnackBar(
+            message: 'Erreur lors de l\'upload: $e',
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            snackPosition: SnackPosition.BOTTOM,
+          ),
+        );
+        await Future.delayed(const Duration(seconds: 3));
+      }
+    }
   }
 }
 
-// Page d'édition de profil
 class EditProfilePage extends StatefulWidget {
-  final dynamic user;
+  final User user;
 
   const EditProfilePage({Key? key, required this.user}) : super(key: key);
 
@@ -235,7 +310,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
+  late TextEditingController jobController;
+  late TextEditingController birthdayController;
   final AuthController authController = Get.find<AuthController>();
+  final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
 
   @override
@@ -245,6 +323,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
     lastNameController = TextEditingController(text: widget.user.lastname);
     emailController = TextEditingController(text: widget.user.email);
     phoneController = TextEditingController(text: widget.user.phone ?? '');
+    jobController = TextEditingController(text: widget.user.job ?? '');
+    birthdayController = TextEditingController(
+      text:
+          widget.user.birthday != null
+              ? DateFormat('yyyy-MM-dd').format(widget.user.birthday!)
+              : '',
+    );
   }
 
   @override
@@ -253,40 +338,64 @@ class _EditProfilePageState extends State<EditProfilePage> {
     lastNameController.dispose();
     emailController.dispose();
     phoneController.dispose();
+    jobController.dispose();
+    birthdayController.dispose();
     super.dispose();
   }
 
   Future<void> _updateProfile() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
 
     try {
-      // Implémentation à faire pour mettre à jour le profil
-      await Future.delayed(const Duration(seconds: 1)); // Simulation
+      final userData = {
+        'firstname': firstNameController.text,
+        'lastname': lastNameController.text,
+        'email': emailController.text,
+        'number': phoneController.text.isNotEmpty ? phoneController.text : null,
+        'job': jobController.text,
+        'birthday': birthdayController.text,
+      };
 
-      // Remplacer par votre logique réelle d'update
-      // await authController.updateUserProfile({
-      //   'firstname': firstNameController.text,
-      //   'lastname': lastNameController.text,
-      //   'email': emailController.text,
-      //   'phone': phoneController.text,
-      // });
+      print('Updating profile with userData: $userData');
+      await authController.updateUserProfile(userData);
 
-      Get.snackbar(
-        'Succès',
-        'Profil mis à jour avec succès',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+      // Update local user state immediately
+      final updatedUser = User(
+        id: widget.user.id,
+        firstname: userData['firstname'] as String,
+        lastname: userData['lastname'] as String,
+        email: userData['email'] as String,
+        phone: userData['number'] as String?,
+        job: userData['job'] as String,
+        birthday:
+            userData['birthday'] is String &&
+                    (userData['birthday'] as String).isNotEmpty
+                ? DateFormat('yyyy-MM-dd').parse(userData['birthday'] as String)
+                : null,
+        image: widget.user.image,
+        role: widget.user.role,
       );
+      authController.currentUser.value = updatedUser;
+
+      await Future.delayed(const Duration(seconds: 3));
       Get.back();
     } catch (e) {
-      Get.snackbar(
-        'Erreur',
-        'Impossible de mettre à jour le profil: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      print('Error updating profile: $e');
+      Get.showSnackbar(
+        GetSnackBar(
+          message: 'Impossible de mettre à jour le profil: $e',
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          snackPosition: SnackPosition.BOTTOM,
+        ),
       );
+      await Future.delayed(const Duration(seconds: 3));
     } finally {
       setState(() {
         isLoading = false;
@@ -294,96 +403,274 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  Future<void> _pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await Get.bottomSheet<XFile?>(
+      Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera),
+              title: const Text('Prendre une photo'),
+              onTap: () async {
+                final picked = await picker.pickImage(
+                  source: ImageSource.camera,
+                );
+                Get.back(result: picked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () async {
+                final picked = await picker.pickImage(
+                  source: ImageSource.gallery,
+                );
+                Get.back(result: picked);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.cancel),
+              title: const Text('Annuler'),
+              onTap: () => Get.back(),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (image != null) {
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        print('Uploading image: ${image.path}');
+        final String? imageUrl = await authController.uploadProfileImage(
+          File(image.path),
+        );
+        print('Image upload result: $imageUrl');
+        if (imageUrl != null) {
+          // Update local user state immediately
+          final updatedUser = User(
+            id: widget.user.id,
+            firstname: widget.user.firstname,
+            lastname: widget.user.lastname,
+            email: widget.user.email,
+            phone: widget.user.phone,
+            job: widget.user.job,
+            birthday: widget.user.birthday,
+            image: imageUrl,
+            role: widget.user.role,
+          );
+          authController.currentUser.value = updatedUser;
+
+          Get.showSnackbar(
+            const GetSnackBar(
+              message: 'Photo de profil mise à jour',
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+              snackPosition: SnackPosition.BOTTOM,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 3));
+        } else {
+          Get.showSnackbar(
+            const GetSnackBar(
+              message: 'Échec de l\'upload de l\'image',
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+              snackPosition: SnackPosition.BOTTOM,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 3));
+        }
+      } catch (e) {
+        print('Error uploading image: $e');
+        Get.showSnackbar(
+          GetSnackBar(
+            message: 'Erreur lors de l\'upload: $e',
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            snackPosition: SnackPosition.BOTTOM,
+          ),
+        );
+        await Future.delayed(const Duration(seconds: 3));
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Éditer le profil'),
-        actions: [
-          TextButton(
-            onPressed: isLoading ? null : _updateProfile,
-            child:
-                isLoading
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+      appBar: AppBar(title: const Text('Éditer le profil')),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Center(
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Obx(() {
+                      final user = authController.currentUser.value;
+                      return CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.blueAccent,
+                        backgroundImage:
+                            user?.image != null
+                                ? NetworkImage(
+                                  '${user!.image}?t=${DateTime.now().millisecondsSinceEpoch}',
+                                )
+                                : null,
+                        child:
+                            user?.image == null
+                                ? Text(
+                                  widget.user.firstname.isNotEmpty
+                                      ? widget.user.firstname
+                                          .substring(0, 1)
+                                          .toUpperCase()
+                                      : '',
+                                  style: const TextStyle(
+                                    fontSize: 40,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : null,
+                      );
+                    }),
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.camera_alt,
+                          size: 18,
+                          color: Colors.blue,
+                        ),
+                        onPressed: isLoading ? null : _pickAndUploadImage,
                       ),
-                    )
-                    : const Text(
-                      'Enregistrer',
-                      style: TextStyle(color: Colors.white),
                     ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Center(
-              child: Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.blueAccent,
-                    child: Text(
-                      widget.user.firstname.substring(0, 1).toUpperCase(),
-                      style: const TextStyle(fontSize: 40, color: Colors.white),
-                    ),
-                  ),
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.white,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.camera_alt,
-                        size: 18,
-                        color: Colors.blue,
-                      ),
-                      onPressed: () {
-                        Get.snackbar(
-                          'Photo de profil',
-                          'Fonctionnalité de changement de photo à implémenter',
-                          snackPosition: SnackPosition.BOTTOM,
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            _buildTextField(
-              controller: firstNameController,
-              label: 'Prénom',
-              icon: Icons.person_outline,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: lastNameController,
-              label: 'Nom',
-              icon: Icons.person_outline,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: emailController,
-              label: 'Email',
-              icon: Icons.email_outlined,
-              keyboardType: TextInputType.emailAddress,
-              readOnly: true, // On ne permet pas de modifier l'email
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: phoneController,
-              label: 'Téléphone',
-              icon: Icons.phone_outlined,
-              keyboardType: TextInputType.phone,
-            ),
-          ],
+              const SizedBox(height: 30),
+              _buildTextField(
+                controller: firstNameController,
+                label: 'Prénom',
+                icon: Icons.person_outline,
+                validator:
+                    (value) =>
+                        value!.isEmpty ? 'Veuillez entrer votre prénom' : null,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: lastNameController,
+                label: 'Nom',
+                icon: Icons.person_outline,
+                validator:
+                    (value) =>
+                        value!.isEmpty ? 'Veuillez entrer votre nom' : null,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: emailController,
+                label: 'Email',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                readOnly: true,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: phoneController,
+                label: 'Numéro de téléphone',
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value!.isNotEmpty && !RegExp(r'^\d+$').hasMatch(value)) {
+                    return 'Veuillez entrer un numéro valide';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: jobController,
+                label: 'Profession',
+                icon: Icons.work_outline,
+                validator:
+                    (value) =>
+                        value!.isEmpty
+                            ? 'Veuillez entrer votre profession'
+                            : null,
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: birthdayController,
+                label: 'Date de naissance',
+                icon: Icons.cake_outlined,
+                readOnly: true,
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    birthdayController.text = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(picked);
+                  }
+                },
+                validator: (value) {
+                  if (value!.isNotEmpty) {
+                    try {
+                      DateFormat('yyyy-MM-dd').parse(value);
+                    } catch (e) {
+                      return 'Format de date invalide (yyyy-MM-dd)';
+                    }
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isLoading ? null : _updateProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text(
+                            'Enregistrer',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -395,11 +682,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     bool readOnly = false,
+    String? Function(String?)? validator,
+    VoidCallback? onTap,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       readOnly: readOnly,
+      onTap: onTap,
+      validator: validator,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
@@ -419,7 +710,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 }
 
-// Page de confidentialité et sécurité
 class PrivacySecurityPage extends StatelessWidget {
   const PrivacySecurityPage({Key? key}) : super(key: key);
 
@@ -445,73 +735,7 @@ class PrivacySecurityPage extends StatelessWidget {
             'Mettre à jour votre mot de passe actuel',
             Icons.lock_outline,
             onTap: () {
-              Get.snackbar(
-                'Changement de mot de passe',
-                'Fonctionnalité à implémenter',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          ),
-          _buildSettingTile(
-            'Authentification à deux facteurs',
-            'Ajouter une couche de sécurité supplémentaire',
-            Icons.security,
-            onTap: () {
-              Get.snackbar(
-                '2FA',
-                'Fonctionnalité à implémenter',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Paramètres de confidentialité',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-          ),
-          _buildSwitchTile(
-            'Visibilité du profil',
-            'Votre profil est visible pour les autres utilisateurs',
-            Icons.visibility,
-            true,
-          ),
-          _buildSwitchTile(
-            'Partage des données',
-            'Autoriser le partage anonyme des données d\'utilisation',
-            Icons.data_usage,
-            false,
-          ),
-          const Divider(),
-          _buildSettingTile(
-            'Supprimer le compte',
-            'Supprimer définitivement votre compte et vos données',
-            Icons.delete_outline,
-            textColor: Colors.red,
-            onTap: () {
-              Get.defaultDialog(
-                title: 'Attention',
-                middleText:
-                    'Cette action est irréversible. Voulez-vous vraiment supprimer votre compte?',
-                textConfirm: 'Supprimer',
-                confirmTextColor: Colors.white,
-                buttonColor: Colors.red,
-                textCancel: 'Annuler',
-                onConfirm: () {
-                  Get.snackbar(
-                    'Suppression de compte',
-                    'Fonctionnalité à implémenter',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                  Get.back();
-                },
-              );
+              _showChangePasswordDialog(context);
             },
           ),
         ],
@@ -535,154 +759,199 @@ class PrivacySecurityPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSwitchTile(
-    String title,
-    String subtitle,
-    IconData icon,
-    bool initialValue,
-  ) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        bool value = initialValue;
-        return ListTile(
-          leading: Icon(icon, color: Colors.blue),
-          title: Text(title),
-          subtitle: Text(subtitle),
-          trailing: Switch(
-            value: value,
-            onChanged: (newValue) {
+  void _showChangePasswordDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final TextEditingController _currentPasswordController =
+        TextEditingController();
+    final TextEditingController _newPasswordController =
+        TextEditingController();
+    final TextEditingController _confirmPasswordController =
+        TextEditingController();
+    bool _obscureCurrentPassword = true;
+    bool _obscureNewPassword = true;
+    bool _obscureConfirmPassword = true;
+    bool _isLoading = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            Future<void> _changePassword() async {
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
+
               setState(() {
-                value = newValue;
+                _isLoading = true;
               });
-              Get.snackbar(
-                'Paramètre mis à jour',
-                '$title ${newValue ? 'activé' : 'désactivé'}',
-                snackPosition: SnackPosition.BOTTOM,
-              );
-            },
-            activeColor: Colors.blue,
-          ),
+
+              try {
+                // TODO: Implement actual password change logic
+                await Future.delayed(const Duration(seconds: 1)); // Simulation
+                Get.back();
+                Get.showSnackbar(
+                  const GetSnackBar(
+                    message: 'Mot de passe modifié avec succès',
+                    backgroundColor: Colors.green,
+                    duration: Duration(seconds: 3),
+                    snackPosition: SnackPosition.BOTTOM,
+                  ),
+                );
+              } catch (e) {
+                Get.showSnackbar(
+                  GetSnackBar(
+                    message: 'Impossible de modifier le mot de passe: $e',
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 3),
+                    snackPosition: SnackPosition.BOTTOM,
+                  ),
+                );
+              } finally {
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: const Text('Changer le mot de passe'),
+              content: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: _currentPasswordController,
+                        obscureText: _obscureCurrentPassword,
+                        decoration: InputDecoration(
+                          labelText: 'Mot de passe actuel',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureCurrentPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureCurrentPassword =
+                                    !_obscureCurrentPassword;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer votre mot de passe actuel';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _newPasswordController,
+                        obscureText: _obscureNewPassword,
+                        decoration: InputDecoration(
+                          labelText: 'Nouveau mot de passe',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureNewPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureNewPassword = !_obscureNewPassword;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer un nouveau mot de passe';
+                          }
+                          if (value.length < 6) {
+                            return 'Le mot de passe doit contenir au moins 6 caractères';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
+                        decoration: InputDecoration(
+                          labelText: 'Confirmer le mot de passe',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez confirmer votre mot de passe';
+                          }
+                          if (value != _newPasswordController.text) {
+                            return 'Les mots de passe ne correspondent pas';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed:
+                      _isLoading ? null : () => Navigator.of(context).pop(),
+                  child: const Text('Annuler'),
+                ),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _changePassword,
+                  child:
+                      _isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Text('Confirmer'),
+                ),
+              ],
+            );
+          },
         );
       },
-    );
-  }
-}
-
-// Page des notifications
-class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
-
-  @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends State<NotificationsPage> {
-  bool pushNotifications = true;
-  bool emailNotifications = true;
-  bool activityUpdates = true;
-  bool promotionalEmails = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Notifications')),
-      body: ListView(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Paramètres de notifications',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-          ),
-          _buildNotificationSwitch(
-            'Notifications push',
-            'Recevoir des notifications sur votre appareil',
-            Icons.notifications_active,
-            pushNotifications,
-            (value) {
-              setState(() {
-                pushNotifications = value;
-              });
-            },
-          ),
-          _buildNotificationSwitch(
-            'Notifications par email',
-            'Recevoir des notifications par email',
-            Icons.email_outlined,
-            emailNotifications,
-            (value) {
-              setState(() {
-                emailNotifications = value;
-              });
-            },
-          ),
-          const Divider(height: 32),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Types de notifications',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-          ),
-          _buildNotificationSwitch(
-            'Mises à jour d\'activité',
-            'Notifications concernant votre activité sur l\'application',
-            Icons.update,
-            activityUpdates,
-            (value) {
-              setState(() {
-                activityUpdates = value;
-              });
-            },
-          ),
-          _buildNotificationSwitch(
-            'Emails promotionnels',
-            'Recevoir des offres et nouvelles fonctionnalités',
-            Icons.local_offer_outlined,
-            promotionalEmails,
-            (value) {
-              setState(() {
-                promotionalEmails = value;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationSwitch(
-    String title,
-    String subtitle,
-    IconData icon,
-    bool value,
-    Function(bool) onChanged,
-  ) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: Switch(
-        value: value,
-        onChanged: (newValue) {
-          onChanged(newValue);
-          Get.snackbar(
-            'Paramètre mis à jour',
-            '$title ${newValue ? 'activé' : 'désactivé'}',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        },
-        activeColor: Colors.blue,
-      ),
     );
   }
 }

@@ -23,11 +23,9 @@ class AuthService {
 
   Future<User> login(String email, String password) async {
     try {
-      print('AuthService: Tentative de connexion avec email: $email');
-      print('AuthService: URL du serveur: $baseUrl');
+     
 
       final headers = await getHeaders();
-      print('AuthService: Headers de la requête: $headers');
 
       final response = await http.post(
         Uri.parse('$baseUrl/users/login'),
@@ -35,13 +33,9 @@ class AuthService {
         body: json.encode({'email': email, 'password': password}),
       );
 
-      print('AuthService: Réponse du serveur: ${response.statusCode}');
-      print('AuthService: Corps de la réponse: ${response.body}');
-
       if (response.statusCode == 200) {
         try {
           final data = json.decode(response.body);
-          print('AuthService - Structure complète de la réponse: $data');
 
           if (data == null) {
             throw Exception('Réponse vide du serveur');
@@ -49,17 +43,14 @@ class AuthService {
 
           // Vérifier que le token est présent et valide
           if (data['access_token'] == null) {
-            print('AuthService - Pas de token dans la réponse');
             throw Exception('Token d\'accès manquant dans la réponse');
           }
 
           final token = data['access_token'];
-          print('AuthService - Token reçu: $token');
 
           try {
             // Sauvegarder le token avant de récupérer les informations utilisateur
             await _storageService.saveAuthToken(token);
-            print('AuthService - Token sauvegardé');
 
             // Récupérer les informations de l'utilisateur depuis le backend
             final userResponse = await http.get(
@@ -70,24 +61,15 @@ class AuthService {
               },
             );
 
-            print(
-              'AuthService - Réponse utilisateur: ${userResponse.statusCode}',
-            );
-            print(
-              'AuthService - Corps de la réponse utilisateur: ${userResponse.body}',
-            );
-
+            
             if (userResponse.statusCode != 200) {
-              print(
-                'AuthService - Erreur lors de la récupération des données utilisateur: ${userResponse.statusCode}',
-              );
+              
               throw Exception(
                 'Erreur lors de la récupération des données utilisateur',
               );
             }
 
             final userInfo = json.decode(userResponse.body);
-            print('AuthService - Informations utilisateur reçues: $userInfo');
 
             // Extraire toutes les informations de l'utilisateur depuis la réponse
             final userData = {
@@ -103,55 +85,42 @@ class AuthService {
               'address': userInfo['address']?.toString(),
             };
 
-            print('AuthService - Données utilisateur préparées: $userData');
 
             try {
               // Créer l'utilisateur avec toutes les données
               final user = User.fromJson(userData);
-              print('AuthService - Utilisateur créé avec ID: ${user.id}');
 
               // Sauvegarder les données de l'utilisateur
               await _storageService.saveUserSession(userData);
-              print('AuthService - Session utilisateur sauvegardée');
 
               return user;
             } catch (e) {
-              print('Erreur lors de la création de l\'utilisateur: $e');
-              print('AuthService - Données qui ont causé l\'erreur: $userData');
+             
               throw Exception(
                 'Erreur lors de la création de l\'utilisateur: $e',
               );
             }
           } catch (e) {
-            print('Erreur lors de la validation du token: $e');
-            print('AuthService - Token qui a causé l\'erreur: $token');
             throw Exception('Token invalide ou malformé: $e');
           }
         } catch (e) {
-          print('Erreur lors du parsing de la réponse: $e');
           throw Exception('Format de réponse invalide: $e');
         }
       } else if (response.statusCode == 401) {
-        print('AuthService - Erreur 401: Email ou mot de passe incorrect');
         throw Exception('Email ou mot de passe incorrect');
       } else if (response.statusCode == 404) {
-        print('AuthService - Erreur 404: Utilisateur non trouvé');
         throw Exception('Utilisateur non trouvé');
       } else {
-        print('AuthService - Erreur serveur: ${response.statusCode}');
         throw Exception(
           'Erreur serveur: ${response.statusCode} - ${response.body}',
         );
       }
     } on http.ClientException catch (e) {
-      print('Erreur de connexion: $e');
       throw Exception('Erreur de connexion au serveur: $e');
     } on FormatException catch (e) {
-      print('Erreur de format: $e');
       throw Exception('Erreur de format de réponse: $e');
     } catch (e) {
-      print('Erreur inattendue: $e');
-      throw Exception('Erreur inattendue: $e');
+      throw Exception('votre email et ou mot de passe est incorrect :(');
     }
   }
 
@@ -165,49 +134,17 @@ class AuthService {
         );
 
         if (response.statusCode != 200) {
-          print(
-            'AuthService: Erreur lors de la déconnexion côté serveur: ${response.statusCode}',
-          );
+          
         }
       } catch (e) {
-        print(
-          'AuthService: Erreur lors de la notification de déconnexion au serveur: $e',
-        );
+        
       }
-    } catch (e) {
-      print('AuthService: Erreur lors de la déconnexion: $e');
-      // On propage l'erreur pour que le contrôleur puisse la gérer
+    } catch (e) {      // On propage l'erreur pour que le contrôleur puisse la gérer
       throw Exception('Erreur lors de la déconnexion: $e');
     }
   }
 
-  // Future<void> logout() async {
-  //   try {
-  //     // 1. D'abord notifier le serveur
-  //     final token =
-  //         await _storageService
-  //             .getAuthToken(); // Récupérer le token avant clear
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/users/logout'),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': 'Bearer $token', // Utiliser le token directement
-  //       },
-  //     );
-
-  //     if (response.statusCode != 200) {
-  //       print('Erreur serveur lors de la déconnexion: ${response.statusCode}');
-  //     }
-
-  //     // 2. Puis nettoyer le stockage local
-  //     await _storageService.clearSession();
-  //   } catch (e) {
-  //     print('Erreur lors de la déconnexion: $e');
-  //     // Nettoyer quand même le stockage local en cas d'erreur
-  //     await _storageService.clearSession();
-  //     rethrow;
-  //   }
-  // }
+ 
 
   Future<void> requestPasswordReset(String email) async {
     try {

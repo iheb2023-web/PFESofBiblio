@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/models/user_model.dart';
@@ -102,7 +104,6 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      print('AuthController: Tentative de connexion pour $email');
 
       // Vérifier que l'email et le mot de passe ne sont pas vides
       if (email.isEmpty || password.isEmpty) {
@@ -115,7 +116,6 @@ class AuthController extends GetxController {
 
       final user = await _authService.login(email, password);
       print('AuthController: Connexion réussie pour ${user.toString()}');
-      print('AuthController: ID utilisateur: ${user.id}');
 
       // Convertir l'utilisateur en JSON
       final userJson = user.toJson();
@@ -280,6 +280,7 @@ class AuthController extends GetxController {
         'Succès',
         'Profil mis à jour avec succès',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
       );
     } catch (e) {
       errorMessage.value = e.toString();
@@ -325,4 +326,6 @@ class AuthController extends GetxController {
   String? getCurrentUserEmail() {
     return currentUser.value?.email;
   }
+
+  Future<String?> uploadProfileImage(File image) async {}
 }

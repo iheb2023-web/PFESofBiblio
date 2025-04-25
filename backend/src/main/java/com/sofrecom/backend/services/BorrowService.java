@@ -127,6 +127,7 @@ public class BorrowService implements IBorrowService {
         return this.borrowRepository.save(borrow);
     }
 
+
     @Override
     public void cancelWhileInProgress(Long idBorrow) {
         Borrow borrow = this.borrowRepository.findById(idBorrow).orElse(null);

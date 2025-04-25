@@ -477,4 +477,77 @@ class BorrowService extends GetxService {
       rethrow;
     }
   }
+
+  Future<List<DateTime>> getBookOccupiedDatesUpdatedBorrow(
+    int bookId,
+    int borrowId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '$baseUrl/borrows/getBookOccupiedDatesUpdatedBorrow/$bookId/$borrowId',
+        ),
+        headers: await getHeaders(),
+      );
+
+      print(
+        'getBookOccupiedDatesUpdatedBorrow response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        List<DateTime> allDates = [];
+
+        for (var item in jsonList) {
+          DateTime fromDate = DateTime.parse(item['from']);
+          DateTime toDate = DateTime.parse(item['to']);
+
+          // Ajouter toutes les dates dans la plage
+          DateTime currentDate = fromDate;
+          while (currentDate.isBefore(toDate) ||
+              currentDate.isAtSameMomentAs(toDate)) {
+            allDates.add(
+              DateTime(currentDate.year, currentDate.month, currentDate.day),
+            );
+            currentDate = currentDate.add(const Duration(days: 1));
+          }
+        }
+
+        return allDates;
+      } else {
+        throw Exception(
+          'Erreur lors de la récupération des dates mises à jour: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('getBookOccupiedDatesUpdatedBorrow error: $e');
+      throw Exception('Erreur réseau: $e');
+    }
+  }
+
+  Future<Borrow> updateBorrowWhilePending(Borrow borrow) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/borrows/updateBorrowWhilePending'),
+        headers: await getHeaders(),
+        body: jsonEncode(borrow.toJson()),
+      );
+
+      print(
+        'updateBorrowWhilePending response: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return Borrow.fromJson(responseData);
+      } else {
+        throw Exception(
+          'Erreur lors de la mise à jour de l\'emprunt: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('updateBorrowWhilePending error: $e');
+      rethrow;
+    }
+  }
 }

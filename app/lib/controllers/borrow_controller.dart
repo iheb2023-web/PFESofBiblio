@@ -251,4 +251,34 @@ class BorrowController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<List<DateTime>> getBookOccupiedDatesUpdatedBorrow(
+    int bookId,
+    int borrowId,
+  ) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      final dates = await _borrowService.getBookOccupiedDatesUpdatedBorrow(
+        bookId,
+        borrowId,
+      );
+      return dates;
+    } catch (e) {
+      error.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        'Impossible de récupérer les dates occupées mises à jour',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+        colorText: AppTheme.errorColor,
+        margin: const EdgeInsets.all(8),
+        borderRadius: 8,
+      );
+      return [];
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }
