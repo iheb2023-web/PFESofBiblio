@@ -1,16 +1,148 @@
+// import 'package:app/models/temporary_prefernces.dart';
+// import 'package:app/services/preferences_service.dart';
+// import 'package:app/services/storage_service.dart'; // Ajouter StorageService
+// import 'package:get/get.dart';
+// import 'package:app/models/preference.dart';
+// import 'package:app/controllers/auth_controller.dart';
+
+// class PreferenceController extends GetxController {
+//   final PreferenceService _preferenceService = PreferenceService();
+//   final StorageService _storageService =
+//       Get.find<StorageService>(); // Injecter StorageService
+
+//   var preferences = <Preference>[].obs;
+//   var isLoading = false.obs;
+//   var errorMessage = ''.obs;
+
+//   final tempPreference = TemporaryPreferenceData().obs;
+
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     loadPreferences();
+//   }
+
+//   void updateTempPreference({
+//     String? preferredBookLength,
+//     List<String>? favoriteGenres,
+//     List<String>? preferredLanguages,
+//     List<String>? favoriteAuthors,
+//     String? type,
+//   }) {
+//     tempPreference.update((val) {
+//       val?.preferredBookLength = preferredBookLength ?? val.preferredBookLength;
+//       val?.favoriteGenres = favoriteGenres ?? val.favoriteGenres;
+//       val?.preferredLanguages = preferredLanguages ?? val.preferredLanguages;
+//       val?.favoriteAuthors = favoriteAuthors ?? val.favoriteAuthors;
+//       val?.type = type ?? val.type;
+//     });
+//   }
+
+//   Future<void> submitPreference() async {
+//     try {
+//       isLoading.value = true;
+//       errorMessage.value = '';
+
+//       // Récupérer userId depuis StorageService
+//       final userSession = _storageService.getUserSession();
+//       final userId = int.tryParse(userSession?['id']?.toString() ?? '');
+//       if (userId == null) {
+//         throw Exception('Aucun utilisateur connecté');
+//       }
+
+//       // Convertir les préférences en objet Preference
+//       final preference = tempPreference.value.toPreference(userId: userId);
+
+//       // Ajouter la préférence via PreferenceService
+//       final newPreference = await _preferenceService.addPreference(preference);
+//       preferences.add(newPreference);
+
+//       // Réinitialiser tempPreference
+//       tempPreference.value = TemporaryPreferenceData(userId: userId);
+
+//       Get.snackbar(
+//         'Succès',
+//         'Préférences enregistrées avec succès',
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } catch (e) {
+//       errorMessage.value = e.toString();
+//       print(
+//         'Erreur lors de la soumission des préférences: $e',
+//       ); // Log pour débogage
+//       Get.snackbar(
+//         'Erreur',
+//         'Échec de l\'enregistrement des préférences: $e',
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+
+//   Future<void> loadPreferences() async {
+//     try {
+//       isLoading.value = true;
+//       errorMessage.value = '';
+//       final result = await _preferenceService.getPreferences();
+//       preferences.assignAll(result);
+//     } catch (e) {
+//       errorMessage.value = e.toString();
+//       print(
+//         'Erreur lors du chargement des préférences: $e',
+//       ); // Log pour débogage
+//       Get.snackbar(
+//         'Erreur',
+//         errorMessage.value,
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+
+//   Future<void> addPreference(Preference preference) async {
+//     try {
+//       isLoading.value = true;
+//       errorMessage.value = '';
+//       final newPreference = await _preferenceService.addPreference(preference);
+//       preferences.add(newPreference);
+//       Get.snackbar(
+//         'Succès',
+//         'Préférence ajoutée avec succès',
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } catch (e) {
+//       errorMessage.value = e.toString();
+//       print(
+//         'Erreur lors de l\'ajout de la préférence: $e',
+//       ); // Log pour débogage
+//       Get.snackbar(
+//         'Erreur',
+//         errorMessage.value,
+//         snackPosition: SnackPosition.BOTTOM,
+//       );
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+// }
 import 'package:app/models/temporary_prefernces.dart';
+import 'package:app/models/user_model.dart';
 import 'package:app/services/preferences_service.dart';
-import 'package:app/services/storage_service.dart'; // Ajouter StorageService
+import 'package:app/services/storage_service.dart';
 import 'package:get/get.dart';
 import 'package:app/models/preference.dart';
+import 'package:app/controllers/auth_controller.dart';
 
 class PreferenceController extends GetxController {
   final PreferenceService _preferenceService = PreferenceService();
-  final StorageService _storageService =
-      Get.find<StorageService>(); // Injecter StorageService
+  final StorageService _storageService = Get.find<StorageService>();
+  final AuthController _authController = Get.find<AuthController>();
   var preferences = <Preference>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
+  var hasPreference = false.obs;
 
   final tempPreference = TemporaryPreferenceData().obs;
 
@@ -41,22 +173,36 @@ class PreferenceController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
-      // Récupérer userId depuis StorageService
       final userSession = _storageService.getUserSession();
       final userId = int.tryParse(userSession?['id']?.toString() ?? '');
       if (userId == null) {
         throw Exception('Aucun utilisateur connecté');
       }
 
-      // Convertir les préférences en objet Preference
       final preference = tempPreference.value.toPreference(userId: userId);
-
-      // Ajouter la préférence via PreferenceService
       final newPreference = await _preferenceService.addPreference(preference);
       preferences.add(newPreference);
 
-      // Réinitialiser tempPreference
       tempPreference.value = TemporaryPreferenceData(userId: userId);
+      hasPreference.value = true;
+
+      // Mettre à jour l'utilisateur une seule fois après l'ajout des préférences
+      final currentUser = _authController.currentUser.value;
+      if (currentUser != null) {
+        // Mettre à jour l'utilisateur en utilisant copyWith
+        final updatedUser = currentUser.copyWith(hasPreference: true);
+
+        // Convertir l'utilisateur mis à jour en un Map<String, dynamic>
+        final userData = {
+          'id': updatedUser.id,
+          'email': updatedUser.email,
+          'hasPreference': updatedUser.hasPreference,
+          // Ajoute ici les autres champs que tu veux mettre à jour
+        };
+
+        // Appeler la méthode updateUserProfile avec userData
+        await _authController.updateUserProfile(userData);
+      }
 
       Get.snackbar(
         'Succès',
@@ -65,9 +211,7 @@ class PreferenceController extends GetxController {
       );
     } catch (e) {
       errorMessage.value = e.toString();
-      print(
-        'Erreur lors de la soumission des préférences: $e',
-      ); // Log pour débogage
+      print('Erreur lors de la soumission des préférences: $e');
       Get.snackbar(
         'Erreur',
         'Échec de l\'enregistrement des préférences: $e',
@@ -84,11 +228,10 @@ class PreferenceController extends GetxController {
       errorMessage.value = '';
       final result = await _preferenceService.getPreferences();
       preferences.assignAll(result);
+      hasPreference.value = preferences.isNotEmpty;
     } catch (e) {
       errorMessage.value = e.toString();
-      print(
-        'Erreur lors du chargement des préférences: $e',
-      ); // Log pour débogage
+      print('Erreur lors du chargement des préférences: $e');
       Get.snackbar(
         'Erreur',
         errorMessage.value,
@@ -105,6 +248,7 @@ class PreferenceController extends GetxController {
       errorMessage.value = '';
       final newPreference = await _preferenceService.addPreference(preference);
       preferences.add(newPreference);
+
       Get.snackbar(
         'Succès',
         'Préférence ajoutée avec succès',
@@ -112,9 +256,7 @@ class PreferenceController extends GetxController {
       );
     } catch (e) {
       errorMessage.value = e.toString();
-      print(
-        'Erreur lors de l\'ajout de la préférence: $e',
-      ); // Log pour débogage
+      print('Erreur lors de l\'ajout de la préférence: $e');
       Get.snackbar(
         'Erreur',
         errorMessage.value,

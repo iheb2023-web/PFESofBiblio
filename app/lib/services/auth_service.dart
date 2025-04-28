@@ -23,8 +23,6 @@ class AuthService {
 
   Future<User> login(String email, String password) async {
     try {
-     
-
       final headers = await getHeaders();
 
       final response = await http.post(
@@ -61,9 +59,7 @@ class AuthService {
               },
             );
 
-            
             if (userResponse.statusCode != 200) {
-              
               throw Exception(
                 'Erreur lors de la récupération des données utilisateur',
               );
@@ -83,8 +79,9 @@ class AuthService {
               'birthday': userInfo['birthday']?.toString(),
               'phone': userInfo['phone']?.toString(),
               'address': userInfo['address']?.toString(),
+              'hasPreference': userInfo['hasPreference'] ?? false,
+              'hasSetPassword': userInfo['hasSetPassword'] ?? false,
             };
-
 
             try {
               // Créer l'utilisateur avec toutes les données
@@ -95,7 +92,6 @@ class AuthService {
 
               return user;
             } catch (e) {
-             
               throw Exception(
                 'Erreur lors de la création de l\'utilisateur: $e',
               );
@@ -133,18 +129,13 @@ class AuthService {
           headers: await getHeaders(),
         );
 
-        if (response.statusCode != 200) {
-          
-        }
-      } catch (e) {
-        
-      }
-    } catch (e) {      // On propage l'erreur pour que le contrôleur puisse la gérer
+        if (response.statusCode != 200) {}
+      } catch (e) {}
+    } catch (e) {
+      // On propage l'erreur pour que le contrôleur puisse la gérer
       throw Exception('Erreur lors de la déconnexion: $e');
     }
   }
-
- 
 
   Future<void> requestPasswordReset(String email) async {
     try {

@@ -229,6 +229,7 @@ class BorrowController extends GetxController {
     try {
       isLoading.value = true;
       await _borrowService.cancelWhileInProgress(borrowId);
+
       // Rafraîchir la liste des emprunts
       // await loadUserBorrows(currentUserEmail.value);
       Get.snackbar(

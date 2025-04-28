@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/views/NavigationMenu.dart';
 import 'package:app/controllers/preferences_controller.dart'; // Importez le contrôleur
-import 'package:app/models/preference.dart';
 
 class ReadingHabits extends StatefulWidget {
   const ReadingHabits({super.key});
@@ -71,6 +70,7 @@ class _ReadingHabitsState extends State<ReadingHabits> {
 
       // Soumission finale
       await _controller.submitPreference(); // Pas besoin de passer userId
+
       print('Préférences soumises avec succès');
       Get.offAll(() => const NavigationMenu());
     } catch (e) {

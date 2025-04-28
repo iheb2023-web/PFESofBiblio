@@ -25,4 +25,20 @@ public class UserUpdateDto {
     private Long number;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private boolean hasPreference;
+    private boolean hasSetPassword;
+
+    public UserUpdateDto(Long id, String firstname, String lastname, String email, String image, String job, LocalDate birthday, Long number, Role role) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.image = image;
+        this.job = job;
+        this.birthday = birthday;
+        this.number = number;
+        this.role = role;
+    }
+
+
 }
