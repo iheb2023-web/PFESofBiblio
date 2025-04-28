@@ -18,4 +18,16 @@ public class UserMinDto {
     private String image;
     @Enumerated(EnumType.STRING)
     private Role role;
+    private boolean hasPreference;
+    private boolean hasSetPassword;
+
+    public UserMinDto(Long id, String email, String firstname, String lastname, String image, Role role) {
+        this.id = id;
+        this.email = email;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.image = image;
+        this.role = role;
+
+    }
 }

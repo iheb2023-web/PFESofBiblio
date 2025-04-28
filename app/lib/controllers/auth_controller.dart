@@ -7,7 +7,6 @@ import 'package:app/services/auth_service.dart';
 import 'package:app/services/storage_service.dart';
 import 'package:app/config/app_config.dart';
 import 'package:app/views/Authentification/login/LoginPage.dart';
-import 'dart:convert';
 
 class AuthController extends GetxController {
   final AuthService _authService = AuthService();

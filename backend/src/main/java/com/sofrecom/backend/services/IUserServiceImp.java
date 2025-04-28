@@ -101,6 +101,13 @@ public class IUserServiceImp implements IUserService {
         if (userDto.getRole() != null) {
             existingUser.setRole(userDto.getRole());
         }
+        if (userDto.isHasPreference() != existingUser.isHasPreference()) {
+            existingUser.setHasPreference(userDto.isHasPreference());
+        }
+        if (userDto.isHasSetPassword() != existingUser.isHasSetPassword()) {
+            existingUser.setHasSetPassword(userDto.isHasSetPassword());
+        }
+
         return userRepository.save(existingUser);
     }
 
