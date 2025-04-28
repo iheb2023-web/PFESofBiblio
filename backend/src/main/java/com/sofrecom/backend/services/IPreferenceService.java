@@ -9,4 +9,6 @@ public interface IPreferenceService {
     List<Preference> getPreferences();
 
     Preference addPreference(PreferenceDto preference);
+
+    Preference getPreferenceByUserId(Long id);
 }

@@ -3,6 +3,7 @@ package com.sofrecom.backend.services;
 import com.sofrecom.backend.dtos.PreferenceDto;
 import com.sofrecom.backend.entities.Preference;
 import com.sofrecom.backend.entities.User;
+import com.sofrecom.backend.exceptions.ResourceNotFoundException;
 import com.sofrecom.backend.repositories.PreferenceRepository;
 import com.sofrecom.backend.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,11 @@ public class PreferenceService implements IPreferenceService {
                 .user(user)
                 .build();
         return this.preferenceRepository.save(newPreference);
+    }
+
+    @Override
+    public Preference getPreferenceByUserId(Long id) {
+        return preferenceRepository.findPreferenceByUserId(id);
     }
 
 

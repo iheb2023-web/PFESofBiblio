@@ -26,4 +26,10 @@ public class PreferenceController {
         return this.preferenceService.addPreference(preference);
     }
 
+    @GetMapping("/{id}")
+    public Preference getPreferenceByUserId(@PathVariable Long id){
+        return  this.preferenceService.getPreferenceByUserId(id);
+    }
+
+
 }
