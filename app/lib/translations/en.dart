@@ -18,10 +18,6 @@ const Map<String, String> en = {
   'scan_fingerprint': 'Scan your fingerprint to login',
   'authentication_successful': 'Authentication successful!',
 
-  
-
-
-
   // Validation messages
   'email_required': 'Email is required',
   'password_required': 'Password is required',
@@ -95,11 +91,14 @@ const Map<String, String> en = {
 
   // Onboarding
   'find_book': 'Find your book in one click!',
-  'find_book_desc': 'Discover and share books easily to enrich your library with just one click.',
+  'find_book_desc':
+      'Discover and share books easily to enrich your library with just one click.',
   'dive_reading': 'Dive into a world of reading!',
-  'dive_reading_desc': 'Let yourself be inspired by a varied collection of books and find the one that will transport you to a new adventure.',
+  'dive_reading_desc':
+      'Let yourself be inspired by a varied collection of books and find the one that will transport you to a new adventure.',
   'reserve_instant': 'Reserve your book instantly!',
-  'reserve_instant_desc': 'Find the book that fascinates you and reserve it with ease to enjoy it without delay.',
+  'reserve_instant_desc':
+      'Find the book that fascinates you and reserve it with ease to enjoy it without delay.',
 
   // Profile
   'edit_profile': 'Edit Profile',
@@ -146,7 +145,7 @@ const Map<String, String> en = {
   'how_many_pages': 'How many pages do you like to read?',
   'choose_reading_length': 'Choose your preferred reading length',
   'last_step': 'Last step!',
-  
+
   // Page counts
   'less_100_pages': 'Less than 100 pages',
   'quick_reads': 'Quick and short reads',
@@ -173,4 +172,38 @@ const Map<String, String> en = {
   'cover_summary': 'Cover/Summary',
   'preferred_genre': 'Preferred genre',
   'random': 'Random',
-}; 
+  'available_date': 'Available Date',
+  'status': 'Status',
+  'in_stock': 'In Stock',
+  'borrow_book': 'Borrow Book',
+  'calendar': 'Calendar',
+  'availability_calendar': 'Availability Calendar',
+  'book_availability': 'Book Availability',
+  'book_information': 'Book Information',
+  'book_availability_calendar': 'Book Availability Calendar',
+  'book_status': 'Book Status',
+  'book_borrow': 'Borrow Book',
+  'book_return': 'Return Book',
+  'book_extend': 'Extend Book',
+  'book_due_date': 'Book Due Date',
+  'book_author': 'Book Author',
+  'book_publisher': 'Book Publisher',
+  'book_publication_date': 'Book Publication Date',
+  'update_your_password': 'Update your password',
+  'change_password': 'Change Password',
+  'current_password': 'Current Password',
+  'enter_current_password': 'Enter your current password',
+  'please_enter_current_password': 'Please enter your current password',
+  'new_password': 'New Password',
+  'enter_new_password': 'Enter your new password',
+  'please_enter_new_password': 'Please enter your new password',
+  'password_too_short': 'Password must be at least 8 characters long',
+  'confirm_password': 'Confirm Password',
+  'confirm_new_password': 'Confirm your new password',
+  'please_confirm_password': 'Please confirm your password',
+  'passwords_do_not_match': 'Passwords do not match',
+  'password_strength': 'Password Strength',
+  'update_password': 'Update Password',
+  'password_requirements': 'Make sure your password is strong and secure',
+  'password_changed_successfully': 'Password changed successfully',
+};

@@ -91,37 +91,6 @@ class BookController extends GetxController {
     }
   }
 
-  // Future<void> loadAllBooks() async {
-  //   try {
-  //     isLoading.value = true;
-  //     error.value = '';
-
-  //     final loadedBooks = await BookService.getAllBooks();
-  //     books.value = loadedBooks;
-
-  //     // Sort books by different criteria for each section
-  //     popularBooks.value = List.from(loadedBooks)
-  //       ..sort((a, b) => b.borrowCount.compareTo(a.borrowCount));
-  //     if (popularBooks.length > 10)
-  //       popularBooks.value = popularBooks.sublist(0, 10);
-
-  //     recommendedBooks.value = List.from(loadedBooks)
-  //       ..sort((a, b) => b.rating.compareTo(a.rating));
-  //     if (recommendedBooks.length > 10)
-  //       recommendedBooks.value = recommendedBooks.sublist(0, 10);
-
-  //     // Sort by newest first (assuming publishedDate is in ISO format)
-  //     newBooks.value = List.from(loadedBooks)
-  //       ..sort((a, b) => b.publishedDate.compareTo(a.publishedDate));
-  //     if (newBooks.length > 10) newBooks.value = newBooks.sublist(0, 10);
-  //   } catch (e) {
-  //     error.value = 'Error loading books: $e';
-  //     print(error.value);
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
   Future<void> loadUserBooks() async {
     try {
       final user = _authController.currentUser.value;

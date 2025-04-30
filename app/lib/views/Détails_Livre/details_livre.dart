@@ -506,7 +506,7 @@ class _DetailsLivreState extends State<DetailsLivre>
                     ),
                     SizedBox(height: 8),
                     Text(
-                      "Le Petit Prince est une œuvre de langue française, la plus connue d'Antoine de Saint-Exupéry. Publié en 1943 à New York simultanément à sa traduction anglaise...",
+                      widget.book.description,
                       style: TextStyle(color: Colors.grey, height: 1.5),
                     ),
                   ],

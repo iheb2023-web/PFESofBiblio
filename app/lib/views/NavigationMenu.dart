@@ -1,3 +1,4 @@
+import 'package:app/views/ChangerMdp/changerMdp.dart';
 import 'package:flutter/material.dart';
 import 'package:app/views/Accueil/AccueilPage.dart';
 import 'package:app/views/Ma_Biblio/ma_biblio_page.dart';
@@ -16,8 +17,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
 
   final List<Widget> _pages = [
     const AccueilPage(),
-    Center(child: Text('explore'.tr)),
-    const MaBiblioPage(), 
+    // Center(child: Text('explore'.tr)),
+    const ChangePasswordPage(),
+    const MaBiblioPage(),
     const ProfilePage(),
   ];
 

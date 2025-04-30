@@ -1,3 +1,4 @@
+import 'package:app/views/ChangerMdp/changerMdp.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
@@ -214,44 +215,29 @@ class _LoginPageState extends State<LoginPage> {
                     print(
                       'LoginPage: Connexion effectuée, vérification de l\'état',
                     );
-
-                    // // Vérifier si l'utilisateur est bien connecté
-                    // if (authController.currentUser.value != null) {
-                    //   print(
-                    //     'LoginPage: Connexion réussie, redirection vers les préférences',
-                    //   );
-                    //   Get.offAll(() => const PreferencesPage());
-                    // } else {
-                    //   print(
-                    //     'LoginPage: Échec de la connexion - utilisateur null',
-                    //   );
-                    //   Get.snackbar(
-                    //     'error'.tr,
-                    //     'incorrect_credentials'.tr,
-                    //     snackPosition: SnackPosition.BOTTOM,
-                    //     backgroundColor: Colors.red,
-                    //     colorText: Colors.white,
-                    //   );
-                    // }
                     if (authController.currentUser.value != null) {
                       final currentUser =
                           authController
                               .currentUser
                               .value!; // Utilisation de '!' pour accéder à l'objet non nul
-
-                      if (currentUser.hasPreference != null &&
-                          currentUser.hasPreference!) {
-                        // Si 'hasPreference' est true, redirige vers le menu de navigation
-                        print(
-                          'LoginPage: Connexion réussie, redirection vers le menu de navigation',
-                        );
-                        Get.offAll(() => const NavigationMenu());
+                      if (currentUser.hasSetPassword != null &&
+                          !currentUser.hasSetPassword!) {
+                        if (currentUser.hasPreference != null &&
+                            currentUser.hasPreference!) {
+                          // Si 'hasPreference' est true, redirige vers le menu de navigation
+                          print(
+                            'LoginPage: Connexion réussie, redirection vers le menu de navigation',
+                          );
+                          Get.offAll(() => const NavigationMenu());
+                        } else {
+                          // Si 'hasPreference' est false, redirige vers la page de préférences
+                          print(
+                            'LoginPage: Connexion réussie, redirection vers les préférences ${currentUser.hasPreference}',
+                          );
+                          Get.offAll(() => const PreferencesPage());
+                        }
                       } else {
-                        // Si 'hasPreference' est false, redirige vers la page de préférences
-                        print(
-                          'LoginPage: Connexion réussie, redirection vers les préférences ${currentUser.hasPreference}',
-                        );
-                        Get.offAll(() => const PreferencesPage());
+                        Get.offAll(() => const ChangePasswordPage());
                       }
                     } else {
                       // Si 'currentUser' est null, affichage d'un message d'erreur
