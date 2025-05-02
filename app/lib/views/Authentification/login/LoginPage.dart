@@ -63,7 +63,6 @@ class _LoginPageState extends State<LoginPage> {
 
     if (authenticated) {
       // Naviguer vers la page suivante ou effectuer l'action souhaitée
-      print("Authentification réussie !");
       Get.off(() => const NavigationMenu());
     }
   }
@@ -207,14 +206,11 @@ class _LoginPageState extends State<LoginPage> {
                   }
 
                   try {
-                    print('LoginPage: Tentative de connexion...');
                     await authController.login(
                       emailController.text,
                       passwordController.text,
                     );
-                    print(
-                      'LoginPage: Connexion effectuée, vérification de l\'état',
-                    );
+
                     if (authController.currentUser.value != null) {
                       final currentUser =
                           authController
@@ -225,15 +221,10 @@ class _LoginPageState extends State<LoginPage> {
                         if (currentUser.hasPreference != null &&
                             currentUser.hasPreference!) {
                           // Si 'hasPreference' est true, redirige vers le menu de navigation
-                          print(
-                            'LoginPage: Connexion réussie, redirection vers le menu de navigation',
-                          );
                           Get.offAll(() => const NavigationMenu());
                         } else {
                           // Si 'hasPreference' est false, redirige vers la page de préférences
-                          print(
-                            'LoginPage: Connexion réussie, redirection vers les préférences ${currentUser.hasPreference}',
-                          );
+
                           Get.offAll(() => const PreferencesPage());
                         }
                       } else {
@@ -241,9 +232,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     } else {
                       // Si 'currentUser' est null, affichage d'un message d'erreur
-                      print(
-                        'LoginPage: Échec de la connexion - utilisateur null',
-                      );
+
                       Get.snackbar(
                         'error'.tr,
                         'incorrect_credentials'.tr,
@@ -253,7 +242,6 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     }
                   } catch (e) {
-                    print('LoginPage: Erreur de connexion: $e');
                     Get.snackbar(
                       'error'.tr,
                       e.toString(),

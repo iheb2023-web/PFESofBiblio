@@ -41,7 +41,6 @@ class ReviewController extends GetxController {
         return false;
       }
 
-      // Ajout de l'email avant envoi
       review.userEmail = email;
 
       final addedReview = await ReviewService.addReview(review);

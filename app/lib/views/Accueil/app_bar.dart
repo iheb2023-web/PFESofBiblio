@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:app/theme/app_theme.dart';
 
 class AccueilAppBar extends StatelessWidget {
   const AccueilAppBar({super.key});

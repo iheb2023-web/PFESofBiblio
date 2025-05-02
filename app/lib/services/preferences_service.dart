@@ -61,11 +61,7 @@ class PreferenceService {
 
       if (response.statusCode == 200) {
         return Preference.fromJson(json.decode(response.body));
-      } else {
-        print(
-          "Erreur récupération preferences par ID: ${response.statusCode} ${response.body}",
-        );
-      }
+      } else {}
     } catch (e) {
       print("Erreur dans getPreferenceByUserId: $e");
     }
@@ -93,7 +89,6 @@ class PreferenceService {
       }
     } catch (e) {
       errorMessage.value = e.toString();
-      print('Erreur lors du chargement de la préférence utilisateur: $e');
       Get.snackbar(
         'Erreur',
         errorMessage.value,

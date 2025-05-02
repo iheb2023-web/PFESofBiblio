@@ -31,10 +31,6 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'getRequestsForOwner response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
@@ -48,7 +44,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('getRequestsForOwner error: $e');
       rethrow;
     }
   }
@@ -61,10 +56,6 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'acceptBorrowRequest response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
@@ -74,7 +65,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('acceptBorrowRequest error: $e');
       rethrow;
     }
   }
@@ -87,10 +77,6 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'rejectBorrowRequest response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
@@ -100,7 +86,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('rejectBorrowRequest error: $e');
       rethrow;
     }
   }
@@ -123,15 +108,11 @@ class BorrowService extends GetxService {
         'book': {'id': bookId},
       };
 
-      print('Sending borrow request: ${jsonEncode(requestBody)}');
-
       final response = await http.post(
         Uri.parse('$baseUrl/borrows'),
         headers: await getHeaders(),
         body: jsonEncode(requestBody),
       );
-
-      print('borrowBook response: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (response.body.isEmpty) {
@@ -161,7 +142,6 @@ class BorrowService extends GetxService {
           final responseData = jsonDecode(response.body);
           return Borrow.fromJson(responseData);
         } catch (e) {
-          print('Error parsing JSON response: $e');
           // En cas d'erreur de parsing, on retourne aussi un emprunt avec les données envoyées
           return Borrow(
             requestDate: DateTime.now(),
@@ -189,7 +169,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('borrowBook error: $e');
       rethrow;
     }
   }
@@ -200,11 +179,6 @@ class BorrowService extends GetxService {
         Uri.parse('$baseUrl/borrows'),
         headers: await getHeaders(),
       );
-
-      print(
-        'getAllBorrows response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {
           return [];
@@ -214,7 +188,6 @@ class BorrowService extends GetxService {
           final List<dynamic> jsonList = jsonDecode(response.body);
           return jsonList.map((json) => Borrow.fromJson(json)).toList();
         } catch (e) {
-          print('Error parsing JSON response: $e');
           return [];
         }
       } else {
@@ -223,7 +196,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('getAllBorrows error: $e');
       rethrow;
     }
   }
@@ -232,25 +204,16 @@ class BorrowService extends GetxService {
     http.Response? response; // Déclaration pour accès dans catch
 
     try {
-      print('BorrowService: Récupération des demandes d\'emprunt pour $email');
-
       final headers = {
         ...await getHeaders(),
         'Accept-Charset': 'utf-8', // Ajout du charset pour la requête
       };
-      print('BorrowService: Headers de la requête: $headers');
 
       final url = '$baseUrl/borrows/demands/$email';
-      print('BorrowService: URL de la requête: $url');
-
       response = await http.get(Uri.parse(url), headers: headers);
-
-      print('BorrowService: Status code de la réponse: ${response.statusCode}');
-      print('BorrowService: Headers de la réponse: ${response.headers}');
 
       if (response.statusCode == 200) {
         if (response.bodyBytes.isEmpty) {
-          print('BorrowService: Corps de réponse vide');
           return [];
         }
 
@@ -258,15 +221,11 @@ class BorrowService extends GetxService {
           final decodedBody = utf8.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final borrows = data.map((json) => Borrow.fromJson(json)).toList();
-          print('BorrowService: ${borrows.length} demandes récupérées (UTF-8)');
           return borrows;
         } on FormatException {
           final decodedBody = latin1.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final borrows = data.map((json) => Borrow.fromJson(json)).toList();
-          print(
-            'BorrowService: ${borrows.length} demandes récupérées (latin1 fallback)',
-          );
           return borrows;
         }
       } else {
@@ -275,10 +234,7 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('BorrowService: Erreur lors de la récupération des demandes: $e');
-      if (response != null) {
-        print('BorrowService: Corps brut de la réponse: ${response.bodyBytes}');
-      }
+      if (response != null) {}
       return [];
     }
   }
@@ -288,27 +244,17 @@ class BorrowService extends GetxService {
     http.Response? response; // Pour accès en cas d'erreur
 
     try {
-      print(
-        'BorrowService: Récupération des emprunts pour l\'utilisateur $userEmail',
-      );
-
       final headers = {
         ...await getHeaders(),
         'Accept-Charset': 'utf-8', // Ajout du charset
       };
-      print('BorrowService: Headers de la requête: $headers');
 
       final url = '$baseUrl/borrows/requests/$userEmail';
-      print('BorrowService: URL de la requête: $url');
 
       response = await http.get(Uri.parse(url), headers: headers);
 
-      print('BorrowService: Status code de la réponse: ${response.statusCode}');
-      print('BorrowService: Headers de la réponse: ${response.headers}');
-
       if (response.statusCode == 200) {
         if (response.bodyBytes.isEmpty) {
-          print('BorrowService: Corps de réponse vide');
           return [];
         }
 
@@ -316,15 +262,12 @@ class BorrowService extends GetxService {
           final decodedBody = utf8.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final borrows = data.map((json) => Borrow.fromJson(json)).toList();
-          print('BorrowService: ${borrows.length} emprunts récupérés (UTF-8)');
           return borrows;
         } on FormatException {
           final decodedBody = latin1.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final borrows = data.map((json) => Borrow.fromJson(json)).toList();
-          print(
-            'BorrowService: ${borrows.length} emprunts récupérés (latin1 fallback)',
-          );
+
           return borrows;
         }
       } else {
@@ -333,10 +276,7 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('BorrowService: Erreur lors de la récupération des emprunts: $e');
-      if (response != null) {
-        print('BorrowService: Corps brut de la réponse: ${response.bodyBytes}');
-      }
+      if (response != null) {}
       return [];
     }
   }
@@ -349,10 +289,6 @@ class BorrowService extends GetxService {
         body: jsonEncode(borrow.toJson()),
       );
 
-      print(
-        'processBorrowRequest response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
@@ -362,7 +298,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('processBorrowRequest error: $e');
       rethrow;
     }
   }
@@ -372,10 +307,6 @@ class BorrowService extends GetxService {
       final response = await http.get(
         Uri.parse('$baseUrl/borrows/BookOccupiedDates/$bookId'),
         headers: await getHeaders(),
-      );
-
-      print(
-        'getOccupiedDatesByBookId response: ${response.statusCode} - ${response.body}',
       );
 
       if (response.statusCode == 200) {
@@ -404,7 +335,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('getOccupiedDatesByBookId error: $e');
       throw Exception('Erreur réseau: $e');
     }
   }
@@ -416,10 +346,6 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'getBorrowById response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
@@ -429,7 +355,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('getBorrowById error: $e');
       rethrow;
     }
   }
@@ -441,17 +366,12 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'cancelWhileInProgress response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode != 200) {
         throw Exception(
           'Erreur lors de l\'annulation de l\'emprunt en cours: ${response.statusCode}',
         );
       }
     } catch (e) {
-      print('cancelWhileInProgress error: $e');
       rethrow;
     }
   }
@@ -463,17 +383,12 @@ class BorrowService extends GetxService {
         headers: await getHeaders(),
       );
 
-      print(
-        'cancelPendingOrApproved response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode != 200) {
         throw Exception(
           'Erreur lors de l\'annulation de l\'emprunt en attente ou approuvé: ${response.statusCode}',
         );
       }
     } catch (e) {
-      print('cancelPendingOrApproved error: $e');
       rethrow;
     }
   }
@@ -488,10 +403,6 @@ class BorrowService extends GetxService {
           '$baseUrl/borrows/getBookOccupiedDatesUpdatedBorrow/$bookId/$borrowId',
         ),
         headers: await getHeaders(),
-      );
-
-      print(
-        'getBookOccupiedDatesUpdatedBorrow response: ${response.statusCode} - ${response.body}',
       );
 
       if (response.statusCode == 200) {
@@ -520,7 +431,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('getBookOccupiedDatesUpdatedBorrow error: $e');
       throw Exception('Erreur réseau: $e');
     }
   }
@@ -533,10 +443,6 @@ class BorrowService extends GetxService {
         body: jsonEncode(borrow.toJson()),
       );
 
-      print(
-        'updateBorrowWhilePending response: ${response.statusCode} - ${response.body}',
-      );
-
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         return Borrow.fromJson(responseData);
@@ -546,7 +452,6 @@ class BorrowService extends GetxService {
         );
       }
     } catch (e) {
-      print('updateBorrowWhilePending error: $e');
       rethrow;
     }
   }

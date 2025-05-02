@@ -26,12 +26,10 @@ class MesDemandesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('MesDemandesController: onInit called');
     initializeAndLoadDemandes();
 
     // Écouter les changements d'état de l'utilisateur
     ever(_authController.currentUser, (_) {
-      print('MesDemandesController: Changement détecté dans currentUser');
       loadDemandes();
     });
 
@@ -43,12 +41,9 @@ class MesDemandesController extends GetxController {
 
   Future<void> initializeAndLoadDemandes() async {
     try {
-      print('MesDemandesController: Initializing storage service');
       await _storageService.init();
       await loadDemandes();
-    } catch (e) {
-      print('MesDemandesController: Error initializing: $e');
-    }
+    } catch (e) {}
   }
 
   void updatePendingBorrows(List<Borrow> borrows) {
@@ -63,7 +58,6 @@ class MesDemandesController extends GetxController {
 
   Future<void> loadDemandes() async {
     try {
-      print('MesDemandesController: Starting loadDemandes');
       isLoading.value = true;
 
       final email = _authController.currentUser.value?.email;
@@ -71,16 +65,7 @@ class MesDemandesController extends GetxController {
         throw Exception('Utilisateur non connecté');
       }
 
-      print('MesDemandesController: Loading demandes for user: $email');
       final borrows = await _borrowService.getBorrowDemandsByEmail(email);
-      print('MesDemandesController: Retrieved ${borrows.length} borrows');
-
-      // Ajouter des logs pour inspecter les emprunts
-      for (var borrow in borrows) {
-        print(
-          'Borrow: bookId=${borrow.book?.id}, status=${borrow.borrowStatus}, title=${borrow.book?.title}',
-        );
-      }
 
       // Filtrer par bookId si spécifié
       final filteredBorrows =
@@ -88,13 +73,8 @@ class MesDemandesController extends GetxController {
               ? borrows.where((b) => b.book?.id.toString() == bookId).toList()
               : borrows;
 
-      print(
-        'MesDemandesController: Filtered ${filteredBorrows.length} borrows for bookId=$bookId',
-      );
-
       updatePendingBorrows(filteredBorrows);
     } catch (e) {
-      print('MesDemandesController: Error loading demandes: $e');
       pendingBorrows.value = [];
     } finally {
       isLoading.value = false;
@@ -102,7 +82,6 @@ class MesDemandesController extends GetxController {
   }
 
   Future<void> refreshDemandes() async {
-    print('MesDemandesController: Manual refresh of demandes');
     await loadDemandes();
   }
 
@@ -121,7 +100,6 @@ class MesDemandesController extends GetxController {
         borderRadius: 8,
       );
     } catch (e) {
-      print('Erreur lors du traitement de la demande: $e');
       Get.snackbar(
         'Erreur',
         'Impossible de traiter la demande',

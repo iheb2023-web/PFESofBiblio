@@ -55,22 +55,15 @@ class PreferenceController extends GetxController {
 
       tempPreference.value = TemporaryPreferenceData(userId: userId);
       hasPreference.value = true;
-
-      // Mettre à jour l'utilisateur une seule fois après l'ajout des préférences
       final currentUser = _authController.currentUser.value;
       if (currentUser != null) {
-        // Mettre à jour l'utilisateur en utilisant copyWith
         final updatedUser = currentUser.copyWith(hasPreference: true);
-
-        // Convertir l'utilisateur mis à jour en un Map<String, dynamic>
         final userData = {
           'id': updatedUser.id,
           'email': updatedUser.email,
           'hasPreference': updatedUser.hasPreference,
-          // Ajoute ici les autres champs que tu veux mettre à jour
         };
 
-        // Appeler la méthode updateUserProfile avec userData
         await _authController.updateUserProfile(userData);
       }
 
