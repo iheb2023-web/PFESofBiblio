@@ -42,8 +42,6 @@ class BorrowController extends GetxController {
           );
         }).toList(),
       );
-
-      print('ownerRequests: ${ownerRequests.length} demandes chargées');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de charger les demandes.');
     } finally {
@@ -175,7 +173,6 @@ class BorrowController extends GetxController {
       final borrows = await _borrowService.getUserBorrows(email);
       this.borrows.assignAll(borrows);
     } catch (e) {
-      print('Erreur lors du chargement des emprunts: $e');
     } finally {
       isLoading.value = false;
     }
@@ -230,8 +227,6 @@ class BorrowController extends GetxController {
       isLoading.value = true;
       await _borrowService.cancelWhileInProgress(borrowId);
 
-      // Rafraîchir la liste des emprunts
-      // await loadUserBorrows(currentUserEmail.value);
       Get.snackbar(
         'Succès',
         'Emprunt en cours annulé avec succès',

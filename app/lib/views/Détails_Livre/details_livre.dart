@@ -121,16 +121,6 @@ class _DetailsLivreState extends State<DetailsLivre>
               onPressed: () async {
                 final user = _authController.currentUser.value;
 
-                print("=== DEBUG REVIEW ADD ===");
-                print("user: $user");
-                print("user.id: ${user?.id}");
-                print("book: ${widget.book}");
-                print("book.id: ${widget.book.id}");
-                print("rating: $_rating");
-                print("comment: ${_commentController.text}");
-                print("date: ${DateTime.now().toIso8601String()}");
-                print("========================");
-
                 if (user == null || widget.book.id == null) {
                   Get.snackbar("Erreur", "Utilisateur ou livre introuvable");
                   return;
@@ -158,7 +148,6 @@ class _DetailsLivreState extends State<DetailsLivre>
                     );
                   });
                 } catch (e) {
-                  print("Exception lors de l'ajout de review: $e");
                   Get.snackbar("Erreur", "Impossible d'ajouter l'avis");
                 }
               },
@@ -505,9 +494,18 @@ class _DetailsLivreState extends State<DetailsLivre>
                       ),
                     ),
                     SizedBox(height: 8),
+                    // Text(
+                    //   widget.book.description,
+                    //   style: TextStyle(color: Colors.grey, height: 1.5),
+                    // ),
                     Text(
-                      widget.book.description,
+                      widget.book.description ??
+                          '', // Gestion du cas où la description serait null
                       style: TextStyle(color: Colors.grey, height: 1.5),
+                      maxLines: 3, // Limite à 3 lignes maximum
+                      overflow:
+                          TextOverflow
+                              .ellipsis, // Ajoute "..." si le texte est tronqué
                     ),
                   ],
                 ),

@@ -33,7 +33,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     firstNameController = TextEditingController(text: widget.user.firstname);
     lastNameController = TextEditingController(text: widget.user.lastname);
     emailController = TextEditingController(text: widget.user.email);
-    print('Numéro de téléphone ****** ${widget.user.phone}');
     phoneController = TextEditingController(text: widget.user.phone);
     jobController = TextEditingController(text: widget.user.job);
     birthdayController = TextEditingController(
@@ -384,7 +383,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
           );
         }
       } catch (e) {
-        print('Error uploading image: $e');
         Get.showSnackbar(
           GetSnackBar(
             message: 'Erreur lors de l\'upload: $e',

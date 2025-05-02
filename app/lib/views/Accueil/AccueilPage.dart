@@ -6,7 +6,6 @@ import 'package:app/views/Accueil/chatbot_button.dart';
 import 'package:app/views/Accueil/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:app/controllers/theme_controller.dart';
 import 'package:app/controllers/book_controller.dart';
 
 class AccueilPage extends StatefulWidget {

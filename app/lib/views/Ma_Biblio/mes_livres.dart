@@ -17,12 +17,10 @@ class MesLivresController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('MesLivresController: onInit called'); // Debug log
     initializeAndLoadBooks();
 
     // Écouter les changements d'état de l'utilisateur
     ever(_authController.currentUser, (_) {
-      print('MesLivresController: Changement détecté dans currentUser');
       loadUserBooks();
     });
 
@@ -34,39 +32,28 @@ class MesLivresController extends GetxController {
 
   // Méthode pour forcer le rafraîchissement
   Future<void> refreshBooks() async {
-    print('MesLivresController: Rafraîchissement manuel des livres');
     await loadUserBooks();
   }
 
   Future<void> initializeAndLoadBooks() async {
     try {
-      print('MesLivresController: Initializing storage service'); // Debug log
       await _storageService.init();
       await loadUserBooks();
-    } catch (e) {
-      print('MesLivresController: Error initializing: $e'); // Debug log
-    }
+    } catch (e) {}
   }
 
   Future<void> loadUserBooks() async {
     try {
-      print('MesLivresController: Starting loadUserBooks'); // Debug log
       isLoading.value = true;
 
       // Vérifier d'abord la session stockée
       final userSession = _storageService.getUserSession();
-      print(
-        'MesLivresController: Session utilisateur: $userSession',
-      ); // Debug log
 
       int? userId;
 
       // Essayer d'obtenir l'ID de l'utilisateur de la session d'abord
       if (userSession != null && userSession['id'] != null) {
         userId = int.parse(userSession['id'].toString());
-        print(
-          'MesLivresController: ID utilisateur trouvé dans la session: $userId',
-        );
       }
 
       // Si pas d'ID dans la session, essayer depuis AuthController
@@ -74,25 +61,16 @@ class MesLivresController extends GetxController {
         final currentUser = _authController.currentUser.value;
         if (currentUser?.id != null) {
           userId = currentUser!.id;
-          print(
-            'MesLivresController: ID utilisateur trouvé dans AuthController: $userId',
-          );
         }
       }
 
       if (userId != null) {
-        print(
-          'MesLivresController: Chargement des livres pour l\'utilisateur $userId',
-        );
         final fetchedBooks = await BookService.getBooksByUser(userId);
-        print('MesLivresController: ${fetchedBooks.length} livres récupérés');
         books.value = fetchedBooks;
       } else {
-        print('MesLivresController: Aucun ID utilisateur trouvé');
         books.value = [];
       }
     } catch (e) {
-      print('MesLivresController: Erreur lors du chargement des livres: $e');
       books.value = [];
     } finally {
       isLoading.value = false;
@@ -105,15 +83,12 @@ class MesLivresController extends GetxController {
       final success = await BookService.deleteBook(bookId);
 
       if (success) {
-        print('MesLivresController: Livre $bookId supprimé avec succès');
         books.removeWhere((book) => book.id == bookId);
         return true;
       } else {
-        print('MesLivresController: Échec de la suppression du livre $bookId');
         return false;
       }
     } catch (e) {
-      print('MesLivresController: Erreur lors de la suppression du livre: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -126,8 +101,6 @@ class MesLivresController extends GetxController {
       final updatedBook = await BookService.updateBook(bookId, bookData);
 
       if (updatedBook != null) {
-        print('MesLivresController: Livre $bookId mis à jour avec succès');
-
         // Mettre à jour le livre dans la liste locale
         final index = books.indexWhere((book) => book.id == bookId);
         if (index != -1) {
@@ -136,11 +109,9 @@ class MesLivresController extends GetxController {
 
         return updatedBook;
       } else {
-        print('MesLivresController: Échec de la mise à jour du livre $bookId');
         return null;
       }
     } catch (e) {
-      print('MesLivresController: Erreur lors de la mise à jour du livre: $e');
       return null;
     } finally {
       isLoading.value = false;

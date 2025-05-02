@@ -2,15 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/models/user_model.dart';
 import 'package:app/services/storage_service.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   static final StorageService _storageService = StorageService();
-  // URL du serveur backend - à configurer selon l'environnement
-  static const String baseUrl =
-      'http://10.0.2.2:8080'; // Pour l'émulateur Android
-  // static const String baseUrl = 'http://localhost:8080';  // Pour iOS
-  // static const String baseUrl = 'http://192.168.1.xxx:8080';  // Pour appareil physique Android (remplacer xxx par votre IP)
+  static const String baseUrl = 'http://10.0.2.2:8080';
 
   static Future<Map<String, String>> getHeaders() async {
     final token = await _storageService.getAuthToken();
@@ -38,8 +33,6 @@ class AuthService {
           if (data == null) {
             throw Exception('Réponse vide du serveur');
           }
-
-          // Vérifier que le token est présent et valide
           if (data['access_token'] == null) {
             throw Exception('Token d\'accès manquant dans la réponse');
           }
@@ -47,10 +40,8 @@ class AuthService {
           final token = data['access_token'];
 
           try {
-            // Sauvegarder le token avant de récupérer les informations utilisateur
             await _storageService.saveAuthToken(token);
 
-            // Récupérer les informations de l'utilisateur depuis le backend
             final userResponse = await http.get(
               Uri.parse('$baseUrl/users/usermininfo/$email'),
               headers: {
@@ -67,7 +58,6 @@ class AuthService {
 
             final userInfo = json.decode(userResponse.body);
 
-            // Extraire toutes les informations de l'utilisateur depuis la réponse
             final userData = {
               'id': userInfo['id'],
               'email': userInfo['email'] ?? email,
@@ -84,10 +74,7 @@ class AuthService {
             };
 
             try {
-              // Créer l'utilisateur avec toutes les données
               final user = User.fromJson(userData);
-
-              // Sauvegarder les données de l'utilisateur
               await _storageService.saveUserSession(userData);
 
               return user;
@@ -132,26 +119,18 @@ class AuthService {
         if (response.statusCode != 200) {}
       } catch (e) {}
     } catch (e) {
-      // On propage l'erreur pour que le contrôleur puisse la gérer
       throw Exception('Erreur lors de la déconnexion: $e');
     }
   }
 
   Future<void> requestPasswordReset(String email) async {
     try {
-      print('Tentative de réinitialisation du mot de passe pour: $email');
-
       final response = await http.post(
         Uri.parse('$baseUrl/password-reset/request'),
         headers: await getHeaders(),
         body: json.encode({'email': email}),
       );
-
-      print('Réponse du serveur: ${response.statusCode}');
-      print('Corps de la réponse: ${response.body}');
-
       if (response.statusCode == 200) {
-        print('Email de réinitialisation envoyé avec succès');
       } else if (response.statusCode == 404) {
         throw Exception('Aucun compte associé à cet email');
       } else {
@@ -160,13 +139,10 @@ class AuthService {
         );
       }
     } on http.ClientException catch (e) {
-      print('Erreur de connexion: $e');
       throw Exception('Erreur de connexion au serveur: $e');
     } on FormatException catch (e) {
-      print('Erreur de format: $e');
       throw Exception('Erreur de format de réponse: $e');
     } catch (e) {
-      print('Erreur inattendue: $e');
       throw Exception('Erreur lors de la réinitialisation du mot de passe: $e');
     }
   }
@@ -229,7 +205,6 @@ class AuthService {
         throw Exception('Échec de la récupération du user');
       }
     } catch (e) {
-      print('Erreur getuserbyid: $e');
       return null;
     }
   }

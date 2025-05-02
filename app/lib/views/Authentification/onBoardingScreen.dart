@@ -1,6 +1,5 @@
 import 'package:app/themeData.dart';
 import 'package:app/views/Authentification/pageDesign.dart';
-//import 'package:softbiblio/views/Authentification/singnup/SignupPage.dart';
 import 'package:app/widgets/Button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,9 +37,7 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
             Expanded(
               flex: 5,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: PageView(
                   controller: controller,
                   onPageChanged: (value) {
@@ -72,9 +69,7 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
             Expanded(
               flex: 1,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.05,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -95,9 +90,12 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                               fontSize: isTablet ? 16 : screenWidth * 0.035,
                               fontFamily: "Sora",
                               fontWeight: FontWeight.w400,
-                              color: index == 0
-                                  ? Theme.of(context).scaffoldBackgroundColor
-                                  : blueColor,
+                              color:
+                                  index == 0
+                                      ? Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor
+                                      : blueColor,
                             ),
                           ),
                         ),
@@ -124,9 +122,12 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                               fontSize: isTablet ? 16 : screenWidth * 0.035,
                               fontFamily: "Sora",
                               fontWeight: FontWeight.w700,
-                              color: index == 2
-                                  ? Theme.of(context).scaffoldBackgroundColor
-                                  : blueColor,
+                              color:
+                                  index == 2
+                                      ? Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor
+                                      : blueColor,
                             ),
                           ),
                         ),
@@ -136,7 +137,10 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                     // Bouton Sign In
                     MyButton(
                       onTap: () {
-                        Get.to(() => LoginPage(), transition: Transition.rightToLeft);
+                        Get.to(
+                          () => LoginPage(),
+                          transition: Transition.rightToLeft,
+                        );
                       },
                       label: 'sign_in'.tr,
                       width: isTablet ? screenWidth * 0.5 : screenWidth * 0.85,

@@ -72,7 +72,7 @@ class ForgotPasswordScreen extends StatelessWidget {
 
             // Message descriptif
             Text(
-              'Entrez votre adresse email pour recevoir un lien de réinitialisation de votre mot de passe',
+              'Entrez votre adresse email pour recevoir un code pour réinitialisation de votre mot de passe',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -121,7 +121,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                           : () async {
                             if (emailController.text.isEmpty) {
                               Get.snackbar(
-                                'Erreur',
+                                'Champ vide',
                                 'Veuillez entrer votre email',
                                 snackPosition: SnackPosition.BOTTOM,
                                 backgroundColor: Colors.red,
@@ -152,7 +152,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                             ),
                           )
                           : const Text(
-                            'Envoyer le lien',
+                            'Envoyer le Code',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -168,11 +168,11 @@ class ForgotPasswordScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Retour à ', style: TextStyle(color: Colors.grey[600])),
+                //Text('Retour à ', style: TextStyle(color: Colors.grey[600])),
                 TextButton(
                   onPressed: () => Get.back(),
                   child: const Text(
-                    'la connexion',
+                    'Retour vers page de connexion',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

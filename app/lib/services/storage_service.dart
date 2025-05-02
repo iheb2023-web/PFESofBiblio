@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:app/models/user_model.dart';
 
 class StorageService {
   static final StorageService _instance = StorageService._internal();
@@ -15,7 +14,6 @@ class StorageService {
 
   // Gestion de la session
   Future<void> saveAuthToken(String token) async {
-    print('StorageService: Sauvegarde du token');
     await _prefs.setString('auth_token', token);
   }
 
@@ -24,11 +22,8 @@ class StorageService {
   }
 
   Future<void> saveUserSession(Map<String, dynamic> userData) async {
-    print('StorageService: Sauvegarde des données utilisateur: $userData');
-
     // Vérifier que l'ID est présent et valide
     if (userData['id'] == null) {
-      print('StorageService: ID utilisateur manquant dans les données');
       throw Exception('ID utilisateur manquant dans les données');
     }
 
@@ -39,41 +34,30 @@ class StorageService {
             : int.tryParse(userData['id'].toString());
 
     if (id == null) {
-      print('StorageService: ID utilisateur invalide');
       throw Exception('ID utilisateur invalide');
     }
-
-    print('StorageService: ID utilisateur valide: $id');
 
     // Sauvegarder les données complètes
     final jsonData = json.encode(userData);
     await _prefs.setString('user_session', jsonData);
-    print('StorageService: Données de session sauvegardées');
 
     // Sauvegarder l'ID séparément pour un accès rapide
     await _prefs.setInt('user_id', id);
-    print('StorageService: ID utilisateur sauvegardé séparément');
 
     // Vérifier que les données ont été correctement sauvegardées
     final savedData = _prefs.getString('user_session');
     final savedId = _prefs.getInt('user_id');
-    print(
-      'StorageService: Vérification des données sauvegardées - ID: $savedId, Data: $savedData',
-    );
   }
 
   Map<String, dynamic>? getUserSession() {
     final String? data = _prefs.getString('user_session');
-    print('StorageService: Données de session brutes: $data');
 
     if (data != null) {
       try {
         final Map<String, dynamic> sessionData = json.decode(data);
-        print('StorageService: Données de session décodées: $sessionData');
 
         // Vérifier que l'ID est présent
         if (sessionData['id'] == null) {
-          print('StorageService: ID manquant dans les données de session');
           return null;
         }
 
@@ -85,15 +69,11 @@ class StorageService {
                 : int.tryParse(sessionData['id'].toString());
 
         if (savedId != sessionId) {
-          print(
-            'StorageService: Incohérence entre l\'ID de session et l\'ID stocké',
-          );
           return null;
         }
 
         return sessionData;
       } catch (e) {
-        print('StorageService: Erreur lors de la lecture de la session: $e');
         return null;
       }
     }
@@ -132,9 +112,7 @@ class StorageService {
       if (id != null) {
         await _prefs.setInt('user_id', id);
       }
-    } catch (e) {
-      print('Erreur lors de la sauvegarde de l\'ID utilisateur: $e');
-    }
+    } catch (e) {}
   }
 
   Map<String, dynamic>? getUserJson() {
@@ -143,7 +121,6 @@ class StorageService {
       try {
         return json.decode(data);
       } catch (e) {
-        print('Erreur lors de la lecture des données utilisateur: $e');
         return null;
       }
     }

@@ -10,7 +10,6 @@ class BookService {
 
   static Future<List<Book>> getAllBooks() async {
     http.Response? response; // Déclarer response en dehors du try
-
     try {
       response = await http.get(
         Uri.parse(baseUrl),
@@ -32,11 +31,49 @@ class BookService {
       }
       throw Exception('Failed to load books (Status: ${response.statusCode})');
     } catch (e) {
-      print('Error getting all books: $e');
       if (response != null) {
-        print('Response body: ${response.body}');
         print('Response headers: ${response.headers}');
       }
+      return [];
+    }
+  }
+
+  static Future<List<Book>> getAllBooksWithinEmailOwner(String email) async {
+    http.Response? response;
+    try {
+      // Construire l'URL avec le paramètre email
+      final uri = Uri.parse('$baseUrl/allBookWithinEmailOwner/$email');
+
+      response = await http.get(
+        uri,
+        headers: {...await AuthService.getHeaders(), 'Accept-Charset': 'utf-8'},
+      );
+
+      if (response.statusCode == 200) {
+        try {
+          final String decodedBody = utf8.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          return data.map((json) => Book.fromJson(json)).toList();
+        } on FormatException {
+          // Fallback en latin1 si UTF-8 échoue
+          final String decodedBody = latin1.decode(response.bodyBytes);
+          final List<dynamic> data = json.decode(decodedBody);
+          return data.map((json) => Book.fromJson(json)).toList();
+        }
+      } else if (response.statusCode == 404) {
+        // Aucun livre trouvé pour cet email
+        return [];
+      } else {
+        throw Exception(
+          'Failed to load books (Status: ${response.statusCode})',
+        );
+      }
+    } catch (e) {
+      if (response != null) {
+        print('Error response headers: ${response.headers}');
+        print('Error response body: ${response.body}');
+      }
+      print('Error fetching books with owner email: $e');
       return [];
     }
   }
@@ -45,66 +82,29 @@ class BookService {
     http.Response? response; // Déclarer en dehors du try pour accès dans catch
 
     try {
-      print('BookService: Récupération des livres pour l\'utilisateur $userId');
       final headers = {
         ...await AuthService.getHeaders(),
         'Accept-Charset': 'utf-8', // Ajout du charset
       };
-      print('BookService: Headers de la requête: $headers');
-
       final url = '$baseUrl/user/$userId';
-      print('BookService: URL de la requête: $url');
-
       response = await http.get(Uri.parse(url), headers: headers);
-
-      print('BookService: Status code de la réponse: ${response.statusCode}');
-      print('BookService: Headers de la réponse: ${response.headers}');
-
       if (response.statusCode == 200) {
-        // Tentative de décodage UTF-8 d'abord
         try {
           final String decodedBody = utf8.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final books = data.map((json) => Book.fromJson(json)).toList();
-          print('BookService: ${books.length} livres récupérés (UTF-8)');
           return books;
         } on FormatException {
-          // Fallback latin1 si UTF-8 échoue
           final String decodedBody = latin1.decode(response.bodyBytes);
           final List<dynamic> data = json.decode(decodedBody);
           final books = data.map((json) => Book.fromJson(json)).toList();
-          print(
-            'BookService: ${books.length} livres récupérés (latin1 fallback)',
-          );
           return books;
         }
       }
       throw Exception('Échec du chargement des livres: ${response.statusCode}');
     } catch (e) {
-      print('BookService: Erreur lors de la récupération des livres: $e');
-      if (response != null) {
-        print('BookService: Corps brut de la réponse: ${response.bodyBytes}');
-      }
+      if (response != null) {}
       return [];
-    }
-  }
-
-  // Add new book
-  static Future<Book?> addBook(Book book) async {
-    try {
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: await AuthService.getHeaders(),
-        body: json.encode(book.toJson()),
-      );
-
-      if (response.statusCode == 201) {
-        return Book.fromJson(json.decode(response.body));
-      }
-      throw Exception('Failed to add book');
-    } catch (e) {
-      print('Error adding book: $e');
-      return null;
     }
   }
 
@@ -114,7 +114,6 @@ class BookService {
     String? author,
   }) async {
     try {
-      // Construction de la requête à la manière de la version web
       String queryString = 'intitle:${Uri.encodeComponent(title)}';
       if (author != null && author.isNotEmpty) {
         queryString += '+inauthor:${Uri.encodeComponent(author)}';
@@ -161,7 +160,6 @@ class BookService {
       }
       return null;
     } catch (e) {
-      print('Error searching Google Books: $e');
       return null;
     }
   }
@@ -174,7 +172,6 @@ class BookService {
     try {
       return await searchGoogleBooks(title, author: author);
     } catch (e) {
-      print('Error searching book: $e');
       return null;
     }
   }
@@ -194,7 +191,6 @@ class BookService {
         'Échec de la suppression du livre: ${response.statusCode}',
       );
     } catch (e) {
-      print('Erreur lors de la suppression du livre: $e');
       return false;
     }
   }
@@ -240,7 +236,6 @@ class BookService {
         throw Exception('Échec de la récupération du propriétaire');
       }
     } catch (e) {
-      print('Erreur getBookOwner: $e');
       return null;
     }
   }
