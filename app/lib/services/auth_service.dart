@@ -147,27 +147,6 @@ class AuthService {
     }
   }
 
-  Future<User> getCurrentUser() async {
-    try {
-      final headers = await getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/users/me'),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return User.fromJson(data);
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expirée');
-      } else {
-        throw Exception('Erreur lors de la récupération du profil');
-      }
-    } catch (e) {
-      throw Exception('Erreur lors de la récupération du profil: $e');
-    }
-  }
-
   Future<User> updateProfile(int userId, Map<String, dynamic> userData) async {
     try {
       final headers = await getHeaders();
@@ -199,13 +178,17 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(utf8.decode(response.bodyBytes));
         return data;
+      } else if (response.statusCode == 404) {
+        return null;
       } else {
-        throw Exception('Échec de la récupération du user');
+        throw Exception(
+          'Échec de la récupération du user: ${response.statusCode}',
+        );
       }
     } catch (e) {
-      return null;
+      throw Exception('Erreur réseau: $e');
     }
   }
 }

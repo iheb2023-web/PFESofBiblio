@@ -42,30 +42,57 @@ class ProfilePage extends GetView<AuthController> {
         return SingleChildScrollView(
           child: Column(
             children: [
-              ProfileHeader(user: user),
+              ProfileHeader(
+                user: user,
+                borrowsCount: 12,
+                booksCount: 8,
+                toReadCount: 4,
+              ),
               const SizedBox(height: 10),
+
+              // ProfileOption(
+              //   icon: Icons.person_outline,
+              //   title: 'Éditer le profil',
+              //   subtitle: 'Modifier vos informations personnelles',
+              //   onTap: () async {
+              //     final freshUser = await controller.getUserById(user.id!);
+              //     if (freshUser != null) {
+              //       Get.offAll(() => EditProfilePage(user: freshUser));
+              //       print("number de phone : ${freshUser.phone}");
+              //     } else {
+              //       Get.snackbar(
+              //         'Erreur',
+              //         'Impossible de charger les données du profil',
+              //         snackPosition: SnackPosition.BOTTOM,
+              //       );
+              //     }
+              //   },
+              // ),
               ProfileOption(
                 icon: Icons.person_outline,
                 title: 'Éditer le profil',
                 subtitle: 'Modifier vos informations personnelles',
-                onTap: () => Get.to(() => EditProfilePage(user: user)),
+                onTap: () => Get.to(() => EditProfilePage()),
               ),
               const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
               ProfileOption(
-                icon: Icons.settings_outlined, // Choisis une icône qui te plaît
+                icon: Icons.settings_outlined,
                 title: 'Éditer les préférences',
                 subtitle: 'Modifier vos préférences personnelles',
                 onTap: () => Get.to(() => const EditPreferencePage()),
               ),
               const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
-
               ProfileOption(
                 icon: Icons.lock_outline,
                 title: 'Confidentialité et sécurité',
                 subtitle: 'Gérer les paramètres de confidentialité',
                 onTap: () => Get.to(() => const PrivacySecurityPage()),
               ),
-              const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
+
+              // Section "À lire plus tard"
+              _buildToReadLaterSection(),
+
+              // Bouton de déconnexion
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -95,6 +122,81 @@ class ProfilePage extends GetView<AuthController> {
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildToReadLaterSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'À lire plus tard',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
+          ),
+        ),
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Couverture du livre
+                Container(
+                  width: 60,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    image: const DecorationImage(
+                      image: NetworkImage(
+                        'https://books.google.com/books/content?id=8tAn3HYf898C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api',
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Titre et auteur
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Les Misérables',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Victor Hugo',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Icône d'enregistrement
+                IconButton(
+                  icon: const Icon(Icons.bookmark, color: Colors.blue),
+                  onPressed: () {
+                    // Action pour retirer de la liste "À lire plus tard"
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 

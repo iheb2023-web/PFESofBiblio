@@ -7,15 +7,35 @@ import 'dart:io';
 
 class ProfileHeader extends StatelessWidget {
   final User user;
+  final int borrowsCount;
+  final int booksCount;
+  final int toReadCount;
 
-  const ProfileHeader({super.key, required this.user});
+  const ProfileHeader({
+    super.key,
+    required this.user,
+    required this.borrowsCount,
+    required this.booksCount,
+    required this.toReadCount,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
-      color: Colors.blue.shade50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Stack(
@@ -23,7 +43,7 @@ class ProfileHeader extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.blue.shade100,
                 backgroundImage:
                     user.image != null
                         ? NetworkImage(
@@ -38,7 +58,7 @@ class ProfileHeader extends StatelessWidget {
                               : '',
                           style: const TextStyle(
                             fontSize: 40,
-                            color: Colors.white,
+                            color: Colors.blue,
                           ),
                         )
                         : null,
@@ -67,13 +87,39 @@ class ProfileHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            user.email,
+            '${user.email}',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[700]),
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildStatItem('Emprunts', borrowsCount.toString()),
+              _buildStatItem('Mes Livres', booksCount.toString()),
+              _buildStatItem('À lire', toReadCount.toString()),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+      ],
     );
   }
 

@@ -73,6 +73,7 @@ class _AccueilPageState extends State<AccueilPage>
           ),
         ),
       ),
+
       floatingActionButton: ChatbotButton(
         animationController: _animationController,
       ),

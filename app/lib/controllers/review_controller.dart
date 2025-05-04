@@ -71,9 +71,57 @@ class ReviewController extends GetxController {
     }
   }
 
-  double getAverageStars() {
-    if (reviews.isEmpty) return 0;
-    final total = reviews.fold(0, (sum, r) => sum + r.rating);
-    return total / reviews.length;
+  Future<double> averageStars(int bookId) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      // Load reviews for the book
+      final bookReviews = await ReviewService.getReviewsByBookId(bookId);
+
+      if (bookReviews.isEmpty) {
+        return 0.0; // Return 0 if no reviews
+      }
+
+      // Calculate sum of ratings
+      final totalRating = bookReviews.fold<double>(
+        0.0,
+        (sum, review) => sum + (review.rating ?? 0.0),
+      );
+
+      // Calculate average
+      final average = totalRating / bookReviews.length;
+
+      // Round to 1 decimal place
+      return double.parse(average.toStringAsFixed(1));
+    } catch (e) {
+      error.value = 'Erreur calcul moyenne stars: $e';
+      print(error.value);
+      return 0.0;
+    } finally {
+      isLoading.value = false;
+    }
   }
+
+  // double averageStars(int bookId) {
+  //   final bookReviews =
+  //       reviews.where((review) => review.bookId == bookId).toList();
+  //   if (bookReviews.isEmpty) return 0.7;
+
+  //   final totalRating = bookReviews.fold(
+  //     0.0,
+  //     (sum, review) => sum + review.rating,
+  //   );
+  //   return totalRating / bookReviews.length;
+  // }
+  // double averageStars() {
+  //   if (reviews.isEmpty) return 0.0;
+
+  //   final totalRating = reviews.fold<double>(
+  //     0.0,
+  //     (sum, review) => sum + review.rating,
+  //   );
+
+  //   return totalRating / reviews.length;
+  // }
 }

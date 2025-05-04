@@ -92,8 +92,6 @@ class AuthController extends GetxController {
 
       await _storageService.saveUserSession(userJson);
 
-      final savedSession = await _storageService.getUserSession();
-
       currentUser.value = user;
       isLoggedIn.value = true;
       update();
@@ -213,6 +211,7 @@ class AuthController extends GetxController {
         'Profil mis à jour avec succès',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
       errorMessage.value = e.toString();
@@ -220,28 +219,6 @@ class AuthController extends GetxController {
         'Erreur',
         'Échec de la mise à jour du profil',
         snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  Future<void> refreshUserProfile() async {
-    try {
-      isLoading.value = true;
-      final user = await _authService.getCurrentUser();
-      currentUser.value = user;
-
-      if (user != null) {
-        await _storageService.saveUserSession(user.toJson());
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Erreur',
-        'Impossible de rafraîchir le profil',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;
@@ -258,4 +235,33 @@ class AuthController extends GetxController {
   }
 
   Future<String?> uploadProfileImage(File image) async {}
+
+  Future<User?> getUserById(int id) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final userData = await AuthService.getUserById(id);
+
+      if (userData == null) {
+        throw Exception('Utilisateur non trouvé');
+      }
+
+      final user = User.fromJson(userData);
+      return user;
+    } catch (e) {
+      errorMessage.value =
+          'Erreur lors de la récupération de l\'utilisateur: $e';
+      Get.snackbar(
+        'Erreur',
+        errorMessage.value,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

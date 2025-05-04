@@ -42,7 +42,7 @@ const Map<String, String> fr = {
 
   // Library
   'my_books': 'Mes Livres',
-  'borrowed': 'Emprunts',
+  'borrowed': 'Mes Emprunts',
   'add_book': 'Ajouter un livre',
   'book_details': 'Détails du livre',
   'available': 'Disponible',

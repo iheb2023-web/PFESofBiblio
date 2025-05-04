@@ -4,7 +4,6 @@ import 'package:app/models/borrow.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:app/services/borrow_service.dart';
 
 class MesEmpruntsPage extends StatefulWidget {
   const MesEmpruntsPage({super.key});
