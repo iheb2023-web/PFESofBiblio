@@ -1,3 +1,4 @@
+import 'package:app/imports.dart';
 import 'package:app/models/temporary_prefernces.dart';
 import 'package:app/services/preferences_service.dart';
 import 'package:app/services/storage_service.dart';
@@ -116,6 +117,8 @@ class PreferenceController extends GetxController {
         'Succès',
         'Préférence ajoutée avec succès',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
       errorMessage.value = e.toString();

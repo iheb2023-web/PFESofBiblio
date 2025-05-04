@@ -1,3 +1,4 @@
+import 'package:app/controllers/review_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/models/book.dart';
@@ -120,10 +121,53 @@ class _BookCard extends StatelessWidget {
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     const SizedBox(height: 4),
+                    // Row(
+                    //   children: [
+                    //     Icon(Icons.star, size: 16, color: Colors.amber[700]),
+                    //     Text(' ${_getAverageStars(book)}/5'),
+                    //   ],
+                    // ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Icon(Icons.star, size: 16, color: Colors.amber[700]),
-                        Text(' ${book.rating}/5'),
+                        const SizedBox(
+                          width: 4.0,
+                        ), // Add spacing between icon and text
+                        Flexible(
+                          child: FutureBuilder<String>(
+                            future: _getAverageStars(book),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const SizedBox(
+                                  width: 16.0,
+                                  height: 16.0,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text(
+                                  'Erreur',
+                                  style: TextStyle(fontSize: 12.0),
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              } else if (snapshot.hasData) {
+                                return Text(
+                                  '${snapshot.data!}/5',
+                                  style: const TextStyle(fontSize: 12.0),
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              }
+                              return const Text(
+                                '0.0/5',
+                                style: TextStyle(fontSize: 12.0),
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -223,6 +267,12 @@ class _BookCard extends StatelessWidget {
               ),
     );
   }
+}
+
+Future<String> _getAverageStars(Book book) async {
+  final reviewController = Get.find<ReviewController>();
+  final average = await reviewController.averageStars(book.id!);
+  return average.toStringAsFixed(1);
 }
 
 class _BookCover extends StatelessWidget {

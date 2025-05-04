@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:app/imports.dart';
+import 'package:app/views/chatbot/chatbot.dart';
 import 'package:lottie/lottie.dart';
 
 class ChatbotButton extends StatelessWidget {
@@ -14,7 +15,9 @@ class ChatbotButton extends StatelessWidget {
         return Transform.translate(
           offset: Offset(0, animationController.value * 5),
           child: FloatingActionButton(
-            onPressed: () {}, // Chat action
+            onPressed: () {
+              Get.to(() => ChatScreen());
+            }, // Chat action
             elevation: 4,
             materialTapTargetSize: MaterialTapTargetSize.padded,
             shape: RoundedRectangleBorder(

@@ -43,10 +43,6 @@ class StorageService {
 
     // Sauvegarder l'ID séparément pour un accès rapide
     await _prefs.setInt('user_id', id);
-
-    // Vérifier que les données ont été correctement sauvegardées
-    final savedData = _prefs.getString('user_session');
-    final savedId = _prefs.getInt('user_id');
   }
 
   Map<String, dynamic>? getUserSession() {

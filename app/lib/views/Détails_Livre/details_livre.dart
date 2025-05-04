@@ -46,7 +46,6 @@ class _DetailsLivreState extends State<DetailsLivre>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    // Appel pour charger les avis par book ID
     _reviewController.loadReviewsForBook(widget.book.id!);
   }
 
@@ -388,17 +387,82 @@ class _DetailsLivreState extends State<DetailsLivre>
                           ),
                           const SizedBox(height: 16),
                           // Notation
+                          // Row(
+                          //   children: List.generate(5, (index) {
+                          //     return Icon(
+                          //       Icons.star,
+                          //       color:
+                          //           index < widget.book.rating
+                          //               ? Colors.amber
+                          //               : Colors.grey[300],
+                          //       size: 20,
+                          //     );
+                          //   }),
+                          // ),
+                          // Dans la section d'en-tête du livre
                           Row(
-                            children: List.generate(5, (index) {
-                              return Icon(
-                                Icons.star,
-                                color:
-                                    index < widget.book.rating
-                                        ? Colors.amber
-                                        : Colors.grey[300],
-                                size: 20,
-                              );
-                            }),
+                            children: [
+                              // Afficher les étoiles pleines selon la note moyenne
+                              FutureBuilder<double>(
+                                future: _getAverageStars(widget.book),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const SizedBox(
+                                      width: 100,
+                                      child: LinearProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return const Icon(
+                                      Icons.error,
+                                      color: Colors.red,
+                                    );
+                                  } else {
+                                    final averageRating = snapshot.data ?? 0;
+                                    return Row(
+                                      children: [
+                                        // Étoiles pleines pour la partie entière
+                                        ...List.generate(
+                                          averageRating.floor(),
+                                          (index) => const Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        // Demi-étoile si nécessaire
+                                        if (averageRating -
+                                                averageRating.floor() >=
+                                            0.5)
+                                          const Icon(
+                                            Icons.star_half,
+                                            color: Colors.amber,
+                                            size: 20,
+                                          ),
+                                        // Étoiles vides
+                                        ...List.generate(
+                                          5 - averageRating.ceil(),
+                                          (index) => const Icon(
+                                            Icons.star_border,
+                                            color: Colors.amber,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              // Afficher le nombre d'avis (optionnel)
+                              Obx(() {
+                                final count = _reviewController.reviews.length;
+                                return Text(
+                                  '($count)',
+                                  style: const TextStyle(color: Colors.grey),
+                                );
+                              }),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           // Boutons d'action
@@ -471,7 +535,7 @@ class _DetailsLivreState extends State<DetailsLivre>
                     ),
                     const SizedBox(width: 16),
                     const Text(
-                      "Emprunté 24 fois",
+                      "Emprunté 3 fois",
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
@@ -494,10 +558,6 @@ class _DetailsLivreState extends State<DetailsLivre>
                       ),
                     ),
                     SizedBox(height: 8),
-                    // Text(
-                    //   widget.book.description,
-                    //   style: TextStyle(color: Colors.grey, height: 1.5),
-                    // ),
                     Text(
                       widget.book.description ??
                           '', // Gestion du cas où la description serait null
@@ -535,49 +595,6 @@ class _DetailsLivreState extends State<DetailsLivre>
 
               const SizedBox(height: 24),
 
-              // Section avis
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       Row(
-              //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //         children: [
-              //           Text(
-              //             'reader_reviews'.tr,
-              //             style: const TextStyle(
-              //               fontSize: 20,
-              //               fontWeight: FontWeight.bold,
-              //             ),
-              //           ),
-              //           IconButton(
-              //             icon: const Icon(Icons.add_circle_outline),
-              //             onPressed: _showAddReviewDialog,
-              //           ),
-              //         ],
-              //       ),
-              //       const SizedBox(height: 16),
-              //       // Liste des avis
-              //       _buildAvis(
-              //         nom: "Marie Dupont",
-              //         note: 5,
-              //         commentaire:
-              //             "Un chef-d'œuvre intemporel qui touche le cœur.",
-              //         date: "Il y a 2 jours",
-              //         photoUrl: null,
-              //       ),
-              //       const SizedBox(height: 16),
-              //       _buildAvis(
-              //         nom: "Jean Martin",
-              //         note: 4,
-              //         commentaire: "Une belle histoire qui fait réfléchir.",
-              //         date: "Il y a 1 semaine",
-              //         photoUrl: null,
-              //       ),
-              //     ],
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -746,4 +763,9 @@ class _DetailsLivreState extends State<DetailsLivre>
       ),
     );
   }
+}
+
+Future<double> _getAverageStars(Book book) async {
+  final reviewController = Get.find<ReviewController>();
+  return await reviewController.averageStars(book.id!);
 }

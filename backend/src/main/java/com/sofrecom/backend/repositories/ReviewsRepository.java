@@ -11,7 +11,7 @@ import java.util.List;
 public interface ReviewsRepository extends JpaRepository<Reviews, Long> {
 
     @Query("select new com.sofrecom.backend.dtos.ReviewsDto(" +
-            "r.id, r.content, r.rating, r.createdAt, r.updatedAt, " +
+            "r.id,r.book.id, r.content, r.rating, r.createdAt, r.updatedAt, " +
             "new com.sofrecom.backend.dtos.UserReviewsDto(u.id, u.email, u.firstname, u.lastname, u.image)) " +
             "from Reviews r join r.user u " +
             "where r.book.id = :id " +

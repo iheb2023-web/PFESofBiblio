@@ -9,13 +9,13 @@ class User {
   final String role;
   final String? password;
   final String? token;
-  final String? phone;
+  final int? phone; // CHANGÉ ICI
   final String? address;
   final List<int>? borrowedBooks;
   final List<int>? myBooks;
   final List<int>? toReadBooks;
-  final bool? hasPreference; // Attribut optionnel
-  final bool? hasSetPassword; // Attribut optionnel
+  final bool? hasPreference;
+  final bool? hasSetPassword;
 
   User({
     this.id,
@@ -28,20 +28,17 @@ class User {
     required this.role,
     this.password,
     this.token,
-    this.phone,
+    this.phone, // CHANGÉ ICI
     this.address,
     this.borrowedBooks,
     this.myBooks,
     this.toReadBooks,
-    this.hasPreference, // Ajout dans le constructeur
-    this.hasSetPassword, // Ajout dans le constructeur
+    this.hasPreference,
+    this.hasSetPassword,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     try {
-      print(
-        'User.fromJson - raw id: ${json['id']} (${json['id'].runtimeType})',
-      ); // Debug log
       return User(
         id:
             json['id'] is int
@@ -61,7 +58,10 @@ class User {
         role: json['role']?.toString() ?? 'USER',
         password: json['password']?.toString(),
         token: json['token']?.toString(),
-        phone: json['phone']?.toString(),
+        phone:
+            json['number'] != null
+                ? int.tryParse(json['number'].toString())
+                : null, // CHANGÉ ICI
         address: json['address']?.toString(),
         borrowedBooks:
             json['borrowedBooks'] != null
@@ -73,12 +73,8 @@ class User {
             json['toReadBooks'] != null
                 ? List<int>.from(json['toReadBooks'])
                 : null,
-        hasPreference:
-            json['hasPreference']
-                as bool?, // Ajout de la gestion de hasPreference
-        hasSetPassword:
-            json['hasSetPassword']
-                as bool?, // Ajout de la gestion de hasSetPassword
+        hasPreference: json['hasPreference'] as bool?,
+        hasSetPassword: json['hasSetPassword'] as bool?,
       );
     } catch (e) {
       print('Erreur lors de la conversion JSON: $e');
@@ -99,19 +95,16 @@ class User {
       'role': role,
       if (password != null) 'password': password,
       if (token != null) 'token': token,
-      if (phone != null) 'phone': phone,
+      if (phone != null) 'phone': phone, // CHANGÉ ICI
       if (address != null) 'address': address,
       if (borrowedBooks != null) 'borrowedBooks': borrowedBooks,
       if (myBooks != null) 'myBooks': myBooks,
       if (toReadBooks != null) 'toReadBooks': toReadBooks,
-      if (hasPreference != null)
-        'hasPreference': hasPreference, // Ajout de l'attribut dans le toJson
-      if (hasSetPassword != null)
-        'hasSetPassword': hasSetPassword, // Ajout de l'attribut dans le toJson
+      if (hasPreference != null) 'hasPreference': hasPreference,
+      if (hasSetPassword != null) 'hasSetPassword': hasSetPassword,
     };
   }
 
-  // Copier l'utilisateur avec des modifications
   User copyWith({
     int? id,
     String? firstname,
@@ -123,7 +116,7 @@ class User {
     String? role,
     String? password,
     String? token,
-    String? phone,
+    int? phone, // CHANGÉ ICI
     String? address,
     List<int>? borrowedBooks,
     List<int>? myBooks,
@@ -142,7 +135,7 @@ class User {
       role: role ?? this.role,
       password: password ?? this.password,
       token: token ?? this.token,
-      phone: phone ?? this.phone,
+      phone: phone ?? this.phone, // CHANGÉ ICI
       address: address ?? this.address,
       borrowedBooks: borrowedBooks ?? this.borrowedBooks,
       myBooks: myBooks ?? this.myBooks,

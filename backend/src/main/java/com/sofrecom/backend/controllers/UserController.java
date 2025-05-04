@@ -79,7 +79,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserUpdateDto> updateUser(@PathVariable Long id) {
+    public ResponseEntity<UserUpdateDto> getuserdetail(@PathVariable Long id) {
         UserUpdateDto updatedUser = userService.getUserById(id);
         return ResponseEntity.ok(updatedUser);
     }

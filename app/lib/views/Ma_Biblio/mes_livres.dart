@@ -289,7 +289,7 @@ class MesLivresPage extends GetView<ThemeController> {
                     color: Colors.grey,
                   ),
                   label: Text(
-                    'Voir les emprunts',
+                    'Consulter les demandes',
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ),
