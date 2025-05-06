@@ -10,6 +10,8 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -135,6 +137,17 @@ public class IUserServiceImp implements IUserService {
     @Override
     public Long getIdFromEmail(String email) {
         return this.userRepository.findIdByEmail(email);
+    }
+
+    @Override
+    public ResponseEntity<Boolean> hasSetPassword(String email) {
+        User user = this.userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            user.setHasSetPassword(true);
+            this.userRepository.save(user);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        return  new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
     }
 
 }

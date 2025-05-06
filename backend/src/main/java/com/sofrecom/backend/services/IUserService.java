@@ -4,6 +4,7 @@ import com.sofrecom.backend.dtos.*;
 import com.sofrecom.backend.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface IUserService {
     User findById(Long id);
 
     Long getIdFromEmail(String email);
+
+    ResponseEntity<Boolean> hasSetPassword(String email);
 }

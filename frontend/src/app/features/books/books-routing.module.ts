@@ -8,26 +8,28 @@ import { MyBooksComponent } from './my-books/my-books.component';
 import { DemandesComponent } from './demandes/demandes.component';
 import { LibraryComponent } from './library/library.component';
 import { RequestsComponent } from './requests/requests.component';
+import { AuthGuard } from 'src/app/core/guards/auth-guard.guard';
+import { ColabGuard } from 'src/app/core/guards/colab-guard.guard';
 
 const routes: Routes = [
-  {path:"", component : BookListComponent},
-  {path:"grid", component : BookGridComponent},
+  {path:"", component : BookListComponent, canActivate: [AuthGuard,ColabGuard]},
+  {path:"grid", component : BookGridComponent, canActivate: [AuthGuard,ColabGuard]},
   {
-    path:"add", component: AddBookComponent
+    path:"add", component: AddBookComponent, canActivate: [AuthGuard,ColabGuard]
   },
   {
-    path:"mybooks", component: MyBooksComponent
+    path:"mybooks", component: MyBooksComponent, canActivate: [AuthGuard,ColabGuard]
   },
   {
-    path: "details/:id", component: BookDetailsComponent
+    path: "details/:id", component: BookDetailsComponent, canActivate: [AuthGuard,ColabGuard]
   },
   {
     path: "library",
     component: LibraryComponent,
     children: [
-      { path: "mybooks", component: MyBooksComponent },
-      { path: "demands", component: DemandesComponent },
-      { path: "requests", component: RequestsComponent },
+      { path: "mybooks", component: MyBooksComponent, canActivate: [AuthGuard,ColabGuard] },
+      { path: "demands", component: DemandesComponent, canActivate: [AuthGuard,ColabGuard] },
+      { path: "requests", component: RequestsComponent, canActivate: [AuthGuard,ColabGuard] },
     ],
   }
 

@@ -8,9 +8,8 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-import java.security.Principal;
-import java.util.UUID;
 
 import java.util.Optional;
 @RequiredArgsConstructor
@@ -29,7 +28,8 @@ public class PasswordResetController {
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");
         }else {
-            String token = UUID.randomUUID().toString();
+            int randomNumber = ThreadLocalRandom.current().nextInt(1000, 10000);
+            String token = String.valueOf(randomNumber);
             passwordResetService.createPasswordResetTokenForUser(user.get(), token);
             passwordResetService.sendPasswordResetEmail(email, token);
 
@@ -39,9 +39,23 @@ public class PasswordResetController {
 
     }
 
+    @GetMapping("/getTokenByEmail/{email}")
+    public String getPasswordResetToken(@PathVariable("email") String email) {
+       return  this.passwordResetService.getTokenByEmail(email);
+    }
+
     @PutMapping("/reset")
-    public ResponseEntity<PasswordResetResponse> resetPassword(@RequestParam("token") String token, @RequestParam("password") String newPassword) {
+    public ResponseEntity<PasswordResetResponse> resetPassword(@RequestParam("token") String token,
+                                                               @RequestParam("password") String newPassword) {
         return ResponseEntity.ok(passwordResetService.resetPassword(token,newPassword));
+    }
+
+
+    @PutMapping("/changePassword")
+    public ResponseEntity<PasswordResetResponse> changePassword(@RequestParam("email") String email,
+                                                                @RequestParam("password") String newPassword)
+    {
+        return ResponseEntity.ok(passwordResetService.changePassword(email,newPassword));
     }
 
 
