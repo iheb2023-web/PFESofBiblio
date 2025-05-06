@@ -7,8 +7,8 @@ import 'dart:io';
 
 class ProfileHeader extends StatelessWidget {
   final User user;
-  final int borrowsCount;
-  final int booksCount;
+  final Future<int?> borrowsCount;
+  final Future<int?> booksCount;
   final int toReadCount;
 
   const ProfileHeader({
@@ -96,8 +96,31 @@ class ProfileHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildStatItem('Emprunts', borrowsCount.toString()),
-              _buildStatItem('Mes Livres', booksCount.toString()),
+              FutureBuilder<int?>(
+                future: borrowsCount,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildStatItem('Emprunts', '...');
+                  }
+                  return _buildStatItem(
+                    'Emprunts',
+                    snapshot.data?.toString() ?? '0',
+                  );
+                },
+              ),
+              FutureBuilder<int?>(
+                future: booksCount,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildStatItem('Mes Livres', '...');
+                  }
+                  return _buildStatItem(
+                    'Mes Livres',
+                    snapshot.data?.toString() ?? '0',
+                  );
+                },
+              ),
+              // _buildStatItem('Mes Livres', booksCount.toString()),
               _buildStatItem('À lire', toReadCount.toString()),
             ],
           ),

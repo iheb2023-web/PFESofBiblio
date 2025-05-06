@@ -264,4 +264,83 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      if (newPassword.isEmpty) {
+        throw Exception('Le nouveau mot de passe ne peut pas être vide');
+      }
+
+      final response = await _authService.resetPassword(token, newPassword);
+
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Succès',
+          response['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        // Rediriger vers la page de connexion après réinitialisation réussie
+        Get.offAll(() => const LoginPage());
+      } else {
+        throw Exception(response['message']);
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<int?> numberOfBorrowsByUser(String email) async {
+    try {
+      final nb = await AuthService.numberOfBorrowsByUSer(email);
+
+      if (nb == null) {
+        throw Exception('Utilisateur non trouvé');
+      }
+      return nb;
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        errorMessage.value,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    }
+  }
+
+  Future<int?> numberOfBooksByUser(String email) async {
+    try {
+      final nb = await AuthService.numberOfBooksByUSer(email);
+
+      if (nb == null) {
+        throw Exception('Utilisateur non trouvé');
+      }
+      return nb;
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        errorMessage.value,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return null;
+    }
+  }
 }

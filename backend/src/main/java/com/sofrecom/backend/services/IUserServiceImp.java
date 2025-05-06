@@ -138,7 +138,6 @@ public class IUserServiceImp implements IUserService {
     public Long getIdFromEmail(String email) {
         return this.userRepository.findIdByEmail(email);
     }
-
     @Override
     public ResponseEntity<Boolean> hasSetPassword(String email) {
         User user = this.userRepository.findByEmail(email).orElse(null);
@@ -149,5 +148,16 @@ public class IUserServiceImp implements IUserService {
         }
         return  new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
     }
+
+    @Override
+    public Long numberOfBorrowsByUser(String email) {
+        return this.userRepository.numbreOfBorrowsByUser(email);
+    }
+    @Override
+    public Long numberOfBooksByUser(String email) {
+        return this.userRepository.numbreOfBooksByUser(email);
+    }
+
+
 
 }

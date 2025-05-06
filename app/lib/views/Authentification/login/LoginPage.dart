@@ -1,12 +1,9 @@
+import 'package:app/imports.dart';
 import 'package:app/views/ChangerMdp/changerMdp.dart';
-import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:app/views/NavigationMenu.dart';
 import 'package:app/views/Authentification/Step/Préférences.dart';
 import 'package:app/views/Authentification/login/forgot_password_screen.dart';
-import 'package:app/controllers/auth_controller.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,11 +16,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = Get.find<AuthController>();
+  final StorageService _storageService = StorageService();
+  String? token;
   bool _isHidden = true;
   final LocalAuthentication auth = LocalAuthentication();
   bool _canCheckBiometrics = false;
   String _authorizedOrNot = "Non autorisé";
-
   // Vérifier si l'appareil supporte la biométrie
   Future<void> _checkBiometrics() async {
     bool canCheckBiometrics;
@@ -37,6 +35,12 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _canCheckBiometrics = canCheckBiometrics;
+    });
+  }
+
+  void _loadToken() {
+    setState(() {
+      token = _storageService.getAuthToken();
     });
   }
 
@@ -71,6 +75,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _checkBiometrics();
+    _loadToken();
   }
 
   @override
@@ -228,7 +233,8 @@ class _LoginPageState extends State<LoginPage> {
                           Get.offAll(() => const PreferencesPage());
                         }
                       } else {
-                        Get.offAll(() => const ChangePasswordPage());
+                        Get.offAll(() => ChangePasswordPage(resetToken: token));
+                        print("**************** token : ${token}");
                       }
                     } else {
                       // Si 'currentUser' est null, affichage d'un message d'erreur

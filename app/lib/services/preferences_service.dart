@@ -1,5 +1,4 @@
 import 'package:app/services/auth_service.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app/models/preference.dart';

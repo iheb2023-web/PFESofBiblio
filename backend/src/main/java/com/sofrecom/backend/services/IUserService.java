@@ -23,4 +23,7 @@ public interface IUserService {
     Long getIdFromEmail(String email);
 
     ResponseEntity<Boolean> hasSetPassword(String email);
+    Long numberOfBooksByUser(String email);
+    Long numberOfBorrowsByUser(String email);
+
 }

@@ -95,6 +95,18 @@ public class UserController {
         return this.userService.getIdFromEmail(email);
     }
 
+    @GetMapping("/numberOfBorrows/{email}")
+    public Long numberOfBorrowsByUser(@PathVariable String email)
+    {
+        return this.userService.numberOfBorrowsByUser(email);
+    }
+
+    @GetMapping("/numberOfBooks/{email}")
+    public Long numberOfBooksByUser(@PathVariable String email)
+    {
+        return this.userService.numberOfBooksByUser(email);
+    }
+
 
     @PostMapping("/hasSetPassword/{email}")
     public ResponseEntity<Boolean> hasSetPassword(@PathVariable String email) {
