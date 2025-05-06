@@ -73,11 +73,6 @@ public class PasswordResetService {
                         "                        <td style=\"height:80px;\">&nbsp;</td>\n" +
                         "                    </tr>\n" +
                         "                    <tr>\n" +
-                        "                        <td style=\"text-align:center;\">\n" +
-                        "                          <a href=\"http://localhost:4200/newpassword?token=" + token + "\" title=\"logo\" target=\"_blank\">\n" +
-                        "                            <img width=\"60\" src=\"https://i.ibb.co/hL4XZp2/android-chrome-192x192.png\" title=\"logo\" alt=\"logo\">\n" +
-                        "                          </a>\n" +
-                        "                        </td>\n" +
                         "                    </tr>\n" +
                         "                    <tr>\n" +
                         "                        <td style=\"height:20px;\">&nbsp;</td>\n" +
@@ -104,11 +99,12 @@ public class PasswordResetService {
                         "\n" +
                         " \n" +
                         "\n" +
-                        "To reset your password, click the following link and follow the instructions:\n" +
+                        "To reset your password, this is your code:\n" +
                         "                                        </p>\n" +
-                        "                                        <a href=\"http://localhost:4200/newpassword?token=" + token + "\"\n" +
-                        "                                            style=\"background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;\">Reset\n" +
-                        "                                            Password</a>\n" +
+                        "                                        <a href=\"" + "\"\n" +
+                        "                                            style=\"background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;\">" +
+                        token +
+                        "</a>\n" +
                         "                                    </td>\n" +
                         "                                </tr>\n" +
                         "                                <tr>\n" +
@@ -173,4 +169,25 @@ public class PasswordResetService {
     }
 
 
+    public String getTokenByEmail(String email) {
+      User user =  this.userRepository.findByEmail(email).orElse(null);
+      if(user != null) {
+         PasswordResetToken token =this.tokenRepository.findByUser(user);
+         if(token != null) {
+             return token.getToken();
+         }else return null;
+      }
+      return null;
+
+    }
+
+    public PasswordResetResponse changePassword(String email, String newPassword) {
+       User user = this.userRepository.findByEmail(email).orElse(null);
+       if(user != null) {
+           user.setPassword(passwordEncoder.encode(newPassword));
+           userRepository.save(user);
+           return new PasswordResetResponse("Password changed successfully!");
+       }
+       return new PasswordResetResponse("Error");
+    }
 }

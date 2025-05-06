@@ -40,6 +40,14 @@ import { CookieService } from "ngx-cookie-service";
         return this._http.put('http://localhost:8080/password-reset/reset'+`?token=${token}&password=${newPassword}`, "")
            
       }
+      changePassword(email: string,newPassword: string)
+      {
+        return this._http.put('http://localhost:8080/password-reset/changePassword'+`?email=${email}&password=${newPassword}`, "")
+      }
+    
+      getTokenByEmail(email : any)
+      {
+        return this._http.get('http://localhost:8080/password-reset/getTokenByEmail/'+email)
+      }
   }
-
 

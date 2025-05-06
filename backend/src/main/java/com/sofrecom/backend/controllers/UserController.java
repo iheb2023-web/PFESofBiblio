@@ -96,6 +96,12 @@ public class UserController {
     }
 
 
+    @PostMapping("/hasSetPassword/{email}")
+    public ResponseEntity<Boolean> hasSetPassword(@PathVariable String email) {
+        return this.userService.hasSetPassword(email);
+    }
+
+
 
 
 

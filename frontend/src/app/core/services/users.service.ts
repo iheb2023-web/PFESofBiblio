@@ -45,6 +45,12 @@ import { Injectable } from "@angular/core";
         , user: any) {
         return this._http.patch(this.URL + `/${id}`, user);
       }
+
+
+      hasSetPassword(email : any)
+      {
+        return this._http.post(this.URL +`/hasSetPassword/${email}`, {})
+      }
     
 
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { UsersService } from 'src/app/core/services/users.service';
+import {UsersService} from 'src/app/core/services/users.service';
 
 @Component({
   selector: 'app-new-password',
@@ -9,8 +9,10 @@ import { UsersService } from 'src/app/core/services/users.service';
   styleUrls: ['./new-password.component.scss']
 })
 export class NewPasswordComponent implements OnInit {
-  token: string | null = null; // Token from the URL
+  role! : string
+  email! : string
   newPasswordRequest = {
+    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   };
@@ -19,40 +21,46 @@ export class NewPasswordComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService : AuthService
+    private authService: AuthService,
+    private userService : UsersService
   ) {}
 
   ngOnInit(): void {
-    // Extract the token from the query parameters
-    this.route.queryParamMap.subscribe((params) => {
-      this.token = params.get('token');
-      if (!this.token) {
-        this.errorMessage = 'Invalid or missing token.';
-      }
-    });
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      this.email = user.email;
+      this.role = user.role
+
+    }
   }
 
   setNewPassword(): void {
+    // Clear previous error messages
+    this.errorMessage = null;
+
+    // Check if passwords match
     if (this.newPasswordRequest.newPassword !== this.newPasswordRequest.confirmPassword) {
       this.errorMessage = 'Passwords do not match.';
       return;
     }
 
-    if (!this.token) {
-      this.errorMessage = 'Invalid or missing token.';
-      return;
-    }
+ 
 
     // Call the API to set the new password
-    this.authService.setNewPassword(this.token, this.newPasswordRequest.newPassword).subscribe({
+    this.authService.changePassword(this.email, this.newPasswordRequest.newPassword).subscribe({
       next: (response) => {
         console.log('Password reset successfully:', response);
-        this.router.navigate(['/login']); 
-        
+        this.userService.hasSetPassword(this.email).subscribe({
+        })
+        if(this.role==="Administrateur"){
+          this.router.navigate(['/home/users']);
+        }else
+        this.router.navigate(['/home/books']);
       },
       error: (error) => {
         console.error('Error resetting password:', error);
-        this.errorMessage = 'Failed to reset password. Please try again.';
+        this.errorMessage = error.error?.message || 'Failed to reset password. Please try again.';
       }
     });
   }

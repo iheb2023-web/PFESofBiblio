@@ -39,7 +39,15 @@ export class LoginComponent {
         ).subscribe({
           next: (userMin) => {
             localStorage.setItem('user', JSON.stringify(userMin));
-            this.router.navigate(['/home/books']);
+            if(userMin.hasSetPassword==false){
+              this.router.navigate(['/newpassword'])
+            }else  {
+              if(userMin.role==="Administrateur"){
+                this.router.navigate(['/home/users']);
+              }else
+              this.router.navigate(['/home/books']);
+            }
+            
           },
           error: (error) => {
             console.error('Failed to fetch user info:', error);
