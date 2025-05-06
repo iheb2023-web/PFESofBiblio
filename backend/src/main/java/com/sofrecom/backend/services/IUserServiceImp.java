@@ -137,4 +137,13 @@ public class IUserServiceImp implements IUserService {
         return this.userRepository.findIdByEmail(email);
     }
 
+    @Override
+    public Long numberOfBorrowsByUser(String email) {
+        return this.userRepository.numbreOfBorrowsByUser(email);
+    }
+    @Override
+    public Long numberOfBooksByUser(String email) {
+        return this.userRepository.numbreOfBooksByUser(email);
+    }
+
 }

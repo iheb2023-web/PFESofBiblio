@@ -20,4 +20,7 @@ public interface IUserService {
     User findById(Long id);
 
     Long getIdFromEmail(String email);
+    Long numberOfBooksByUser(String email);
+    Long numberOfBorrowsByUser(String email);
+
 }

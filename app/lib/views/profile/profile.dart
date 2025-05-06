@@ -13,6 +13,8 @@ class ProfilePage extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
+    final authController = AuthController();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('profile'.tr),
@@ -44,30 +46,13 @@ class ProfilePage extends GetView<AuthController> {
             children: [
               ProfileHeader(
                 user: user,
-                borrowsCount: 12,
-                booksCount: 8,
+                borrowsCount: authController.numberOfBorrowsByUser(
+                  user.email,
+                ), // Future<int?>
+                booksCount: authController.numberOfBooksByUser(user.email),
                 toReadCount: 4,
               ),
               const SizedBox(height: 10),
-
-              // ProfileOption(
-              //   icon: Icons.person_outline,
-              //   title: 'Éditer le profil',
-              //   subtitle: 'Modifier vos informations personnelles',
-              //   onTap: () async {
-              //     final freshUser = await controller.getUserById(user.id!);
-              //     if (freshUser != null) {
-              //       Get.offAll(() => EditProfilePage(user: freshUser));
-              //       print("number de phone : ${freshUser.phone}");
-              //     } else {
-              //       Get.snackbar(
-              //         'Erreur',
-              //         'Impossible de charger les données du profil',
-              //         snackPosition: SnackPosition.BOTTOM,
-              //       );
-              //     }
-              //   },
-              // ),
               ProfileOption(
                 icon: Icons.person_outline,
                 title: 'Éditer le profil',

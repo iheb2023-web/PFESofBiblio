@@ -1,82 +1,18 @@
-import 'package:app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:app/theme/app_theme.dart';
 import 'package:app/controllers/theme_controller.dart';
-
-class CurrentPasswordField extends StatefulWidget {
-  final TextEditingController controller;
-  final ThemeController themeController;
-
-  const CurrentPasswordField({
-    super.key,
-    required this.controller,
-    required this.themeController,
-  });
-
-  @override
-  State<CurrentPasswordField> createState() => _CurrentPasswordFieldState();
-}
-
-class _CurrentPasswordFieldState extends State<CurrentPasswordField> {
-  bool _isVisible = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'current_password'.tr,
-          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: widget.controller,
-          obscureText: !_isVisible,
-          decoration: InputDecoration(
-            hintText: 'enter_current_password'.tr,
-            prefixIcon: const Icon(Icons.lock_outline),
-            suffixIcon: IconButton(
-              icon: Icon(_isVisible ? Icons.visibility_off : Icons.visibility),
-              onPressed: () => setState(() => _isVisible = !_isVisible),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color:
-                    widget.themeController.isDarkMode
-                        ? Colors.white24
-                        : Colors.grey[300]!,
-              ),
-            ),
-            filled: true,
-            fillColor:
-                widget.themeController.isDarkMode
-                    ? AppTheme.darkSurfaceColor
-                    : AppTheme.lightSurfaceColor,
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'please_enter_current_password'.tr;
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-}
 
 class NewPasswordField extends StatefulWidget {
   final TextEditingController controller;
-  final ThemeController themeController;
   final ValueChanged<String>? onChanged;
+  final ThemeController themeController;
 
   const NewPasswordField({
     super.key,
     required this.controller,
-    required this.themeController,
     this.onChanged,
+    required this.themeController,
   });
 
   @override
@@ -171,7 +107,7 @@ class _ConfirmPasswordFieldState extends State<ConfirmPasswordField> {
           obscureText: !_isVisible,
           decoration: InputDecoration(
             hintText: 'confirm_new_password'.tr,
-            prefixIcon: const Icon(Icons.lock_outline),
+            prefixIcon: const Icon(Icons.lock_reset),
             suffixIcon: IconButton(
               icon: Icon(_isVisible ? Icons.visibility_off : Icons.visibility),
               onPressed: () => setState(() => _isVisible = !_isVisible),

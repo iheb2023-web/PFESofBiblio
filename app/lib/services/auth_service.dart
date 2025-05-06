@@ -191,4 +191,80 @@ class AuthService {
       throw Exception('Erreur réseau: $e');
     }
   }
+
+  Future<Map<String, dynamic>> resetPassword(
+    String token,
+    String newPassword,
+  ) async {
+    final Uri url = Uri.parse('$baseUrl/password-reset/reset');
+    try {
+      final response = await http.put(
+        url,
+        headers: await getHeaders(),
+        body: json.encode({'token': token, 'password': newPassword}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          'success': true,
+          'message': 'Mot de passe réinitialisé avec succès',
+        };
+      } else {
+        return {
+          'success': false,
+          'message':
+              'Erreur lors de la réinitialisation du mot de passe: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Erreur: $e'};
+    }
+  }
+
+  static Future<int?> numberOfBorrowsByUSer(String email) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/numberOfBorrows/$email'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return data;
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        throw Exception(
+          'Échec de la récupération du user: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau: $e');
+    }
+  }
+
+  static Future<int?> numberOfBooksByUSer(String email) async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/numberOfBooks/$email'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        return data;
+      } else if (response.statusCode == 404) {
+        return null;
+      } else {
+        throw Exception(
+          'Échec de la récupération du user: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau: $e');
+    }
+  }
 }
