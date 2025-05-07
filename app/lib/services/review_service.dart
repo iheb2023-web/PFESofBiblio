@@ -85,4 +85,50 @@ class ReviewService {
     }
     return null;
   }
+
+  // Mettre à jour un avis
+  static Future<Review?> updateReview(int id, Review review) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/$id'),
+        headers: {
+          ...await AuthService.getHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(review.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        return Review.fromJson(json.decode(response.body));
+      } else {
+        print(
+          "Erreur lors de la mise à jour: ${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      print("Exception updateReview: $e");
+    }
+    return null;
+  }
+
+  // Supprimer un avis
+  static Future<bool> deleteReview(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/$id'),
+        headers: await AuthService.getHeaders(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        return true;
+      } else {
+        print(
+          "Erreur suppression review: ${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      print("Exception deleteReview: $e");
+    }
+    return false;
+  }
 }

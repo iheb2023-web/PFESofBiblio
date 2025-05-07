@@ -117,7 +117,7 @@ class AuthController extends GetxController {
 
       Get.snackbar(
         'Erreur',
-        e.toString(),
+        'Merci de vérifier que vos identifiants sont corrects. :(',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

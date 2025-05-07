@@ -69,6 +69,8 @@ class PreferenceController extends GetxController {
         'Succès',
         'Préférences enregistrées avec succès',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
       errorMessage.value = e.toString();

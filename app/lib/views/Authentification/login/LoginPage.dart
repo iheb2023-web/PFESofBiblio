@@ -240,23 +240,9 @@ class _LoginPageState extends State<LoginPage> {
                       } else {
                         Get.offAll(() => ChangePasswordPage(email: email));
                       }
-                    } else {
-                      Get.snackbar(
-                        'error'.tr,
-                        'incorrect_credentials'.tr,
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.red,
-                        colorText: Colors.white,
-                      );
                     }
                   } catch (e) {
-                    Get.snackbar(
-                      'error'.tr,
-                      e.toString(),
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red,
-                      colorText: Colors.white,
-                    );
+                    print("probleme");
                   }
                 },
                 child: Text(

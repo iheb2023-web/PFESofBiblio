@@ -207,4 +207,6 @@ const Map<String, String> fr = {
       'Assurez-vous que votre mot de passe est fort et sécurisé',
   'password_changed_successfully': 'Mot de passe changé avec succès',
   'reset_password': 'Changer votre Mot de passe',
+  'edit_review': 'Modifier votre avis',
+  'save_changes': 'Confirmer',
 };
