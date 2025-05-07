@@ -69,8 +69,8 @@ class AuthService {
               'birthday': userInfo['birthday']?.toString(),
               'phone': userInfo['phone']?.toString(),
               'address': userInfo['address']?.toString(),
-              'hasPreference': userInfo['hasPreference'] ?? false,
-              'hasSetPassword': userInfo['hasSetPassword'] ?? false,
+              'hasPreference': userInfo['hasPreference'],
+              'hasSetPassword': userInfo['hasSetPassword'],
             };
 
             try {
@@ -155,7 +155,6 @@ class AuthService {
         headers: headers,
         body: json.encode(userData),
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return User.fromJson(data);
@@ -193,19 +192,16 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> resetPassword(
-    String token,
+    String email,
     String newPassword,
   ) async {
-    final Uri url = Uri.parse('$baseUrl/password-reset/reset');
+    final Uri url = Uri.parse(
+      '$baseUrl/password-reset/changePassword?email=$email&password=$newPassword',
+    );
     try {
-      final response = await http.put(
-        url,
-        headers: await getHeaders(),
-        body: json.encode({'token': token, 'password': newPassword}),
-      );
+      final response = await http.put(url, headers: await getHeaders());
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
         return {
           'success': true,
           'message': 'Mot de passe réinitialisé avec succès',

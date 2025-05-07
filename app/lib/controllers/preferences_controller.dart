@@ -1,10 +1,7 @@
 import 'package:app/imports.dart';
 import 'package:app/models/temporary_prefernces.dart';
 import 'package:app/services/preferences_service.dart';
-import 'package:app/services/storage_service.dart';
-import 'package:get/get.dart';
 import 'package:app/models/preference.dart';
-import 'package:app/controllers/auth_controller.dart';
 
 class PreferenceController extends GetxController {
   final PreferenceService _preferenceService = PreferenceService();

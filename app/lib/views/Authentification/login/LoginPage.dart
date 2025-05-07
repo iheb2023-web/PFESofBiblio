@@ -17,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   final AuthController authController = Get.find<AuthController>();
   final StorageService _storageService = StorageService();
-  String? token;
+  String? email;
   bool _isHidden = true;
   final LocalAuthentication auth = LocalAuthentication();
   bool _canCheckBiometrics = false;
@@ -39,9 +39,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _loadToken() {
-    setState(() {
-      token = _storageService.getAuthToken();
-    });
+    final user = authController.currentUser.value;
+    if (user != null) {
+      setState(() {
+        email = user.email;
+      });
+    } else {
+      print("Aucun utilisateur connecté");
+    }
   }
 
   // Authentifier avec la biométrie
@@ -222,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                               .currentUser
                               .value!; // Utilisation de '!' pour accéder à l'objet non nul
                       if (currentUser.hasSetPassword != null &&
-                          !currentUser.hasSetPassword!) {
+                          currentUser.hasSetPassword!) {
                         if (currentUser.hasPreference != null &&
                             currentUser.hasPreference!) {
                           // Si 'hasPreference' est true, redirige vers le menu de navigation
@@ -233,12 +238,9 @@ class _LoginPageState extends State<LoginPage> {
                           Get.offAll(() => const PreferencesPage());
                         }
                       } else {
-                        Get.offAll(() => ChangePasswordPage(resetToken: token));
-                        print("**************** token : ${token}");
+                        Get.offAll(() => ChangePasswordPage(email: email));
                       }
                     } else {
-                      // Si 'currentUser' est null, affichage d'un message d'erreur
-
                       Get.snackbar(
                         'error'.tr,
                         'incorrect_credentials'.tr,
