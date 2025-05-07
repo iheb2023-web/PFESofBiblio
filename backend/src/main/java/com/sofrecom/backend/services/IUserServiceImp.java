@@ -103,7 +103,7 @@ public class IUserServiceImp implements IUserService {
         if (userDto.getRole() != null) {
             existingUser.setRole(userDto.getRole());
         }
- 
+
         if (userDto.getHasPreference() != null) {
             existingUser.setHasPreference(userDto.getHasPreference());
         }

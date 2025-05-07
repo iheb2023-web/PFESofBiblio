@@ -57,102 +57,345 @@ class _DetailsLivreState extends State<DetailsLivre>
   }
 
   void _showAddReviewDialog() {
+    _commentController.clear(); // Vide le contrôleur
+    int localRating = 0; // Commence avec 0 étoiles au lieu de _rating
+
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('add_review'.tr),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'your_rating'.tr,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              // Étoiles interactives
-              Row(
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text('add_review'.tr),
+              content: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(5, (index) {
-                  return IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _rating = index + 1;
-                      });
-                      Navigator.of(context).pop();
-                      _showAddReviewDialog(); // Rouvrir avec la nouvelle note
-                    },
-                    icon: Icon(
-                      index < _rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
-                      size: 30,
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Votre avis',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _commentController,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Partagez votre expérience...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'your_rating'.tr,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('cancel'.tr),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final user = _authController.currentUser.value;
-
-                if (user == null || widget.book.id == null) {
-                  Get.snackbar("Erreur", "Utilisateur ou livre introuvable");
-                  return;
-                }
-
-                try {
-                  await _reviewController.addReview(
-                    Review(
-                      rating: _rating,
-                      comment: _commentController.text,
-                      userId: user.id!,
-                      bookId: widget.book.id!,
-                      publishedDate: DateTime.now().toIso8601String(),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            localRating = index + 1;
+                          });
+                        },
+                        icon: Icon(
+                          index < localRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                          size: 30,
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Votre avis',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Partagez votre expérience...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
                     ),
-                  );
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('cancel'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final user = _authController.currentUser.value;
 
-                  Navigator.pop(context); // Fermer la boîte de dialogue
+                    if (user == null || widget.book.id == null) {
+                      Get.snackbar(
+                        "Erreur",
+                        "Utilisateur ou livre introuvable",
+                      );
+                      return;
+                    }
 
-                  // Utiliser Future.delayed pour retarder l'affichage de la snackbar
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    Get.snackbar(
-                      'thank_you'.tr,
-                      'review_added'.tr,
-                      snackPosition: SnackPosition.BOTTOM,
+                    try {
+                      await _reviewController.addReview(
+                        Review(
+                          rating: localRating,
+                          comment: _commentController.text,
+                          userId: user.id!,
+                          bookId: widget.book.id!,
+                          publishedDate: DateTime.now().toIso8601String(),
+                        ),
+                      );
+
+                      setState(() {
+                        _rating = localRating; // Mettre à jour l'état global
+                      });
+
+                      Navigator.pop(context);
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        Get.snackbar(
+                          'thank_you'.tr,
+                          'review_added'.tr,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                        );
+                      });
+                    } catch (e) {
+                      Get.snackbar("Erreur", "Impossible d'ajouter l'avis");
+                    }
+                  },
+                  child: Text('publish'.tr),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // void _editReview(Review review) {
+  //   final commentController = TextEditingController(text: review.comment);
+  //   int currentRating = review.rating ?? 0;
+
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setDialogState) {
+  //           return AlertDialog(
+  //             title: Text('edit_review'.tr),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Text(
+  //                   'your_rating'.tr,
+  //                   style: const TextStyle(fontWeight: FontWeight.bold),
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 Row(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: List.generate(5, (index) {
+  //                     return IconButton(
+  //                       onPressed: () {
+  //                         setDialogState(() {
+  //                           currentRating = index + 1;
+  //                         });
+  //                       },
+  //                       icon: Icon(
+  //                         index < currentRating
+  //                             ? Icons.star
+  //                             : Icons.star_border,
+  //                         color: Colors.amber,
+  //                         size: 30,
+  //                       ),
+  //                     );
+  //                   }),
+  //                 ),
+  //                 const SizedBox(height: 16),
+  //                 const Text(
+  //                   'Votre avis',
+  //                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+  //                 ),
+  //                 const SizedBox(height: 8),
+  //                 TextField(
+  //                   controller: commentController,
+  //                   maxLines: 3,
+  //                   decoration: InputDecoration(
+  //                     hintText: 'Modifiez votre avis...',
+  //                     border: OutlineInputBorder(
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                     filled: true,
+  //                     fillColor: Colors.grey[100],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                 },
+  //                 child: Text('cancel'.tr),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () async {
+  //                   // Créer une copie de l'avis existant avec seulement les champs modifiés
+  //                   final updatedReview = review.copyWith(
+  //                     rating: currentRating,
+  //                     comment: commentController.text,
+  //                   );
+
+  //                   try {
+  //                     final success = await _reviewController.updateReview(
+  //                       review.id!,
+  //                       updatedReview,
+  //                     );
+
+  //                     if (success) {
+  //                       Navigator.pop(context);
+  //                       Get.snackbar(
+  //                         'Succès',
+  //                         'Avis mis à jour',
+  //                         snackPosition: SnackPosition.BOTTOM,
+  //                         backgroundColor: Colors.green,
+  //                         colorText: Colors.white,
+  //                       );
+  //                     } else {
+  //                       Get.snackbar(
+  //                         'Erreur',
+  //                         'Échec de la mise à jour de l\'avis',
+  //                         snackPosition: SnackPosition.BOTTOM,
+  //                         backgroundColor: Colors.red,
+  //                         colorText: Colors.white,
+  //                       );
+  //                     }
+  //                   } catch (e) {
+  //                     Get.snackbar(
+  //                       'Erreur',
+  //                       'Une erreur est survenue: ${e.toString()}',
+  //                       snackPosition: SnackPosition.BOTTOM,
+  //                     );
+  //                   }
+  //                 },
+  //                 child: Text('save_changes'.tr),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+  void _editReview(Review review) {
+    final commentController = TextEditingController(text: review.comment);
+    int currentRating = review.rating ?? 0;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setDialogState) {
+            return AlertDialog(
+              title: Text('edit_review'.tr),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'your_rating'.tr,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        onPressed: () {
+                          setDialogState(() {
+                            currentRating = index + 1;
+                          });
+                        },
+                        icon: Icon(
+                          index < currentRating
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 30,
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Votre avis',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Modifiez votre avis...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext, rootNavigator: true).pop();
+                  },
+                  child: Text('cancel'.tr),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final updatedReview = review.copyWith(
+                      rating: currentRating,
+                      comment: commentController.text,
                     );
-                  });
-                } catch (e) {
-                  Get.snackbar("Erreur", "Impossible d'ajouter l'avis");
-                }
-              },
-              child: Text('publish'.tr),
-            ),
-          ],
+
+                    try {
+                      final success = await _reviewController.updateReview(
+                        review.id!,
+                        updatedReview,
+                      );
+
+                      Navigator.of(dialogContext, rootNavigator: true).pop();
+
+                      if (success) {
+                        Get.snackbar(
+                          'Succès',
+                          'Avis mis à jour',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                        );
+                      } else {
+                        Get.snackbar(
+                          'Erreur',
+                          'Échec de la mise à jour de l\'avis',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
+                    } catch (e) {
+                      Navigator.of(dialogContext, rootNavigator: true).pop();
+                      Get.snackbar(
+                        'Erreur',
+                        'Une erreur est survenue: ${e.toString()}',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  },
+                  child: Text('save_changes'.tr),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -387,18 +630,7 @@ class _DetailsLivreState extends State<DetailsLivre>
                           ),
                           const SizedBox(height: 16),
                           // Notation
-                          // Row(
-                          //   children: List.generate(5, (index) {
-                          //     return Icon(
-                          //       Icons.star,
-                          //       color:
-                          //           index < widget.book.rating
-                          //               ? Colors.amber
-                          //               : Colors.grey[300],
-                          //       size: 20,
-                          //     );
-                          //   }),
-                          // ),
+
                           // Dans la section d'en-tête du livre
                           Row(
                             children: [
@@ -618,26 +850,110 @@ class _DetailsLivreState extends State<DetailsLivre>
                     ),
                     const SizedBox(height: 16),
 
-                    // Liste dynamique des avis
+                    //liste dynamique des avis
                     Obx(() {
                       final reviews = _reviewController.reviews;
+                      final currentUserId =
+                          _authController.currentUser.value!.id;
+
                       if (reviews.isEmpty) {
-                        return const Text("Aucun avis pour le moment.");
+                        return const Center(
+                          child: Text(
+                            "Aucun avis pour le moment.",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
                       }
+
                       return Column(
                         children:
                             reviews.map((review) {
-                              return Column(
-                                children: [
-                                  _buildAvis(
-                                    nom: review.username ?? "Utilisateur",
-                                    note: review.rating,
-                                    commentaire: review.comment,
-                                    date: _formatDate(review.publishedDate),
-                                    photoUrl: null,
+                              return Card(
+                                margin: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Ligne supérieure (avis + 3 points conditionnels)
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: _buildAvis(
+                                              nom:
+                                                  review.username ??
+                                                  "Utilisateur",
+                                              note: review.rating,
+                                              commentaire: review.comment,
+                                              date: _formatDate(
+                                                review.publishedDate,
+                                              ),
+                                              photoUrl: null,
+                                            ),
+                                          ),
+                                          // Afficher les 3 points SEULEMENT si l'utilisateur est l'auteur
+                                          if (currentUserId == review.userId)
+                                            PopupMenuButton<String>(
+                                              icon: const Icon(
+                                                Icons.more_vert,
+                                                color: Colors.grey,
+                                                size: 20,
+                                              ),
+                                              itemBuilder:
+                                                  (context) => [
+                                                    const PopupMenuItem(
+                                                      value: 'edit',
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.edit,
+                                                            color: Colors.blue,
+                                                            size: 20,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text("Modifier"),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const PopupMenuItem(
+                                                      value: 'delete',
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.delete,
+                                                            color: Colors.red,
+                                                            size: 20,
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text("Supprimer"),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                              onSelected: (value) {
+                                                if (value == 'edit') {
+                                                  _editReview(review);
+                                                }
+                                                if (value == 'delete') {
+                                                  _reviewController
+                                                      .deleteReview(review.id!);
+                                                }
+                                              },
+                                            ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 16),
-                                ],
+                                ),
                               );
                             }).toList(),
                       );

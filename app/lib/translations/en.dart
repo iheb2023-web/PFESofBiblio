@@ -207,4 +207,6 @@ const Map<String, String> en = {
   'update_password': 'Update Password',
   'password_requirements': 'Make sure your password is strong and secure',
   'password_changed_successfully': 'Password changed successfully',
+  'edit_review': 'Edit review',
+  'save_changes': 'Save changes',
 };

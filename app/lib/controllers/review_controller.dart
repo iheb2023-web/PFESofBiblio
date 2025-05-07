@@ -31,30 +31,22 @@ class ReviewController extends GetxController {
   }
 
   Future<bool> addReview(Review review) async {
+    if (_authController.currentUser.value?.email == null) {
+      error.value = 'User not authenticated';
+      return false;
+    }
+
     try {
       isLoading.value = true;
-      error.value = '';
-
-      final email = _authController.currentUser.value?.email;
-      if (email == null) {
-        error.value = 'User not authenticated';
-        return false;
-      }
-
-      review.userEmail = email;
+      review.userEmail = _authController.currentUser.value!.email;
 
       final addedReview = await ReviewService.addReview(review);
+      if (addedReview == null) return false;
 
-      if (addedReview != null) {
-        reviews.add(addedReview);
-        userReviews.add(addedReview);
-        return true;
-      } else {
-        error.value = 'Échec ajout review';
-        return false;
-      }
+      await loadReviewsForBook(review.bookId!); // Recharge tous les avis
+      return true;
     } catch (e) {
-      error.value = e.toString();
+      error.value = 'AddReview error: ${e.toString()}';
       return false;
     } finally {
       isLoading.value = false;
@@ -103,25 +95,113 @@ class ReviewController extends GetxController {
     }
   }
 
-  // double averageStars(int bookId) {
-  //   final bookReviews =
-  //       reviews.where((review) => review.bookId == bookId).toList();
-  //   if (bookReviews.isEmpty) return 0.7;
+  Future<Review?> fetchReviewById(int reviewId) async {
+    try {
+      isLoading.value = true;
+      final review = await ReviewService.getReviewById(reviewId);
+      if (review != null) {
+        print('Review récupéré: ${review.toJson()}');
+        return review;
+      } else {
+        error.value = 'Review introuvable';
+        return null;
+      }
+    } catch (e) {
+      error.value = 'Erreur lors de la récupération: $e';
+      return null;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
-  //   final totalRating = bookReviews.fold(
-  //     0.0,
-  //     (sum, review) => sum + review.rating,
-  //   );
-  //   return totalRating / bookReviews.length;
+  // Mettre à jour un avis
+  // Future<bool> updateReview(int id, Review updatedReview) async {
+  //   try {
+  //     isLoading.value = true;
+  //     error.value = '';
+
+  //     final email = _authController.currentUser.value?.email;
+  //     if (email == null) {
+  //       error.value = 'User not authenticated';
+  //       return false;
+  //     }
+
+  //     updatedReview.userEmail = email;
+
+  //     final result = await ReviewService.updateReview(id, updatedReview);
+
+  //     if (result != null) {
+  //       _updateReviewInLists(result);
+
+  //       return true;
+  //     } else {
+  //       error.value = 'Échec mise à jour review';
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     error.value = 'Erreur updateReview: $e';
+  //     print(error.value);
+  //     return false;
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
   // }
-  // double averageStars() {
-  //   if (reviews.isEmpty) return 0.0;
+  Future<bool> updateReview(int id, Review updatedReview) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
 
-  //   final totalRating = reviews.fold<double>(
-  //     0.0,
-  //     (sum, review) => sum + review.rating,
-  //   );
+      final email = _authController.currentUser.value?.email;
+      if (email == null) {
+        error.value = 'User not authenticated';
+        return false;
+      }
 
-  //   return totalRating / reviews.length;
-  // }
+      updatedReview.userEmail = email;
+
+      final result = await ReviewService.updateReview(id, updatedReview);
+
+      if (result != null) {
+        _updateReviewInLists(result);
+        // Recharger les avis pour le livre après la mise à jour
+        final rev = await fetchReviewById(id);
+        await loadReviewsForBook(rev!.bookId);
+        print("voici id de livre    ${updatedReview}");
+        return true;
+      } else {
+        error.value = 'Échec mise à jour review';
+        return false;
+      }
+    } catch (e) {
+      error.value = 'Erreur updateReview: $e';
+      print(error.value);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Supprimer un avis
+  Future<bool> deleteReview(int id) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+
+      final success = await ReviewService.deleteReview(id);
+      if (success) {
+        reviews.removeWhere((review) => review.id == id);
+        userReviews.removeWhere((review) => review.id == id);
+        return true;
+      } else {
+        error.value = 'Échec suppression review';
+        return false;
+      }
+    } catch (e) {
+      error.value = 'Erreur deleteReview: $e';
+      print(error.value);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

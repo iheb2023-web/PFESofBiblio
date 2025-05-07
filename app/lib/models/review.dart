@@ -31,6 +31,7 @@ class Review {
       rating: json['rating'] ?? 0,
       publishedDate: json['createdAt'] ?? '',
       bookId:
+          json['book']?['id'] ??
           0, // Par défaut à 0, car pas présent dans ce JSON (à remplir manuellement si besoin)
       userId: user?['id'],
       username:
@@ -54,5 +55,22 @@ class Review {
     }
 
     return jsonMap;
+  }
+
+  Review copyWith({
+    int? rating,
+    String? comment,
+    // Ne pas inclure les autres champs que vous ne voulez pas modifier
+  }) {
+    return Review(
+      id: this.id,
+      rating: rating ?? this.rating,
+      comment: comment ?? this.comment,
+      // Conservez tous les autres champs tels quels
+      bookId: this.bookId,
+      userId: this.userId,
+      publishedDate: this.publishedDate,
+      username: this.username,
+    );
   }
 }
