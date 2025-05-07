@@ -121,6 +121,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       };
 
       await authController.updateUserProfile(userData);
+      Get.snackbar(
+        'Succès',
+        'Profil mis à jour avec succès',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
     } catch (e) {
     } finally {
       setState(() => isLoading = false);

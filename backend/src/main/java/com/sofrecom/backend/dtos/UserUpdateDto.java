@@ -25,8 +25,8 @@ public class UserUpdateDto {
     private Long number;
     @Enumerated(EnumType.STRING)
     private Role role;
-    private boolean hasPreference;
-    private boolean hasSetPassword;
+    private Boolean hasPreference;
+    private Boolean hasSetPassword;
 
     public UserUpdateDto(Long id, String firstname, String lastname, String email, String image, String job, LocalDate birthday, Long number, Role role) {
         this.id = id;

@@ -15,6 +15,7 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final RxBool isLoggedIn = false.obs;
+  var hasSetPassword = false.obs;
 
   String get baseUrl => AppConfig.apiBaseUrl;
 
@@ -205,14 +206,6 @@ class AuthController extends GetxController {
         userData,
       );
       currentUser.value = updatedUser;
-
-      Get.snackbar(
-        'Succès',
-        'Profil mis à jour avec succès',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
@@ -265,7 +258,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> resetPassword(String token, String newPassword) async {
+  Future<void> resetPassword(String newPassword) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -274,7 +267,28 @@ class AuthController extends GetxController {
         throw Exception('Le nouveau mot de passe ne peut pas être vide');
       }
 
-      final response = await _authService.resetPassword(token, newPassword);
+      final user = currentUser.value;
+      if (user == null || user.email.isEmpty) {
+        throw Exception(
+          "Impossible de récupérer l'email de l'utilisateur connecté",
+        );
+      }
+
+      hasSetPassword.value = true;
+      if (user != null) {
+        final updatedUser = user.copyWith(hasSetPassword: true);
+        final userData = {
+          'id': updatedUser.id,
+          'email': updatedUser.email,
+          'hasSetPassword': updatedUser.hasSetPassword,
+        };
+
+        await updateUserProfile(userData);
+      }
+
+      final email = user.email;
+
+      final response = await _authService.resetPassword(email, newPassword);
 
       if (response['success'] == true) {
         Get.snackbar(
@@ -284,7 +298,6 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        // Rediriger vers la page de connexion après réinitialisation réussie
         Get.offAll(() => const LoginPage());
       } else {
         throw Exception(response['message']);

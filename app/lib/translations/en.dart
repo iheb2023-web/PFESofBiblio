@@ -195,6 +195,7 @@ const Map<String, String> en = {
   'enter_current_password': 'Enter your current password',
   'please_enter_current_password': 'Please enter your current password',
   'new_password': 'New Password',
+  'reset_password': 'Change Password',
   'enter_new_password': 'Enter your new password',
   'please_enter_new_password': 'Please enter your new password',
   'password_too_short': 'Password must be at least 8 characters long',

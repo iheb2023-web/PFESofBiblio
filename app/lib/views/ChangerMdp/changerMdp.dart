@@ -6,9 +6,8 @@ import 'package:get/get.dart';
 import 'package:app/controllers/theme_controller.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  final String?
-  resetToken; // Si vous utilisez un token pour la réinitialisation
-  const ChangePasswordPage({super.key, this.resetToken});
+  final String? email; // Si vous utilisez un token pour la réinitialisation
+  const ChangePasswordPage({super.key, this.email});
 
   @override
   State<ChangePasswordPage> createState() => _ChangePasswordPageState();
@@ -35,18 +34,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     try {
       // Appel au AuthController pour réinitialiser le mot de passe
       await Get.find<AuthController>().resetPassword(
-        widget.resetToken ?? '', // Utilisez le token si disponible
         _newPasswordController.text,
       );
-
-      Get.snackbar(
-        'success'.tr,
-        'password_reset_successfully'.tr,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
       // Rediriger vers la page de connexion
       Get.offAll(() => const LoginPage());
     } catch (e) {

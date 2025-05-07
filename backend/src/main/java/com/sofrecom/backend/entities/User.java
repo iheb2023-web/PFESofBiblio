@@ -42,9 +42,9 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Preference preference;
 
-    private boolean hasPreference;
+    private Boolean hasPreference;
 
-    private boolean hasSetPassword;
+    private Boolean hasSetPassword;
 
 
     @Override

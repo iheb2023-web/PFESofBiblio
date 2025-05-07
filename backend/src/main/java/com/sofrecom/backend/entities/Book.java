@@ -40,8 +40,6 @@ public class Book {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-
-
     @JsonIgnore
     @OneToMany(mappedBy = "book")
     private List<Borrow> borrows;
