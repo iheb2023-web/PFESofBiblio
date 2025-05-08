@@ -2,7 +2,6 @@ package com.sofrecom.backend.controllers;
 
 import com.sofrecom.backend.dtos.*;
 import com.sofrecom.backend.entities.User;
-import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
 import com.sofrecom.backend.services.AuthenticationService;
 import com.sofrecom.backend.services.CloudinaryService;
 import com.sofrecom.backend.services.IUserService;
@@ -14,13 +13,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -52,9 +48,9 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
     @GetMapping
     public Page<UserDto> getUsers(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "5") int size) {
+                                  @RequestParam(defaultValue = "5") int size,  @RequestParam(required = false) String search) {
         Pageable pageable = PageRequest.of(page, size);
-        return userService.getUsers(pageable);
+        return userService.getUsers(pageable, search);
     }
 
     @GetMapping("/usermininfo/{email}")

@@ -1,0 +1,72 @@
+// Additional card view styles
+
+// Avatar sizing
+.avatar {
+    position: relative;
+    display: inline-block;
+    
+    &.avatar-xs {
+      width: 2rem;
+      height: 2rem;
+    }
+    
+    &.avatar-xl {
+      width: 5rem;
+      height: 5rem;
+    }
+    
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  // Card hover effect
+  .card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+  
+  // Rating star color
+  .text-warning {
+    color: #f7c32e !important;
+  }
+  
+  // User card specific styles
+  .btn-outline-primary-soft {
+    color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    border-color: rgba(var(--bs-primary-rgb), 0.1);
+    
+    &:hover {
+      color: #fff;
+      background-color: var(--bs-primary);
+      border-color: var(--bs-primary);
+    }
+  }
+  
+  // Toggle buttons
+  .btn-group .btn {
+    &.btn-outline-primary {
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+  
+  // Responsive adjustments for card view
+  @media (max-width: 767.98px) {
+    .card-body.text-center {
+      padding: 1rem;
+    }
+    
+    .avatar.avatar-xl {
+      width: 4rem;
+      height: 4rem;
+    }
+  }

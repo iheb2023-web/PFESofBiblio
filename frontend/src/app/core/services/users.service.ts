@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 @Injectable({
@@ -19,13 +19,18 @@ import { Injectable } from "@angular/core";
             return this._http.get<any>(`${this.URL}/${userId}`);
           }
 
-      getUsersWithPagination(page: number, pageSize: number){
-        const params = {
-          page: page.toString(),
-          size: pageSize.toString()
-        };
-        return this._http.get<any>(this.URL, { params });
-      }
+          getUsersWithPagination(page: number, pageSize: number, search: string = '') {
+            let params = new HttpParams()
+              .set('page', page.toString())
+              .set('size', pageSize.toString());
+          
+            if (search && search.trim() !== '') {
+              params = params.set('search', search.trim());
+            }
+          
+            return this._http.get<any>(this.URL, { params });
+          }
+          
 
       getIdFromEmail(email :any )
       {

@@ -5,6 +5,7 @@ import { AddUserComponent } from './add-user/add-user.component';
 import { UpdateUserComponent } from './update-user/update-user.component';
 import { AuthGuard } from 'src/app/core/guards/auth-guard.guard';
 import { AdminGuard } from 'src/app/core/guards/admin-guard.guard';
+import { ProfileComponent } from '../shared/profile/profile.component';
 
 const routes: Routes = [
   { path: '', component: ListUserComponent,  canActivate: [AuthGuard,AdminGuard]}, 
@@ -13,7 +14,16 @@ const routes: Routes = [
     path: 'update/:id',
     component: UpdateUserComponent,
     canActivate: [AuthGuard,AdminGuard]
+  },
+  {
+    path: 'profile',
+    component : ProfileComponent
+  },
+  {
+    path: 'profile/:id',
+    component : ProfileComponent
   }
+
 
 ];
 

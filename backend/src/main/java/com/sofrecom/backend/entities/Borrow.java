@@ -1,6 +1,5 @@
 package com.sofrecom.backend.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sofrecom.backend.enums.BorrowStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

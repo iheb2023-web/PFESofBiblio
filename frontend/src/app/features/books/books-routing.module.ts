@@ -10,6 +10,8 @@ import { LibraryComponent } from './library/library.component';
 import { RequestsComponent } from './requests/requests.component';
 import { AuthGuard } from 'src/app/core/guards/auth-guard.guard';
 import { ColabGuard } from 'src/app/core/guards/colab-guard.guard';
+import { ProfileComponent } from '../shared/profile/profile.component';
+import { UpdateUserComponent } from '../users/update-user/update-user.component';
 
 const routes: Routes = [
   {path:"", component : BookListComponent, canActivate: [AuthGuard,ColabGuard]},
@@ -30,6 +32,19 @@ const routes: Routes = [
       { path: "mybooks", component: MyBooksComponent, canActivate: [AuthGuard,ColabGuard] },
       { path: "demands", component: DemandesComponent, canActivate: [AuthGuard,ColabGuard] },
       { path: "requests", component: RequestsComponent, canActivate: [AuthGuard,ColabGuard] },
+      {
+        path: 'profile',
+        component : ProfileComponent
+      },
+      {
+          path: 'profile/:id',
+          component : ProfileComponent
+        },
+         {
+            path: 'update/:id',
+            component: UpdateUserComponent,
+            canActivate: [AuthGuard,ColabGuard]
+          }
     ],
   }
 

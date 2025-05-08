@@ -11,7 +11,7 @@ import java.util.List;
 public interface IUserService {
     public List<User> getAllUsers();
     public AuthenticationResponse addUser(RegisterRequest registerRequest);
-    public Page<UserDto> getUsers(Pageable pageable);
+    public Page<UserDto> getUsers(Pageable pageable, String searchTerm);
     public void deleteUser(Long id);
     public UserMinDto getUserMinInfo(String email);
 

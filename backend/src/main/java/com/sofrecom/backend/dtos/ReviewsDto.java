@@ -1,7 +1,6 @@
 package com.sofrecom.backend.dtos;
 
 
-import com.sofrecom.backend.entities.Book;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

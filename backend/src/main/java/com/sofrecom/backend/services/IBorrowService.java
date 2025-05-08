@@ -29,4 +29,6 @@ public interface IBorrowService {
     List<OccupiedDates> getBookOccupiedDatesUpdatedBorrow(Long bookId, Long borrowId);
 
     Borrow updateBorrowWhilePending(Borrow borrow);
+
+    void markAsReturned(Long idBorrow);
 }

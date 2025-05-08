@@ -1,7 +1,6 @@
 package com.sofrecom.backend.repositories;
 
 import com.sofrecom.backend.dtos.OccupiedDates;
-import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
-    @Query("SELECT  b FROM Borrow b WHERE b.book.owner.email = :email AND b.BorrowStatus = 'PENDING'")
+    @Query("SELECT b FROM Borrow b WHERE b.book.owner.email = :email AND b.BorrowStatus IN ('PENDING', 'IN_PROGRESS')")
     List<Borrow> findBorrowDemandsByOwnerEmail(@Param("email") String email);
 
     @Query("SELECT  b FROM Borrow b WHERE b.borrower.email = :email")
@@ -39,8 +38,6 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
             "AND b.borrowDate >= CURRENT_DATE")
     List<OccupiedDates> getBookOccupiedDatesByBookId(@Param("bookId") Long bookId);
 
-    //@Query("SELECT b from Borrow b where b.BorrowStatus = 'IN_PROGRESS' and b.borrowDate>")
-    //findBorrowInProgress(@Param("borrow") Borrow);
 
     @Query("select b from Borrow b where b.borrowDate = CURRENT_DATE and b.BorrowStatus = 'APPROVED'")
     List<Borrow> findApprovedBorrowsToday();

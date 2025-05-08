@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Random;
@@ -61,9 +62,20 @@ public class IUserServiceImp implements IUserService {
                 .build();
     }
 
-    @Override
+  /* @Override
     public Page<UserDto> getUsers(Pageable pageable) {
         return userRepository.findAllUsers(pageable);
+    } */
+
+    @Override
+    public Page<UserDto> getUsers(Pageable pageable, String searchTerm) {
+        if (StringUtils.hasText(searchTerm)) {
+            // If search term is provided, use the search method
+            return userRepository.findBySearchTerm(searchTerm, pageable);
+        } else {
+            // Otherwise, return all users with pagination
+            return userRepository.findAllUsers(pageable);
+        }
     }
 
     @Override

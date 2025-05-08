@@ -52,11 +52,16 @@ export class NewPasswordComponent implements OnInit {
       next: (response) => {
         console.log('Password reset successfully:', response);
         this.userService.hasSetPassword(this.email).subscribe({
+          next : (response) => {
+            if(this.role==="Administrateur"){
+              this.router.navigate(['/home/users']);
+            }else
+            this.router.navigate(['/home/books']);
+
+          }
+          
         })
-        if(this.role==="Administrateur"){
-          this.router.navigate(['/home/users']);
-        }else
-        this.router.navigate(['/home/books']);
+       
       },
       error: (error) => {
         console.error('Error resetting password:', error);

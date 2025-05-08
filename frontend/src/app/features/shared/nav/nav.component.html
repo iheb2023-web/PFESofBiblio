@@ -29,24 +29,74 @@
 			<!-- Main navbar END -->
 
 			<!-- Nav category menu START -->
-			<div class="navbar-collapse collapse" id="navbarCategoryCollapse">
-				<ul class="navbar-nav navbar-nav-scroll nav-pills-primary-soft text-center ms-auto p-2 p-xl-0">
-					<!-- Nav item Hotel -->
-                    <li class="nav-item">
-                        <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books" >
-                          <i class="fa-solid fa-book me-2"></i>Book
-                        </a>
-                      </li>
-                      
-					<!-- Nav item Flight -->
-					<li class="nav-item"> <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books/library/mybooks"><i class="fa-solid fa-bars me-2"></i>Library</a>	</li>
-
-					
-				
-				</ul>
-			</div>
+			<div class="navbar-collapse collapse justify-content-center" id="navbarCategoryCollapse">
+				<div class="bg-light rounded-4 shadow-sm px-4 py-2">
+				  <ul class="navbar-nav navbar-nav-scroll nav-pills-primary-soft d-flex justify-content-center gap-3 mb-0">
+					<!-- Nav item Books -->
+					<li class="nav-item">
+					  <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books">
+						<i class="fa-solid fa-book me-2"></i>Books
+					  </a>
+					</li>
+			  
+					<!-- Nav item Library -->
+					<li class="nav-item">
+					  <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books/library/mybooks">
+						<i class="fa-solid fa-bars me-2"></i>Library
+					  </a>
+					</li>
+			  
+					<!-- Nav item Profile -->
+					<li class="nav-item">
+					  <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books/library/profile">
+						<i class="fa-solid fa-user me-2"></i>Profile
+					  </a>
+					</li>
+				  </ul>
+				</div>
+			  </div>
+			  
+			
 			<!-- Nav category menu END -->
+  <ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+                <!-- Dark mode options START -->
+                <li class="nav-item dropdown ms-3">
+                    <button class="nav-notification lh-0 btn btn-light p-0 mb-0" id="bd-theme"
+                    type="button"
+                    aria-expanded="false"
+                    data-bs-toggle="dropdown"
+                    data-bs-display="static">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw theme-icon-active" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+                            <use href="#"></use>
+                        </svg>
+                    </button>
 
+                    <ul class="dropdown-menu min-w-auto dropdown-menu-end" aria-labelledby="bd-theme">
+                        <li class="mb-1">
+                          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" (click)="changeTheme('light')">
+                            <i class="bi bi-brightness-high-fill fa-fw mode-switch me-1"></i>Light
+                          </button>
+                        </li>
+                        <li class="mb-1">
+                          <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" (click)="changeTheme('dark')">
+                            <i class="bi bi-moon-stars-fill fa-fw mode-switch me-1"></i>Dark
+                          </button>
+                        </li>
+                        <li>
+                          <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" (click)="changeTheme('auto')">
+                            <i class="bi bi-circle-half fa-fw mode-switch"></i>Auto
+                          </button>
+                        </li>
+                      </ul>
+                      
+                </li>
+                <!-- Dark mode options END-->
+
+          
+
+             
+            </ul>
 			<!-- Profile and Notification START -->
 			<ul class="nav flex-row align-items-center list-unstyled ms-xl-auto">
 

@@ -74,7 +74,7 @@
                       </div>
           
                       <!-- Action Buttons -->
-                      <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto">
+                      <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto" *ngIf="demand.borrowStatus === 'PENDING'">
                         <div class="d-flex align-items-center">
                           <h5 class="fw-bold mb-0 me-1"></h5>
                           <span class="mb-0 me-2"></span>
@@ -88,6 +88,20 @@
                           </a>
                         </div>
                       </div>
+
+                      <!-- Return button -->
+                      <div class="d-sm-flex justify-content-sm-between align-items-center mt-3 mt-md-auto" *ngIf="demand.borrowStatus === 'IN_PROGRESS'">
+                        <div class="d-flex align-items-center">
+                          <h5 class="fw-bold mb-0 me-1"></h5>
+                          <span class="mb-0 me-2"></span>
+                        </div>
+                        <div class="mt-3 mt-sm-0">
+                          <a class="btn btn-info-soft btn-sm mb-2 mb-sm-0" (click)="markAsReturned(demand.id)">
+                            Mark as returned
+                          </a>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </div>

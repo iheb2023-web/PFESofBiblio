@@ -16,6 +16,7 @@ export class UpdateUserComponent implements OnInit {
   imageUrl: string = '';
   imagePreview: string = '';
   userId: string | null = null; // To store the user ID from the route
+  localRole: string = "";
 
   constructor(
     private fb: FormBuilder,
@@ -28,6 +29,18 @@ export class UpdateUserComponent implements OnInit {
   ngOnInit(): void {
     // Get the user ID from the route
     this.userId = this.route.snapshot.paramMap.get('id');
+  
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        try {
+          const user = JSON.parse(userString);
+          this.localRole = user.role;
+          console.log(this.localRole)
+        } catch (e) {
+          console.error('Invalid user object in localStorage', e);
+        }
+      }
+    
 
     // Initialize the form
     this.userForm = this.fb.group({
@@ -124,6 +137,7 @@ export class UpdateUserComponent implements OnInit {
       if (response) {
         this.imageUrl = response; // URL of the uploaded image
         console.log('Image uploadée avec succès:', this.imageUrl);
+        console.log(this.localRole)
       } else {
         this.imageUrl = response;
         console.log(this.imageUrl);
@@ -144,7 +158,9 @@ export class UpdateUserComponent implements OnInit {
       this.userService.updateUser(this.userId, this.userForm.value).subscribe({
         next: (response) => {
           console.log('User updated successfully:', response);
-          this.router.navigate(['/home/users']);
+          if(this.localRole==="Collaborateur")
+            this.router.navigate(['/home/books/library/profile']);
+          else this.router.navigate(['/home/users']);
         },
         error: (error) => {
           console.error('Error updating user:', error);
