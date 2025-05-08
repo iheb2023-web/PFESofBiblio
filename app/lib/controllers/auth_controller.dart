@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:app/views/Authentification/login/code_reset.dart';
+import 'package:app/views/NavigationMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:app/models/user_model.dart';
@@ -23,6 +25,12 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     checkAuthStatus();
+  }
+
+  @override
+  void onReady() {
+    checkAuthStatus();
+    super.onReady();
   }
 
   Future<void> checkAuthStatus() async {
@@ -74,6 +82,36 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    isLoading(false);
+  }
+
+  Future<void> tryAutoLogin() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final token = await _storageService.getAuthToken();
+      final userSessionData = await _storageService.getUserSession();
+
+      if (token != null && userSessionData != null) {
+        final user = User.fromJson(userSessionData);
+
+        // Vérification minimale (sans appel API)
+        if (user.id != null && user.email.isNotEmpty) {
+          currentUser.value = user;
+          isLoggedIn.value = true;
+          update();
+          Get.offAll(() => const NavigationMenu()); // Redirige vers l'accueil
+        } else {
+          await _storageService.clearSession(); // Données corrompues
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Auto-login error: $e');
+      await _storageService.clearSession();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> login(String email, String password) async {
@@ -90,8 +128,10 @@ class AuthController extends GetxController {
       final user = await _authService.login(email, password);
 
       final userJson = user.toJson();
+      //final token = userJson['token'];
 
       await _storageService.saveUserSession(userJson);
+      //await _storageService.saveAuthToken(token);
 
       currentUser.value = user;
       isLoggedIn.value = true;
@@ -166,27 +206,81 @@ class AuthController extends GetxController {
     }
   }
 
+  // Future<void> requestPasswordReset(String email) async {
+  //   try {
+  //     isLoading.value = true;
+  //     errorMessage.value = '';
+
+  //     final result = await _authService.requestPasswordReset(email);
+
+  //     if (result['success'] == true) {
+  //       Get.snackbar(
+  //         'Succès',
+  //         result['message'] ?? 'Un email de réinitialisation a été envoyé',
+  //         snackPosition: SnackPosition.BOTTOM,
+  //         backgroundColor: Colors.green,
+  //         colorText: Colors.white,
+  //       );
+  //       Get.back();
+  //     } else {
+  //       errorMessage.value = result['message'] ?? 'Une erreur est survenue';
+  //       Get.snackbar(
+  //         'Erreur',
+  //         'Vérifier votre email',
+  //         snackPosition: SnackPosition.BOTTOM,
+  //         backgroundColor: Colors.red,
+  //         colorText: Colors.white,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     errorMessage.value = e.toString();
+  //     Get.snackbar(
+  //       'Erreur Exception',
+  //       errorMessage.value,
+  //       snackPosition: SnackPosition.BOTTOM,
+  //       backgroundColor: Colors.red,
+  //       colorText: Colors.white,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
   Future<void> requestPasswordReset(String email) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
 
-      await _authService.requestPasswordReset(email);
+      final result = await _authService.requestPasswordReset(email);
 
-      Get.snackbar(
-        'Succès',
-        'Un email de réinitialisation a été envoyé',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      if (result['success'] == true) {
+        Get.snackbar(
+          'Succès',
+          result['message'] ?? 'Un email de réinitialisation a été envoyé',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
 
-      Get.back();
+        // Redirection vers la page ResetCodePage après succès
+        Get.to(
+          () => ResetCodePage(email: email),
+          transition: Transition.fadeIn,
+        );
+      } else {
+        errorMessage.value = result['message'] ?? 'Une erreur est survenue';
+        Get.snackbar(
+          'Erreur',
+          'Vérifier votre email',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
       errorMessage.value = e.toString();
       Get.snackbar(
-        'Erreur',
-        e.toString(),
+        'Erreur Exception',
+        errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -194,6 +288,33 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Dans AuthController
+  Future<int> verifyResetCode(String email) async {
+    try {
+      isLoading.value = true;
+      final int code = await _authService.verifyResetCode(email);
+      return code; // Retourne le code numérique
+    } catch (e) {
+      print("Erreur dans AuthController.verifyResetCode : $e");
+      rethrow; // pour laisser l'erreur remonter au widget si besoin
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Fonction pour afficher le snackbar
+  void _showSnackbar(String title, String message, Color backgroundColor) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.snackbar(
+        title,
+        message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: backgroundColor,
+        colorText: Colors.white,
+      );
+    });
   }
 
   Future<void> updateUserProfile(Map<String, dynamic> userData) async {
@@ -287,6 +408,44 @@ class AuthController extends GetxController {
       }
 
       final email = user.email;
+
+      final response = await _authService.resetPassword(email, newPassword);
+
+      if (response['success'] == true) {
+        Get.snackbar(
+          'Succès',
+          response['message'],
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        Get.offAll(() => const LoginPage());
+      } else {
+        throw Exception(response['message']);
+      }
+    } catch (e) {
+      errorMessage.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      rethrow;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resetPasswordCode(String email, String newPassword) async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      if (newPassword.isEmpty) {
+        throw Exception('Le nouveau mot de passe ne peut pas être vide');
+      }
 
       final response = await _authService.resetPassword(email, newPassword);
 

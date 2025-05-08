@@ -40,7 +40,7 @@ public class PasswordResetController {
     }
 
     @GetMapping("/getTokenByEmail/{email}")
-    public String getPasswordResetToken(@PathVariable("email") String email) {
+    public String getPasswordResetCode(@PathVariable("email") String email) {
        return  this.passwordResetService.getTokenByEmail(email);
     }
 

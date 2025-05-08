@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/user_model.dart';
 import 'package:app/services/storage_service.dart';
@@ -16,159 +17,43 @@ class AuthService {
     };
   }
 
-  //  Future<User> login(String email, String password) async {
-  //   try {
-  //     final headers = await getHeaders();
+  Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+    final Uri url = Uri.parse('$baseUrl/password-reset/request?email=$email');
 
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/users/login'),
-  //       headers: headers,
-  //       body: json.encode({'email': email, 'password': password}),
-  //     );
+    try {
+      final response = await http.post(url);
 
-  //     if (response.statusCode == 200) {
-  //       try {
-  //         final data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': 'Un e-mail de réinitialisation a été envoyé',
+        };
+      } else {
+        return {'success': false, 'message': 'Erreur: ${response.body}'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Erreur réseau: $e'};
+    }
+  }
 
-  //         if (data == null) {
-  //           throw Exception('Réponse vide du serveur');
-  //         }
-  //         if (data['access_token'] == null) {
-  //           throw Exception('Token d\'accès manquant dans la réponse');
-  //         }
+  Future<int> verifyResetCode(String email) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${AppConfig.apiBaseUrl}/password-reset/getTokenByEmail/$email',
+        ),
+      );
 
-  //         final token = data['access_token'];
-
-  //         try {
-  //           await _storageService.saveAuthToken(token);
-
-  //           final userResponse = await http.get(
-  //             Uri.parse('$baseUrl/users/usermininfo/$email'),
-  //             headers: {
-  //               'Content-Type': 'application/json',
-  //               'Authorization': 'Bearer $token',
-  //             },
-  //           );
-
-  //           if (userResponse.statusCode != 200) {
-  //             throw Exception(
-  //               'Erreur lors de la récupération des données utilisateur',
-  //             );
-  //           }
-
-  //           final userInfo = json.decode(userResponse.body);
-
-  //           final userData = {
-  //             'id': userInfo['id'],
-  //             'email': userInfo['email'] ?? email,
-  //             'firstname': userInfo['firstname']?.toString() ?? '',
-  //             'lastname': userInfo['lastname']?.toString() ?? '',
-  //             'role': userInfo['role']?.toString() ?? 'USER',
-  //             'image': userInfo['image']?.toString(),
-  //             'job': userInfo['job']?.toString(),
-  //             'birthday': userInfo['birthday']?.toString(),
-  //             'phone': userInfo['phone']?.toString(),
-  //             'address': userInfo['address']?.toString(),
-  //             'hasPreference': userInfo['hasPreference'],
-  //             'hasSetPassword': userInfo['hasSetPassword'],
-  //           };
-
-  //           try {
-  //             final user = User.fromJson(userData);
-  //             await _storageService.saveUserSession(userData);
-
-  //             return user;
-  //           } catch (e) {
-  //             throw Exception(
-  //               'Erreur lors de la création de l\'utilisateur: $e',
-  //             );
-  //           }
-  //         } catch (e) {
-  //           throw Exception('Token invalide ou malformé: $e');
-  //         }
-  //       } catch (e) {
-  //         throw Exception('Format de réponse invalide: $e');
-  //       }
-  //     } else if (response.statusCode == 404 || response.statusCode == 401) {
-  //       throw Exception('Utilisateur non trouvé');
-  //     } else {
-  //       throw Exception(
-  //         'Erreur serveur: ${response.statusCode} - ${response.body}',
-  //       );
-  //     }
-  //   } on http.ClientException catch (e) {
-  //     throw Exception('Erreur de connexion au serveur: $e');
-  //   } on FormatException catch (e) {
-  //     throw Exception('Erreur de format de réponse: $e');
-  //   } catch (e) {
-  //     throw Exception('votreeeeee email et ou mot de passe est incorrect :(');
-  //   }
-  // }
-
-  // Future<User> login(String email, String password) async {
-  //   try {
-  //     final headers = await getHeaders();
-
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/users/login'),
-  //       headers: headers,
-  //       body: json.encode({'email': email, 'password': password}),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body);
-
-  //       if (data == null || data['access_token'] == null) {
-  //         throw Exception('Réponse invalide du serveur');
-  //       }
-
-  //       final token = data['access_token'];
-  //       await _storageService.saveAuthToken(token);
-
-  //       final userResponse = await http.get(
-  //         Uri.parse('$baseUrl/users/usermininfo/$email'),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Authorization': 'Bearer $token',
-  //         },
-  //       );
-
-  //       if (userResponse.statusCode != 200) {
-  //         throw Exception('Erreur lors de la récupération de l’utilisateur');
-  //       }
-
-  //       final userInfo = json.decode(userResponse.body);
-
-  //       final userData = {
-  //         'id': userInfo['id'],
-  //         'email': userInfo['email'] ?? email,
-  //         'firstname': userInfo['firstname']?.toString() ?? '',
-  //         'lastname': userInfo['lastname']?.toString() ?? '',
-  //         'role': userInfo['role']?.toString() ?? 'USER',
-  //         'image': userInfo['image']?.toString(),
-  //         'job': userInfo['job']?.toString(),
-  //         'birthday': userInfo['birthday']?.toString(),
-  //         'phone': userInfo['phone']?.toString(),
-  //         'address': userInfo['address']?.toString(),
-  //         'hasPreference': userInfo['hasPreference'],
-  //         'hasSetPassword': userInfo['hasSetPassword'],
-  //       };
-
-  //       final user = User.fromJson(userData);
-  //       await _storageService.saveUserSession(userData);
-
-  //       return user;
-  //     } else if (response.statusCode == 401) {
-  //       throw Exception('Email ou mot de passe incorrect');
-  //     } else if (response.statusCode == 404) {
-  //       throw Exception('Utilisateur non trouvé');
-  //     } else {
-  //       throw Exception('Erreur serveur: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     throw Exception('Erreur lors de la connexion : ${e.toString()}');
-  //   }
-  // }
+      if (response.statusCode == 200) {
+        // Retourner directement l'entier reçu dans la réponse
+        return int.parse(response.body);
+      } else {
+        throw Exception('Échec de la récupération du token');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<User> login(String email, String password) async {
     final headers = await getHeaders();
@@ -216,6 +101,7 @@ class AuthService {
         'address': userInfo['address']?.toString(),
         'hasPreference': userInfo['hasPreference'],
         'hasSetPassword': userInfo['hasSetPassword'],
+        'token': token,
       };
 
       final user = User.fromJson(userData);
@@ -244,30 +130,6 @@ class AuthService {
       } catch (e) {}
     } catch (e) {
       throw Exception('Erreur lors de la déconnexion: $e');
-    }
-  }
-
-  Future<void> requestPasswordReset(String email) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/password-reset/request'),
-        headers: await getHeaders(),
-        body: json.encode({'email': email}),
-      );
-      if (response.statusCode == 200) {
-      } else if (response.statusCode == 404) {
-        throw Exception('Aucun compte associé à cet email');
-      } else {
-        throw Exception(
-          'Erreur serveur: ${response.statusCode} - ${response.body}',
-        );
-      }
-    } on http.ClientException catch (e) {
-      throw Exception('Erreur de connexion au serveur: $e');
-    } on FormatException catch (e) {
-      throw Exception('Erreur de format de réponse: $e');
-    } catch (e) {
-      throw Exception('Erreur lors de la réinitialisation du mot de passe: $e');
     }
   }
 
