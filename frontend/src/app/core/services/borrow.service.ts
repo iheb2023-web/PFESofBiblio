@@ -7,6 +7,7 @@ import { OccupiedDates } from "../dtos/OccupiedDates";
   providedIn: 'root'
 })
 export class BorrowService {
+ 
 
  
     private URL ='http://localhost:8080/borrows';
@@ -18,6 +19,10 @@ export class BorrowService {
         
         return this.http.post(this.URL, borrow);
      }
+
+     updateBorrowWhilePending(borrow : any) {
+      return this.http.put(this.URL+"/updateBorrowWhilePending", borrow);
+      }
 
      getBookOccupiedDatesByBookId(bookId: number): Observable<OccupiedDates[]> {
       return this.http.get<OccupiedDates[]>(this.URL + `/BookOccupiedDates/${bookId}`)
@@ -56,4 +61,14 @@ export class BorrowService {
      {
       return this.http.put(this.URL+`/cancelWhileInProgress/${id}`,{})
      }
+
+     getBookOccupiedDatesByBookIdForUpdatedBorrow(bookId: any ,borrowId : any)
+     : Observable<OccupiedDates[]> {
+      return this.http.get<OccupiedDates[]>(this.URL + `/getBookOccupiedDatesUpdatedBorrow/${bookId}/${borrowId}`)
+    }
+
+    markAsReturned(idBorrow : any)
+    {
+      return this.http.put(this.URL+`/markAsReturned/${idBorrow}`,{})
+    }
 }

@@ -1,142 +1,269 @@
-
-      
-      <div class="page-content-wrapper p-xxl-4">
-  
-        <!-- Title -->
-        <div class="row">
-          <div class="col-12 mb-4 mb-sm-5">
-            <div class="d-sm-flex justify-content-between align-items-center">
-              <h1 class="h3 mb-3 mb-sm-0">User List</h1>
-              <div class="d-grid"><a href="#" class="btn btn-primary mb-0"><i class="bi bi-filetype-pdf me-2"></i>Generate Report</a></div>
-            </div>
-          </div>
-        </div>
-  
-        <!-- Filters START -->
-        <div class="row g-4 align-items-center">
-          <!-- Tabs -->
-         
-  
-          <!-- Search -->
-          <div class="col-md-6 col-lg-3">
-            <form class="rounded position-relative">
-              <input class="form-control bg-transparent" type="search" placeholder="Search" aria-label="Search">
-              <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
-                <i class="fas fa-search fs-6"></i>
-              </button>
-            </form>
-          </div>
-  
-       
-         
-        </div>
-        <!-- Filters END -->
-  
-        <!-- User List START -->
-        <div class="card shadow mt-5">
-          <!-- Card body START -->
-          <div class="card-body">
-            <!-- Table head -->
-            <div class="bg-light rounded p-3 d-none d-lg-block">
-              <div class="row row-cols-7 g-4">
-                <div class="col"><h6 class="mb-0">User</h6></div>
-                <div class="col"><h6 class="mb-0">Email</h6></div>
-                <div class="col"><h6 class="mb-0">Job</h6></div>
-                <div class="col"><h6 class="mb-0">Action</h6></div>
-              </div>
-            </div>
-  
-            <!-- Table data -->
-            <div *ngFor="let user of users" class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
-              <div class="col">
-                <div class="d-flex align-items-center">
-                  <!-- Avatar -->
-                  <div class="avatar avatar-xs flex-shrink-0">
-                    <img class="avatar-img rounded-circle" 
-                    [src]="user.image ? user.image : 'assets/images/avatar/10.jpg'" 
-                    alt="avatar">
-               
-
-                  </div>
-                  <!-- Info -->
-                  <div class="ms-2">
-                    <h6 class="mb-0 fw-light">{{user.firstname}} {{user.lastname}}</h6>
-                  </div>
-                </div>
-              </div>
-  
-              <div class="col">
-                <h6 class="mb-0 fw-normal">{{user.email}}</h6>
-              </div>
-  
-              <div class="col">
-                <h6 class="mb-0 fw-normal">{{user.job}}</h6>
-              </div>
-  
-              
-              <div class="col">
-                <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                <button (click)="navToUpdate(user.id)" class="btn btn-sm btn-primary mb-0">Update</button>
-
-              </div>
-            </div>
-          </div>
-          <!-- Card body END -->
-  
-          <!-- Card footer START -->
-          <div class="card-footer pt-0">
-            <!-- Pagination and content -->
-            <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
-              <!-- Content -->
-              <p class="mb-sm-0 text-center text-sm-start">Showing {{(currentPage - 1) * pageSize + 1}} to {{(currentPage - 1) * pageSize + users.length}} of {{totalEntries}} entries</p>
-  
-              <!-- Pagination -->
-            <!-- Pagination -->
-            <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
-              <ul class="pagination pagination-sm pagination-primary-soft mb-0">
-                <!-- Previous Button -->
-                <li class="page-item" [class.disabled]="isPrevDisabled">
-                  <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">Prev</a>
-                </li>
-            
-                <!-- First Page -->
-                <li class="page-item" *ngIf="currentPage > 2">
-                  <a class="page-link" href="#" (click)="onPageChange(1); $event.preventDefault()">1</a>
-                </li>
-            
-                <!-- Dots before current page if needed -->
-                <li class="page-item disabled" *ngIf="currentPage > 3">
-                  <a class="page-link" href="#">...</a>
-                </li>
-            
-                <!-- Current Page -->
-                <li class="page-item active">
-                  <a class="page-link" href="#">{{ currentPage }}</a>
-                </li>
-            
-                <!-- Dots after current page if needed -->
-                <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
-                  <a class="page-link" href="#">...</a>
-                </li>
-            
-                <!-- Last Page -->
-                <li class="page-item" *ngIf="currentPage < totalPages - 1">
-                  <a class="page-link" href="#" (click)="onPageChange(totalPages); $event.preventDefault()">{{ totalPages }}</a>
-                </li>
-            
-                <!-- Next Button -->
-                <li class="page-item" [class.disabled]="isNextDisabled">
-                  <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">Next</a>
-                </li>
-              </ul>
-            </nav>
-            
-            </div>
-          </div>
-          <!-- Card footer END -->
-        </div>
-        <!-- User List END -->
-      </div>
-      <!-- Page main content END -->
+<div class="page-content-wrapper p-xxl-4">
  
-  
+  <!-- Title -->
+  <div class="row">
+    <div class="col-12 mb-4 mb-sm-5">
+      <div class="d-sm-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-3 mb-sm-0">User List</h1>
+        <div class="d-flex gap-2">
+          <!-- View Toggle Buttons -->
+          <div class="btn-group" role="group">
+            <button type="button" class="btn"
+              [ngClass]="{'btn-primary': viewMode === 'table', 'btn-outline-primary': viewMode !== 'table'}"
+              (click)="toggleView('table')">
+              <i class="bi bi-list-ul me-1"></i>Table View
+            </button>
+            <button type="button" class="btn"
+              [ngClass]="{'btn-primary': viewMode === 'card', 'btn-outline-primary': viewMode !== 'card'}"
+              (click)="toggleView('card')">
+              <i class="bi bi-grid-3x3-gap me-1"></i>Card View
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Filters START -->
+  <div class="row g-4 align-items-center">
+    <!-- Search -->
+    <div class="col-md-6 col-lg-3">
+      <form class="rounded position-relative">
+        <input class="form-control bg-transparent" type="search" placeholder="Search"
+               aria-label="Search" [value]="searchTerm" (input)="onSearch($event)">
+        <button *ngIf="searchTerm" 
+                class="bg-transparent p-2 position-absolute top-50 start-0 translate-middle-y border-0 ms-3"
+                type="button" (click)="clearSearch()">
+          <i class="fas fa-times fs-6"></i>
+        </button>
+        <button class="bg-transparent p-2 position-absolute top-50 end-0 translate-middle-y border-0 text-primary-hover text-reset" type="submit">
+          <i class="fas fa-search fs-6"></i>
+        </button>
+      </form>
+    </div>
+    
+    <!-- Search status -->
+   
+  </div>
+  <!-- Filters END -->
+ 
+  <!-- No results message -->
+  <div *ngIf="users.length === 0" class="alert alert-warning mt-4 text-center">
+    <i class="bi bi-exclamation-triangle me-1"></i>
+    No users found{{ searchTerm ? ' matching "' + searchTerm + '"' : '' }}
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div *ngIf="viewMode === 'table' && users.length > 0" class="card shadow mt-5">
+    <!-- Card body START -->
+    <div class="card-body">
+      <!-- Table head -->
+      <div class="bg-light rounded p-3 d-none d-lg-block">
+        <div class="row row-cols-7 g-4">
+          <div class="col"><h6 class="mb-0">User</h6></div>
+          <div class="col"><h6 class="mb-0">Email</h6></div>
+          <div class="col"><h6 class="mb-0">Job</h6></div>
+          <div class="col"><h6 class="mb-0">Action</h6></div>
+        </div>
+      </div>
+ 
+      <!-- Table data -->
+      <div *ngFor="let user of users" class="row row-cols-xl-7 align-items-lg-center border-bottom g-4 px-2 py-4">
+        <div class="col">
+          <div class="d-flex align-items-center">
+            <!-- Avatar -->
+            <div class="avatar avatar-xs flex-shrink-0">
+              <img class="avatar-img rounded-circle"
+              [src]="user.image ? user.image : 'assets/images/avatar/10.jpg'"
+              alt="avatar">
+            </div>
+            <!-- Info -->
+            <div class="ms-2">
+              <h6 class="mb-0 fw-light">{{user.firstname}} {{user.lastname}}</h6>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="col">
+          <h6 class="mb-0 fw-normal">{{user.email}}</h6>
+        </div>
+ 
+        <div class="col">
+          <h6 class="mb-0 fw-normal">{{user.job}}</h6>
+        </div>
+ 
+        <div class="col">
+          <a (click)="navToDisplay(user.id)" class="btn btn-sm btn-light mb-0">View</a>
+          <button (click)="navToUpdate(user.id)" class="btn btn-sm btn-primary mb-0">Update</button>
+        </div>
+      </div>
+    </div>
+    <!-- Card body END -->
+ 
+    <!-- Card footer START -->
+    <div class="card-footer pt-0">
+      <!-- Pagination and content -->
+      <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+        <!-- Content -->
+        <p class="mb-sm-0 text-center text-sm-start">Showing {{(currentPage - 1) * pageSize + 1}} to {{(currentPage - 1) * pageSize + users.length}} of {{totalEntries}} entries</p>
+ 
+        <!-- Pagination -->
+        <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+          <ul class="pagination pagination-sm pagination-primary-soft mb-0">
+            <!-- Previous Button -->
+            <li class="page-item" [class.disabled]="isPrevDisabled">
+              <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">Prev</a>
+            </li>
+       
+            <!-- First Page -->
+            <li class="page-item" *ngIf="currentPage > 2">
+              <a class="page-link" href="#" (click)="onPageChange(1); $event.preventDefault()">1</a>
+            </li>
+       
+            <!-- Dots before current page if needed -->
+            <li class="page-item disabled" *ngIf="currentPage > 3">
+              <a class="page-link" href="#">...</a>
+            </li>
+       
+            <!-- Current Page -->
+            <li class="page-item active">
+              <a class="page-link" href="#">{{ currentPage }}</a>
+            </li>
+       
+            <!-- Dots after current page if needed -->
+            <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+              <a class="page-link" href="#">...</a>
+            </li>
+       
+            <!-- Last Page -->
+            <li class="page-item" *ngIf="currentPage < totalPages - 1">
+              <a class="page-link" href="#" (click)="onPageChange(totalPages); $event.preventDefault()">{{ totalPages }}</a>
+            </li>
+       
+            <!-- Next Button -->
+            <li class="page-item" [class.disabled]="isNextDisabled">
+              <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <!-- Card footer END -->
+  </div>
+  <!-- TABLE VIEW END -->
+ 
+  <!-- CARD VIEW -->
+  <div *ngIf="viewMode === 'card' && users.length > 0" class="mt-5">
+    <div class="row g-4">
+      <!-- Loop through users -->
+      <div *ngFor="let user of users" class="col-sm-6 col-lg-4 col-xl-4">
+        <div class="card shadow h-100">
+          <!-- Card header -->
+          <div class="card-header d-flex justify-content-between align-items-center border-0 pb-0">
+           
+            <div class="dropdown">
+              <a href="#" class="btn btn-sm btn-light btn-round mb-0" role="button" id="dropdownShare" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots fs-5"></i>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownShare">
+                <li><a class="dropdown-item" href="#"><i class="bi bi-pencil-square me-2"></i>Edit</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-trash me-2"></i>Delete</a></li>
+              </ul>
+            </div>
+          </div>
+ 
+          <!-- Card body -->
+          <div class="card-body text-center position-relative pt-0">
+            <!-- Avatar -->
+            <div class="avatar avatar-xl mt-3">
+              <img class="avatar-img rounded-circle border border-white border-3"
+                   [src]="user.image ? user.image : 'assets/images/avatar/10.jpg'"
+                   alt="">
+            </div>
+            <!-- Info -->
+            <h5 class="mb-1 mt-3">{{user.firstname}} {{user.lastname}}</h5>
+           
+            <!-- Email -->
+            <p class="mb-1 small text-truncate">
+              <i class="bi bi-envelope me-1"></i>
+              {{user.email}}
+            </p>
+           
+            <!-- Job -->
+            <p class="mb-2 small">
+              <i class="bi bi-briefcase me-1"></i>
+              {{user.job || 'Not specified'}}
+            </p>
+           
+            <!-- Location (if available) -->
+            <p *ngIf="user.location" class="mb-2 small">
+              <i class="bi bi-geo-alt me-1"></i>
+              {{user.location}}
+            </p>
+           
+            <!-- Rating (if available) -->
+            <div *ngIf="user.rating" class="mb-3">
+              <span class="badge bg-warning text-dark">
+                {{user.rating}} <i class="bi bi-star-fill"></i>
+              </span>
+            </div>
+           
+            <!-- Action Buttons (Same as in table view) -->
+            <div class="d-flex justify-content-center gap-2 mt-3">
+              <a (click)="navToDisplay(user.id)" class="btn btn-sm btn-light">View</a>
+              <button (click)="navToUpdate(user.id)" class="btn btn-sm btn-primary">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Pagination START -->
+    <div class="d-sm-flex justify-content-between align-items-center mt-4">
+      <!-- Content -->
+      <p class="mb-sm-0 text-center text-sm-start">Showing {{(currentPage - 1) * pageSize + 1}} to {{(currentPage - 1) * pageSize + users.length}} of {{totalEntries}} entries</p>
+ 
+      <!-- Pagination -->
+      <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
+        <ul class="pagination pagination-sm pagination-primary-soft mb-0">
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="isPrevDisabled">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">Prev</a>
+          </li>
+     
+          <!-- First Page -->
+          <li class="page-item" *ngIf="currentPage > 2">
+            <a class="page-link" href="#" (click)="onPageChange(1); $event.preventDefault()">1</a>
+          </li>
+     
+          <!-- Dots before current page if needed -->
+          <li class="page-item disabled" *ngIf="currentPage > 3">
+            <a class="page-link" href="#">...</a>
+          </li>
+     
+          <!-- Current Page -->
+          <li class="page-item active">
+            <a class="page-link" href="#">{{ currentPage }}</a>
+          </li>
+     
+          <!-- Dots after current page if needed -->
+          <li class="page-item disabled" *ngIf="currentPage < totalPages - 2">
+            <a class="page-link" href="#">...</a>
+          </li>
+     
+          <!-- Last Page -->
+          <li class="page-item" *ngIf="currentPage < totalPages - 1">
+            <a class="page-link" href="#" (click)="onPageChange(totalPages); $event.preventDefault()">{{ totalPages }}</a>
+          </li>
+     
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="isNextDisabled">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <!-- Pagination END -->
+  </div>
+  <!-- CARD VIEW END -->
+</div>

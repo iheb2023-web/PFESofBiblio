@@ -18,6 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job) from User u")
     Page<UserDto> findAllUsers(Pageable pageable);
 
+    @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job)  from User u WHERE " +
+            "LOWER(u.firstname) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.lastname) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.job) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    Page<UserDto> findBySearchTerm(@Param("searchTerm") String searchTerm, Pageable pageable);
+
     boolean existsByEmail(String email);
     @Query("SELECT new com.sofrecom.backend.dtos.UserMinDto(u.id,u.email, u.firstname, u.lastname,u.image, u.role ,u.hasPreference,u.hasSetPassword) FROM User u WHERE u.email = :email")
     UserMinDto findUserMinInfo(@Param("email") String email);

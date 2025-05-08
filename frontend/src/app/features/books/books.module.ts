@@ -15,6 +15,7 @@ import { NavigationsComponent } from './navigations/navigations.component';
 import { DemandesComponent } from './demandes/demandes.component';
 import { LibraryComponent } from './library/library.component';
 import { RequestsComponent } from './requests/requests.component';
+import { UpdateReservationComponent } from './update-reservation/update-reservation.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { RequestsComponent } from './requests/requests.component';
     NavigationsComponent,
     DemandesComponent,
     LibraryComponent,
-    RequestsComponent
+    RequestsComponent,
+    UpdateReservationComponent
   ],
   imports: [
     CommonModule,

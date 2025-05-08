@@ -8,6 +8,7 @@ import { BorrowService } from 'src/app/core/services/borrow.service';
 })
 export class DemandesComponent implements OnInit {
   demands: any[] = [];
+  email! : any
 
   constructor(private borrowService: BorrowService) {}
 
@@ -15,6 +16,7 @@ export class DemandesComponent implements OnInit {
     const user = JSON.parse(localStorage.getItem('user') || '{}'); 
     const email = user?.email; 
     if (email) {
+      this.email =email
       this.getDemands(email); 
     }
   }
@@ -51,6 +53,19 @@ export class DemandesComponent implements OnInit {
         console.error('Error fetching demands:', error);
       }
     )
+  }
+
+  markAsReturned(borrowId : any)
+  {
+    this.borrowService.markAsReturned(borrowId).subscribe({
+      next: (response: any) => {
+        this.getDemands(this.email); 
+      },
+      error: (error: any) => {
+        console.error('Failed to mark as returned:', error);
+        // Optionally show error to the user
+      }
+    });
   }
 
 }

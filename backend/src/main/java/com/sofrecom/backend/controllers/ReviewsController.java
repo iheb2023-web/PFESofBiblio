@@ -1,7 +1,6 @@
 package com.sofrecom.backend.controllers;
 
 import com.sofrecom.backend.dtos.ReviewsDto;
-import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Reviews;
 import com.sofrecom.backend.services.IReviewsService;
 import lombok.RequiredArgsConstructor;

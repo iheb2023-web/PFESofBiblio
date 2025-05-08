@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { BorrowService } from 'src/app/core/services/borrow.service';
 import Swal from 'sweetalert2';
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-requests',
@@ -8,8 +9,13 @@ import Swal from 'sweetalert2';
   styleUrls: ['./requests.component.scss']
 })
 export class RequestsComponent implements OnInit {
+  @ViewChild('updateReservationModal', { static: false }) modalElement!: ElementRef;
+
   demands: any[] = [];
+  filteredDemands: any[] = [];
   stats: any;
+  selectedBookId: any | null = null;
+  selectedBorrowId: any | null = null;
 
   constructor(private borrowService: BorrowService) {}
 
@@ -33,26 +39,29 @@ export class RequestsComponent implements OnInit {
     );
   }
 
-  calculateDuration(demand: any): number {
-    if (demand.borrowDate && demand.expectedReturnDate) {
-      const borrowDate = new Date(demand.borrowDate);
-      const expectedReturnDate = new Date(demand.expectedReturnDate);
-      const duration = Math.ceil((expectedReturnDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
-      return duration;
-    }
-    return 0;
-  }
-
   getRequests(email: string): void {
     this.borrowService.getBorrowRequestsByUserEmail(email).subscribe(
       (response: any) => {
         this.demands = response.reverse();
-        console.log(this.demands);
+        this.filteredDemands = [...this.demands];
       },
       (error) => {
         console.error('Error fetching demands:', error);
       }
     );
+  }
+
+  filterDemands(status: string): void {
+    this.filteredDemands = status ? this.demands.filter(d => d.borrowStatus === status) : [...this.demands];
+  }
+
+  calculateDuration(demand: any): number {
+    if (demand.borrowDate && demand.expectedReturnDate) {
+      const borrowDate = new Date(demand.borrowDate);
+      const expectedReturnDate = new Date(demand.expectedReturnDate);
+      return Math.ceil((expectedReturnDate.getTime() - borrowDate.getTime()) / (1000 * 60 * 60 * 24));
+    }
+    return 0;
   }
 
   confirmAction(demand: any) {
@@ -67,57 +76,41 @@ export class RequestsComponent implements OnInit {
       confirmButtonText: `Yes, ${actionText} it!`
     }).then((result) => {
       if (result.isConfirmed) {
-        if(actionText === 'cancel')
-        {
-          this.borrowService.cancelPendingOrApproved(demand.id).subscribe(
-            () => {
-              Swal.fire(
-                'Success!',
-                `The demand has been ${actionText}ed.`,
-                'success'
-              );
-              // Refresh the demands list after the action
-              const user = JSON.parse(localStorage.getItem('user') || '{}');
-              this.getRequests(user?.email);
-              this.getBorrowStatusUser(user?.email);
-            },
-            (error) => {
-              Swal.fire(
-                'Error!',
-                `Failed to ${actionText} the demand.`,
-                'error'
-              );
-              console.error(`Error ${actionText}ing demand:`, error);
-            }
-          );
-        }
-        else
-        {
-          this.borrowService.cancelWhileInProgress(demand.id).subscribe(
-            () => {
-              Swal.fire(
-                'Success!',
-                `The demand has been ${actionText}ed.`,
-                'success'
-              );
-              // Refresh the demands list after the action
-              const user = JSON.parse(localStorage.getItem('user') || '{}');
-              this.getRequests(user?.email);
-              this.getBorrowStatusUser(user?.email);
-            },
-            (error) => {
-              Swal.fire(
-                'Error!',
-                `Failed to ${actionText} the demand.`,
-                'error'
-              );
-              console.error(`Error ${actionText}ing demand:`, error);
-            }
-          );
-        }
-      
-        
+        const serviceCall = actionText === 'cancel'
+          ? this.borrowService.cancelPendingOrApproved(demand.id)
+          : this.borrowService.cancelWhileInProgress(demand.id);
+
+        serviceCall.subscribe(
+          () => {
+            Swal.fire('Success!', `The demand has been ${actionText}ed.`, 'success');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            this.getRequests(user?.email);
+            this.getBorrowStatusUser(user?.email);
+          },
+          (error) => {
+            Swal.fire('Error!', `Failed to ${actionText} the demand.`, 'error');
+            console.error(`Error ${actionText}ing demand:`, error);
+          }
+        );
       }
     });
+  }
+
+  openUpdateModal(bookId: string, borrowId: string): void {
+    this.selectedBookId = bookId;
+    this.selectedBorrowId = borrowId;
+  }
+
+  handleUpdateFinished() {
+    if (this.modalElement && this.modalElement.nativeElement) {
+      const modalInstance = bootstrap.Modal.getInstance(this.modalElement.nativeElement) || new bootstrap.Modal(this.modalElement.nativeElement);
+      modalInstance.hide();
+      // Refresh data after modal closes
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      this.getRequests(user?.email);
+      this.getBorrowStatusUser(user?.email);
+    } else {
+      console.error('Modal element not found');
+    }
   }
 }

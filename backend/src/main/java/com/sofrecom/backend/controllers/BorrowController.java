@@ -2,7 +2,6 @@ package com.sofrecom.backend.controllers;
 
 import com.sofrecom.backend.dtos.BorrowStatusUser;
 import com.sofrecom.backend.dtos.OccupiedDates;
-import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.Borrow;
 import com.sofrecom.backend.services.IBorrowService;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +79,13 @@ public class BorrowController {
     @PutMapping("/updateBorrowWhilePending")
     public Borrow updateBorrowWhilePending(@RequestBody Borrow borrow) {
          return this.borrowService.updateBorrowWhilePending(borrow);
+    }
+
+
+    @PutMapping("/markAsReturned/{idBorrow}")
+    public void markAsReturned(@PathVariable Long idBorrow)
+    {
+        this.borrowService.markAsReturned(idBorrow);
     }
 
 

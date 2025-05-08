@@ -35,10 +35,6 @@ public class BorrowService implements IBorrowService {
         }
         borrow.setBorrower(borrower);
 
-        //tester disponiblity of book in that period
-        //this.borrowRepository.findBorrowByD
-
-
         borrow.setBorrowStatus(BorrowStatus.PENDING);
         Borrow b =borrowRepository.save(borrow);
         socketIOService.sendDemandNotification(b.getId());
@@ -102,7 +98,7 @@ public class BorrowService implements IBorrowService {
     }
 
     //@Scheduled(cron = "0 0 0 * * *")
-    @Scheduled(fixedRate = 15000) // every 10 seconds
+    //@Scheduled(fixedRate = 15000) // every 10 seconds
     //@Scheduled(cron = "0 * * * * *") // every minute
     public void updateBorrowStatusesToReturned() {
         List<Borrow> borrows = this.borrowRepository.findProgressBorrowsEndToday();
@@ -111,6 +107,7 @@ public class BorrowService implements IBorrowService {
         }
         borrowRepository.saveAll(borrows);
     }
+
 
     @Override
     public void cancelPendingOrApproved(Long idBorrow) {
@@ -124,7 +121,26 @@ public class BorrowService implements IBorrowService {
 
     @Override
     public Borrow updateBorrowWhilePending(Borrow borrow) {
+        borrow.setRequestDate(LocalDate.now());
+        User user = this.userRepository.findByEmail(borrow.getBorrower().getEmail()).orElse(null);
+        User borrower = borrow.getBorrower();
+        if (user != null) {
+            borrower.setId(user.getId());
+        }
+        borrow.setBorrower(borrower);
+        borrow.setBorrowStatus(BorrowStatus.PENDING);
+
+        socketIOService.sendDemandNotification(borrow.getId());
         return this.borrowRepository.save(borrow);
+    }
+
+    @Override
+    public void markAsReturned(Long idBorrow) {
+        Borrow borrow= this.borrowRepository.findById(idBorrow).orElse(null);
+        assert borrow != null;
+        borrow.setBorrowStatus(BorrowStatus.RETURNED);
+        this.borrowRepository.save(borrow);
+
     }
 
 

@@ -108,15 +108,10 @@ public class BookService implements IBookService {
         return bookRepository.save(existingBook);
     }
 
-    //socket test
     public Book AddBookSocket(Book book,String email) {
         book.setAddedDate(LocalDate.now());
         User user = this.userRepository.findByEmail(email).orElse(null);
         book.setOwner(user);
-
-        // Send notification via Socket.IO
-        //String notification = "Book added: " + book.getTitle();
-        //socketIOService.sendBookUpdateNotification(notification);
 
         return this.bookRepository.save(book);
     }

@@ -1,7 +1,6 @@
 package com.sofrecom.backend.dtos;
 
 
-import com.sofrecom.backend.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,6 @@ public class PreferenceDto {
     private List<String> preferredLanguages;
     private List<String> favoriteAuthors;
     private String type;
-    //private User user;
     private Long userId;
 
 

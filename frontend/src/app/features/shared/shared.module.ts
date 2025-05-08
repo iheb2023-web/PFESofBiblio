@@ -4,6 +4,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { RouterModule } from '@angular/router';
 import { NavComponent } from './nav/nav.component';
+import { ProfileComponent } from './profile/profile.component';
 
 
 
@@ -11,7 +12,8 @@ import { NavComponent } from './nav/nav.component';
   declarations: [
     NavbarComponent,
     SidebarComponent,
-    NavComponent
+    NavComponent,
+    ProfileComponent
   ],
   imports: [
     CommonModule,
@@ -21,7 +23,8 @@ import { NavComponent } from './nav/nav.component';
   exports: [
     NavbarComponent,
     SidebarComponent,
-    NavComponent
+    NavComponent,
+    ProfileComponent
   ]
 })
 export class SharedModule { }
