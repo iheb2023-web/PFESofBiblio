@@ -121,12 +121,7 @@ class _BookCard extends StatelessWidget {
                       style: TextStyle(color: Colors.grey[600], fontSize: 14),
                     ),
                     const SizedBox(height: 4),
-                    // Row(
-                    //   children: [
-                    //     Icon(Icons.star, size: 16, color: Colors.amber[700]),
-                    //     Text(' ${_getAverageStars(book)}/5'),
-                    //   ],
-                    // ),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
