@@ -47,9 +47,12 @@ public class IUserServiceImp implements IUserService {
                 .number(request.getNumber())
                 .email(request.getEmail())
                 .image(request.getImage())
+                .hasPreference(false)
+                .hasSetPassword(false)
                 .password(passwordEncoder.encode(password))
                 .role(request.getRole())
                 .build();
+
         var savedUser = userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         try {

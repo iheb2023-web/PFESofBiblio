@@ -1,4 +1,6 @@
+import 'package:app/controllers/auth_controller.dart';
 import 'package:app/themeData.dart';
+import 'package:app/views/Authentification/Step/Splash.dart';
 import 'package:app/views/Authentification/pageDesign.dart';
 import 'package:app/widgets/Button.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,16 @@ class Onboardingscreen extends StatefulWidget {
 
 class _OnboardingscreenState extends State<Onboardingscreen> {
   final controller = PageController();
+  final AuthController authController = Get.find<AuthController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      authController
+          .tryAutoLogin(); // Appel de l'auto-login après le rendu initial
+    });
+  }
 
   @override
   void dispose() {

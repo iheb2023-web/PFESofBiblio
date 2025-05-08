@@ -28,7 +28,11 @@ class _AccueilPageState extends State<AccueilPage>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    _bookController.loadAllBooks();
+
+    // Charge les livres après le premier frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bookController.loadAllBooks();
+    });
   }
 
   @override
