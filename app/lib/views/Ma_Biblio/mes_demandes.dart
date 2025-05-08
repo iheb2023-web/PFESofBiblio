@@ -48,12 +48,24 @@ class MesDemandesController extends GetxController {
 
   void updatePendingBorrows(List<Borrow> borrows) {
     pendingBorrows.value =
-        borrows
-            .where(
-              (borrow) =>
-                  borrow.borrowStatus.toString().split('.').last == 'PENDING',
-            )
-            .toList();
+        borrows.where((borrow) {
+          final status = borrow.borrowStatus.toString().split('.').last;
+          print('STATUT DEBUG ===> ${borrow.borrowStatus}');
+
+          return status == 'PENDING' ||
+              status == 'APPROVED' ||
+              status == 'IN_PROGRESS';
+        }).toList();
+  }
+
+  Future<void> returnBook(int borrowId) async {
+    try {
+      isLoading.value = true;
+      await _borrowController.returnBook(borrowId); // Retourner le livre
+      await loadDemandes(); // Recharger les demandes après le retour
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> loadDemandes() async {
@@ -66,8 +78,6 @@ class MesDemandesController extends GetxController {
       }
 
       final borrows = await _borrowService.getBorrowDemandsByEmail(email);
-
-      // Filtrer par bookId si spécifié
       final filteredBorrows =
           bookId != null
               ? borrows.where((b) => b.book?.id.toString() == bookId).toList()
@@ -94,7 +104,7 @@ class MesDemandesController extends GetxController {
         'Succès',
         isApproved ? 'Demande acceptée' : 'Demande refusée',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromARGB(255, 3, 62, 224),
+        backgroundColor: Colors.green,
         colorText: Colors.white,
         margin: const EdgeInsets.all(8),
         borderRadius: 8,
@@ -116,9 +126,6 @@ class MesDemandesController extends GetxController {
 }
 
 class MesDemandesPage extends StatelessWidget {
-  // final MesDemandesController controller = Get.put(MesDemandesController());
-
-  // MesDemandesPage({Key? key}) : super(key: key);
   final String? bookId; // Paramètre optionnel pour l'ID du livre
   final MesDemandesController controller = Get.put(MesDemandesController());
 
@@ -177,6 +184,8 @@ class MesDemandesPage extends StatelessWidget {
   }
 
   Widget _buildBorrowCard(Borrow borrow) {
+    final status = borrow.borrowStatus.toString().split('.').last;
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.all(8),
@@ -261,41 +270,63 @@ class MesDemandesPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => controller.handleBorrowRequest(borrow, true),
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.successColor.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
+            // Gestion des boutons en fonction du statut
+            status == 'PENDING'
+                ? Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed:
+                          () => controller.handleBorrowRequest(borrow, true),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppTheme.successColor.withOpacity(0.1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: const Text(
+                        'Accepter',
+                        style: TextStyle(color: AppTheme.successColor),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed:
+                          () => controller.handleBorrowRequest(borrow, false),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                      ),
+                      child: const Text(
+                        'Refuser',
+                        style: TextStyle(color: AppTheme.errorColor),
+                      ),
+                    ),
+                  ],
+                )
+                : status == 'IN_PROGRESS'
+                ? Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => controller.returnBook(borrow.id!),
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                    child: const Text(
+                      'Marquer comme retourné',
+                      style: TextStyle(color: AppTheme.primaryColor),
                     ),
                   ),
-                  child: const Text(
-                    'Accepter',
-                    style: TextStyle(color: AppTheme.successColor),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed:
-                      () => controller.handleBorrowRequest(borrow, false),
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppTheme.errorColor.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                  ),
-                  child: const Text(
-                    'Refuser',
-                    style: TextStyle(color: AppTheme.errorColor),
-                  ),
-                ),
-              ],
-            ),
+                )
+                : const SizedBox.shrink(), // Rien à afficher pour 'APPROVED'
           ],
         ),
       ),
