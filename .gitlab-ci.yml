@@ -1,22 +1,24 @@
 stages:
-  - build           # Étape de compilation des différents modules (backend, frontend, mobile)
-  - security_scan   # Étape de vérification de la sécurité (recherche de secrets et scan des vulnérabilités)
-  - analyze         # Étape d'analyse des métriques (taille des artefacts, suivi des performances)
-  - package         # Étape de préparation des fichiers finaux avant déploiement
-  - deploy          # Étape de déploiement (simulation dans ce cas)
+  - build
+  - build-sonar
+  - security_scan
+  - sonarqube-vulnerability-report
+  - analyze
+  - package
+  - deploy
 
-# Image de base utilisée pour les jobs qui n'ont pas une image spécifique
 image: maven:3.8.5-eclipse-temurin-17
 
-# Définition des variables d'environnement utilisées par l'application
 variables:
   MYSQL_DATABASE: sofbiblio_db
   MYSQL_ROOT_PASSWORD: root
   SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sofbiblio_db
   SPRING_DATASOURCE_USERNAME: root
   SPRING_DATASOURCE_PASSWORD: root
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  GIT_DEPTH: "0"
+  SONAR_PROJECT_KEY: "mohamedelhedi.hamdi_sofbiblio"
 
-# Service MySQL utilisé pour exécuter des tests avec une base de données
 services:
   - name: mysql:5.7
     alias: mysql
@@ -26,27 +28,27 @@ build_backend:
   stage: build
   script:
     - cd backend
-    - mvn clean install   # Compile le backend et génère un fichier JAR
+    - mvn clean install
   artifacts:
     paths:
-      - backend/target/*.jar   # Sauvegarde du fichier JAR généré
-      - backend/pom.xml        # Sauvegarde du fichier de configuration Maven
-    expire_in: 1 week          # Expiration des artefacts après une semaine
+      - backend/target/*.jar
+      - backend/pom.xml
+    expire_in: 1 week
   only:
     - main
 
 # -------- BUILD DU FRONTEND --------
 build_frontend:
   stage: build
-  image: node:16  # Utilisation d'une image Node.js pour builder le frontend
+  image: node:16
   script:
     - cd frontend
-    - npm install     # Installation des dépendances
-    - npm run build   # Génération des fichiers du frontend (dossier dist/)
+    - npm install
+    - npm run build
   artifacts:
     paths:
-      - frontend/dist/       # Sauvegarde des fichiers du frontend buildé
-      - frontend/package.json  # Sauvegarde du fichier des dépendances
+      - frontend/dist/
+      - frontend/package.json
     expire_in: 1 week
   only:
     - main
@@ -54,42 +56,78 @@ build_frontend:
 # -------- BUILD DE L'APPLICATION MOBILE (FLUTTER) --------
 build_flutter:
   stage: build
-  image: ghcr.io/cirruslabs/flutter:3.29.1  # Image Docker avec Flutter pré-installé
+  image: ghcr.io/cirruslabs/flutter:3.29.1
   before_script:
     - echo "Installation de Java 17..."
     - export DEBIAN_FRONTEND=noninteractive
-    - apt-get update -y && apt-get install -y openjdk-17-jdk  # Installation de Java 17
+    - apt-get update -y && apt-get install -y openjdk-17-jdk
     - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
     - export PATH=$JAVA_HOME/bin:$PATH
-    - java -version  # Vérification de l'installation de Java
+    - java -version
   script:
     - echo "Compilation de l'application mobile Flutter..."
     - cd app
-    - flutter clean   # Nettoyage du projet Flutter
-    - flutter pub get  # Récupération des dépendances
-    - flutter build apk --release  # Génération de l'APK en mode production
+    - flutter clean
+    - flutter pub get
+    - flutter build apk --release
   artifacts:
     paths:
-      - app/build/app/outputs/flutter-apk/app-release.apk  # Sauvegarde de l'APK
+      - app/build/app/outputs/flutter-apk/app-release.apk
     expire_in: 1 week
   cache:
     key: flutter
     paths:
-      - app/.pub-cache  # Cache des dépendances Flutter
-      - app/build       # Cache des fichiers de build
+      - app/.pub-cache
+      - app/build
   only:
     - main
-  timeout: 1h  # Limite le temps d'exécution à 1 heure
+  timeout: 1h
 
-# -------- SCAN DE SÉCURITÉ AVEC GITLEAKS est un outil de sécurité utilisé pour détecter et prévenir les fuites de secrets dans les dépôts Git --------
+# -------- ANALYSE SONARQUBE --------
+build-sonar:
+  stage: build-sonar
+  image: maven:3-eclipse-temurin-17
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+  script:
+    - cd backend
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      -Dsonar.host.url=$SONAR_HOST_URL
+      -Dsonar.token=$SONAR_TOKEN
+      -Dsonar.projectKey=$SONAR_PROJECT_KEY
+  allow_failure: true
+  dependencies:
+    - build_backend
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+# -------- RAPPORT DE VULNÉRABILITÉS SONARQUBE --------
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
+  image: alpine:latest
+  script:
+    - apk add curl
+    - curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${SONAR_PROJECT_KEY}&branch=${CI_COMMIT_BRANCH}" -o gl-sast-sonar-report.json
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'main'
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
+
+# -------- SCAN DE SÉCURITÉ AVEC GITLEAKS --------
 security_scan:
   stage: security_scan
   image: zricethezav/gitleaks:latest
   script:
-    - gitleaks detect --source . -v --report-path gitleaks-report.json --exit-code 0  # Recherche de secrets exposés
+    - gitleaks detect --source . -v --report-path gitleaks-report.json --exit-code 0
   artifacts:
     paths:
-      - gitleaks-report.json  # Sauvegarde du rapport de scan
+      - gitleaks-report.json
     expire_in: 1 week
   only:
     - main
@@ -109,11 +147,11 @@ security_scan_trivy:
     - trivy fs --severity HIGH,CRITICAL backend/target/*.jar || echo "Scan JAR terminé"
     - trivy fs --severity HIGH,CRITICAL frontend/dist/ || echo "Scan dist terminé"
     - trivy fs --severity HIGH,CRITICAL app/build/app/outputs/flutter-apk/app-release.apk || echo "Scan APK terminé"
-  allow_failure: true  # Ne bloque pas le pipeline en cas d'erreur
+  allow_failure: true
   only:
     - main
 
-# -------- ANALYSE DES MÉTRIQUES (TAILLE DES BUILDS) --------
+# -------- ANALYSE DES MÉTRIQUES --------
 analyze_metrics:
   stage: analyze
   image: alpine:latest
@@ -126,15 +164,15 @@ analyze_metrics:
     - du -sh backend/target/*.jar > metrics.txt
     - du -sh frontend/dist/ >> metrics.txt
     - du -sh app/build/app/outputs/flutter-apk/app-release.apk >> metrics.txt
-    - cat metrics.txt  # Affiche la taille des fichiers
+    - cat metrics.txt
   artifacts:
     paths:
-      - metrics.txt  # Sauvegarde du fichier contenant les métriques
+      - metrics.txt
     expire_in: 1 week
   only:
     - main
 
-# -------- PRÉPARATION DES FICHIERS AVANT DÉPLOIEMENT --------
+# -------- PRÉPARATION DES FICHIERS --------
 package_artifacts:
   stage: package
   image: alpine:latest
@@ -143,14 +181,14 @@ package_artifacts:
     - build_frontend
     - build_flutter
   script:
-    - mkdir -p release  # Création du dossier release
-    - cp backend/target/*.jar release/backend.jar  # Copie du backend
-    - cp -r frontend/dist/ release/frontend  # Copie du frontend
-    - cp app/build/app/outputs/flutter-apk/app-release.apk release/app.apk  # Copie de l'APK mobile
-    - ls -lhR release/  # Liste les fichiers générés
+    - mkdir -p release
+    - cp backend/target/*.jar release/backend.jar
+    - cp -r frontend/dist/ release/frontend
+    - cp app/build/app/outputs/flutter-apk/app-release.apk release/app.apk
+    - ls -lhR release/
   artifacts:
     paths:
-      - release/  # Sauvegarde du dossier release contenant les artefacts finaux
+      - release/
     expire_in: 1 week
   only:
     - main
