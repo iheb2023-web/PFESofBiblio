@@ -114,38 +114,6 @@ class ReviewController extends GetxController {
     }
   }
 
-  // Mettre à jour un avis
-  // Future<bool> updateReview(int id, Review updatedReview) async {
-  //   try {
-  //     isLoading.value = true;
-  //     error.value = '';
-
-  //     final email = _authController.currentUser.value?.email;
-  //     if (email == null) {
-  //       error.value = 'User not authenticated';
-  //       return false;
-  //     }
-
-  //     updatedReview.userEmail = email;
-
-  //     final result = await ReviewService.updateReview(id, updatedReview);
-
-  //     if (result != null) {
-  //       _updateReviewInLists(result);
-
-  //       return true;
-  //     } else {
-  //       error.value = 'Échec mise à jour review';
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     error.value = 'Erreur updateReview: $e';
-  //     print(error.value);
-  //     return false;
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
   Future<bool> updateReview(int id, Review updatedReview) async {
     try {
       isLoading.value = true;
