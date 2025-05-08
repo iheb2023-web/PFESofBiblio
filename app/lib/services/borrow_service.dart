@@ -23,6 +23,23 @@ class BorrowService extends GetxService {
     return this;
   }
 
+  Future<void> markAsReturned(int borrowId) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/borrows/markAsReturned/$borrowId'),
+        headers: await getHeaders(),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Erreur lors du retour de l\'emprunt: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Récupérer les demandes d'emprunt pour un propriétaire
   Future<List<Borrow>> getRequestsForOwner(String ownerEmail) async {
     try {
