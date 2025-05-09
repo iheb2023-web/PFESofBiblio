@@ -6,7 +6,7 @@ class GeminiService {
       'AIzaSyALbVJW9lf4zi5NMkAWOFusTq7YMdy03ME'; // à sécuriser
 
   final GenerativeModel _model = GenerativeModel(
-    model: 'gemini-1.5-pro-latest',
+    model: 'gemini-1.5-flash',
     apiKey: _apiKey,
   );
 
