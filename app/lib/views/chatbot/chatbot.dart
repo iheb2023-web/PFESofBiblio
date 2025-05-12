@@ -1,3 +1,4 @@
+import 'package:app/controllers/auth_controller.dart';
 import 'package:app/services/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,10 +12,18 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final AuthController _authController = Get.find<AuthController>();
+
   final GeminiService _geminiService = GeminiService();
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _sendWelcomeMessage();
+  }
 
   void _sendMessage() async {
     final text = _textController.text.trim();
@@ -29,7 +38,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Obtenir la réponse du chatbot
     try {
-      final response = await _geminiService.generateResponse(text);
+      final userid = _authController.currentUser.value!.id;
+
+      final response = await _geminiService.generateResponse(text, userid);
 
       setState(() {
         _messages.add(ChatMessage(text: response, isUser: false));
@@ -57,6 +68,21 @@ class _ChatScreenState extends State<ChatScreen> {
           curve: Curves.easeOut,
         );
       }
+    });
+  }
+
+  Future<void> _sendWelcomeMessage() async {
+    final firstName = _authController.currentUser?.value?.firstname ?? '';
+    final lastName = _authController.currentUser?.value?.lastname ?? '';
+
+    final welcomeMessage =
+        'Bonjour $firstName $lastName! 👋\n'
+        'Je suis votre assistant virtuel. Comment puis-je vous aider aujourd\'hui ?\n'
+        'Vous pouvez me poser des questions sur nos livres, services ou horaires.';
+
+    setState(() {
+      _messages.add(ChatMessage(text: welcomeMessage, isUser: false));
+      _scrollToBottom();
     });
   }
 

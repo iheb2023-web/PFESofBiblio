@@ -43,7 +43,7 @@ class ActiveMembersSection extends StatelessWidget {
                     const CircleAvatar(
                       radius: 30,
                       backgroundImage: AssetImage(
-                        'assets/images/default_profile.png',
+                        'assets/images/profile.jpg',
                       ),
                       backgroundColor: Colors.grey,
                     ),
