@@ -128,7 +128,7 @@ async uploadImage() {
       this.userService.addUser(this.userForm.value).subscribe({
         next: (response) => {
         console.log('User added successfully:', response);
-        this.router.navigate(['/users']);
+        this.router.navigate(['/home/users']);
         },
         error: (error) => {
          console.error('Error adding user:', error);

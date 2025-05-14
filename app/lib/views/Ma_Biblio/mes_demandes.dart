@@ -251,7 +251,24 @@ class MesDemandesPage extends StatelessWidget {
                           ),
                         ),
                       ],
+
+                      if (borrow.borrower?.firstname != null ||
+                          borrow.borrower?.lastname != null)
+                        Text(
+                          'Demandeur : ${borrow.borrower?.firstname ?? ''} ${borrow.borrower?.lastname ?? ''}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                Colors
+                                    .blueGrey, // Choisis une couleur claire et lisible
+                            fontWeight:
+                                FontWeight.bold, // Mettre le texte en gras
+                            // Optionnel : pour garder le style italique
+                          ),
+                        ),
+
                       const SizedBox(height: 8),
+
                       Text(
                         'Date de demande: ${borrow.requestDate != null ? DateFormat('dd/MM/yyyy').format(borrow.requestDate!) : 'Non spécifiée'}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
