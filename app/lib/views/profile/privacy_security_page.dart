@@ -1,10 +1,13 @@
 import 'package:app/imports.dart';
+import 'package:app/controllers/theme_controller.dart'; // Importez votre ThemeController
 
 class PrivacySecurityPage extends StatelessWidget {
   const PrivacySecurityPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find<ThemeController>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Confidentialité et sécurité')),
       body: ListView(
@@ -26,6 +29,24 @@ class PrivacySecurityPage extends StatelessWidget {
             subtitle: const Text('Mettre à jour votre mot de passe actuel'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showChangePasswordDialog(context),
+          ),
+          const Divider(height: 1),
+          Obx(
+            () => ListTile(
+              leading: const Icon(Icons.brightness_6, color: Colors.blue),
+              title: const Text('Mode sombre'),
+              subtitle: Text(themeController.isDarkMode ? 'Actif' : 'Inactif'),
+              trailing: Switch(
+                value: themeController.isDarkMode,
+                onChanged: (value) async {
+                  await themeController.toggleTheme();
+                },
+                activeColor: Colors.blue,
+              ),
+              onTap: () async {
+                await themeController.toggleTheme();
+              },
+            ),
           ),
         ],
       ),
@@ -128,6 +149,7 @@ class PrivacySecurityPage extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 16),
+
                       TextFormField(
                         controller: _newPasswordController,
                         obscureText: _obscureNewPassword,
