@@ -1,10 +1,9 @@
 import 'dart:convert';
+import 'package:app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/book.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:8080';
-
   static Future<bool> addBook(Book book, int? userId) async {
     if (userId == null) {
       return false;
@@ -13,7 +12,7 @@ class ApiService {
     try {
       final bookData = {...book.toJson(), 'ownerId': userId};
       final response = await http.post(
-        Uri.parse('$baseUrl/books'),
+        Uri.parse('${AppConfig.apiBaseUrl}/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(bookData),
       );

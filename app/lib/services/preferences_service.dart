@@ -1,3 +1,4 @@
+import 'package:app/config/app_config.dart';
 import 'package:app/services/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,9 +8,7 @@ import 'package:get/get.dart';
 
 class PreferenceService {
   final StorageService _storageService = StorageService();
-  final String baseUrl = 'http://10.0.2.2:8080'; // Remplacez par votre URL
 
-  // Pour gérer l'état (si vous voulez le garder dans le service)
   final isLoading = false.obs;
   final errorMessage = ''.obs;
   final hasPreference = false.obs;
@@ -18,7 +17,7 @@ class PreferenceService {
   Future<List<Preference>> getPreferences() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/preferences'),
+        Uri.parse('${AppConfig.apiBaseUrl}/preferences'),
         headers: await AuthService.getHeaders(),
       );
 
@@ -36,7 +35,7 @@ class PreferenceService {
   Future<Preference> addPreference(Preference preference) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/preferences'),
+        Uri.parse('$AppConfig.apiBaseUrl}/preferences'),
         headers: await AuthService.getHeaders(),
         body: json.encode(preference.toJson()),
       );
@@ -54,7 +53,9 @@ class PreferenceService {
   Future<Preference?> getPreferenceByUserId(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/preferences/$id'), // Correction du endpoint
+        Uri.parse(
+          '$AppConfig.apiBaseUrl}/preferences/$id',
+        ), // Correction du endpoint
         headers: await AuthService.getHeaders(),
       );
 

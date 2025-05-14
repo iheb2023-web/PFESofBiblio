@@ -29,8 +29,6 @@ public class UserController {
     private final AuthenticationService authenticationService;
     private final CloudinaryService cloudinaryService;
 
-
-
     @Operation(summary = "Add user", description = "Add new user")
     @PostMapping("")
     public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody RegisterRequest request) {

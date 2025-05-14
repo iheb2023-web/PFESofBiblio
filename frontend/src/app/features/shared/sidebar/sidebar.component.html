@@ -1,74 +1,58 @@
 <nav class="navbar sidebar navbar-expand-xl navbar-light">
-    <!-- Navbar brand for xl START -->
+    <!-- Marque de la barre de navigation pour xl DÉBUT -->
     <div class="d-flex align-items-center">
         <a class="navbar-brand" href="index.html">
-            <img class="light-mode-item navbar-brand-item" src="assets/images/logo.svg" alt="logo">
+            <img class="light-mode-item navbar-brand-item" src="assets/images/logo.jpg" alt="logo">
             <img class="dark-mode-item navbar-brand-item" src="assets/images/logo-light.svg" alt="logo">
         </a>
-    </div> 
-    <!-- Navbar brand for xl END -->
-    
+    </div>
+    <!-- Marque de la barre de navigation pour xl FIN -->
+
     <div class="offcanvas offcanvas-start flex-row custom-scrollbar h-100" data-bs-backdrop="true" tabindex="-1" id="offcanvasSidebar">
         <div class="offcanvas-body sidebar-content d-flex flex-column pt-4">
 
-            <!-- Sidebar menu START -->
+            <!-- Menu de la barre latérale DÉBUT -->
             <ul class="navbar-nav flex-column" id="navbar-sidebar">
-                <!-- Menu item -->
-                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link">Dashboard</a></li>
+                <!-- Élément du menu -->
+                <li class="nav-item"><a href="admin-dashboard.html" class="nav-link">Tableau de bord</a></li>
 
-                <!-- Title -->
+                <!-- Titre -->
                 <li class="nav-item ms-2 my-2">Pages</li>
 
-                <!-- Menu item -->
-              
-
-                <!-- Menu item -->
+                <!-- Élément du menu -->
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#collapseguest" role="button" aria-expanded="true" aria-controls="collapseguest">
-                    Users
+                        Utilisateurs
                     </a>
-                    <!-- Submenu -->
+                    <!-- Sous-menu -->
                     <ul class="nav collapse flex-column show" id="collapseguest" data-bs-parent="#navbar-sidebar">
-                        <li class="nav-item"> <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/users" >User List</a></li>
+                        <li class="nav-item"> <a class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/users" >Liste des utilisateurs</a></li>
                         <li class="nav-item"> <a class="nav-link" routerLinkActive="active" routerLink="/home/users/add">
-                            Add User
-
+                            Ajouter un utilisateur
                         </a></li>
                     </ul>
                 </li>
 
-                <!-- Menu item -->
-              
-                
-                <!-- Menu item -->
-
-
-                <!-- Menu item 
-                <li class="nav-item"> <a class="nav-link" href="#">Statistiques</a></li>-->
+                <!-- Élément du menu -->
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/home/users/stat" routerLinkActive="active">Statistiques</a>
-                  </li>
-                  
+                </li>
 
-                <!-- Menu item -->
-              
-
-                <!-- Title -->
-               
+                <!-- Élément du menu -->
             </ul>
-            <!-- Sidebar menu end -->
+            <!-- Menu de la barre latérale FIN -->
 
-            <!-- Sidebar footer START -->
+            <!-- Pied de page de la barre latérale DÉBUT -->
             <div class="d-flex align-items-center justify-content-between text-primary-hover mt-auto p-3">
-                <a class="h6 fw-light mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Sign out">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Log out
+                <a class="h6 fw-light mb-0 text-body" href="sign-in.html" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Se déconnecter">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Se déconnecter
                 </a>
-                <a class="h6 mb-0 text-body" href="admin-settings.html" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Settings">
+                <a class="h6 mb-0 text-body" href="admin-settings.html" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Paramètres">
                     <i class="bi bi-gear-fill"></i>
                 </a>
             </div>
-            <!-- Sidebar footer END -->
-            
+            <!-- Pied de page de la barre latérale FIN -->
+
         </div>
     </div>
 </nav>

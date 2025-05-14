@@ -1,16 +1,14 @@
 import 'dart:convert';
+import 'package:app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/review.dart';
 import 'package:app/services/auth_service.dart';
 
 class ReviewService {
-  static const String baseUrl = 'http://10.0.2.2:8080/reviews';
-
-  // Ajouter un avis
   static Future<Review?> addReview(Review review) async {
     try {
       final response = await http.post(
-        Uri.parse(baseUrl),
+        Uri.parse(AppConfig.apiBaseUrl),
         headers: {
           ...await AuthService.getHeaders(),
           'Content-Type': 'application/json',
@@ -33,7 +31,7 @@ class ReviewService {
   static Future<List<Review>> getAllReviews() async {
     try {
       final response = await http.get(
-        Uri.parse(baseUrl),
+        Uri.parse(AppConfig.apiBaseUrl),
         headers: await AuthService.getHeaders(),
       );
 
@@ -51,7 +49,7 @@ class ReviewService {
   static Future<List<Review>> getReviewsByBookId(int bookId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/$bookId'),
         headers: await AuthService.getHeaders(),
       );
 
@@ -69,7 +67,7 @@ class ReviewService {
   static Future<Review?> getReviewById(int id) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/getReviewById/$id'),
+        Uri.parse('${AppConfig.apiBaseUrl}/getReviewById/$id'),
         headers: await AuthService.getHeaders(),
       );
 
@@ -90,7 +88,7 @@ class ReviewService {
   static Future<Review?> updateReview(int id, Review review) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/$id'),
+        Uri.parse('${AppConfig.apiBaseUrl}/$id'),
         headers: {
           ...await AuthService.getHeaders(),
           'Content-Type': 'application/json',
@@ -115,7 +113,7 @@ class ReviewService {
   static Future<bool> deleteReview(int id) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/$id'),
+        Uri.parse('${AppConfig.apiBaseUrl}/$id'),
         headers: await AuthService.getHeaders(),
       );
 
