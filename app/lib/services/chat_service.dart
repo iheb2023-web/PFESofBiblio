@@ -1,13 +1,11 @@
 import 'dart:convert';
 
+import 'package:app/config/app_config.dart';
 import 'package:app/imports.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class GeminiService {
-  static const String _apiUrl =
-      'http://10.0.2.2:5000/chat'; // Adresse de ton serveur Flask
-
   Future<String> generateResponse(
     String prompt,
     int? userid, {
@@ -20,7 +18,7 @@ class GeminiService {
       }
 
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse(AppConfig.chatUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
@@ -52,7 +50,7 @@ class GeminiService {
       }
 
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse(AppConfig.chatUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
@@ -83,7 +81,7 @@ class GeminiService {
       }
 
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse(AppConfig.chatUrl),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(requestBody),
       );
