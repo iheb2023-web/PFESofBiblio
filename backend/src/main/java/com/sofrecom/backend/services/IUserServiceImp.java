@@ -174,6 +174,11 @@ public class IUserServiceImp implements IUserService {
         return this.userRepository.numbreOfBooksByUser(email);
     }
 
+    @Override
+    public List<Top5Dto> getTop5Borrowers() {
+        Pageable topFive = Pageable.ofSize(5);
+        return userRepository.findTop5Borrowers(topFive);
+    }
 
 
 }

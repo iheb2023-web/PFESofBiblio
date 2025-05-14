@@ -1,5 +1,6 @@
 package com.sofrecom.backend.repositories;
 
+import com.sofrecom.backend.dtos.Top5Dto;
 import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.dtos.UserMinDto;
 import com.sofrecom.backend.dtos.UserUpdateDto;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job) from User u")
+    @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job,u.role) from User u")
     Page<UserDto> findAllUsers(Pageable pageable);
 
     @Query("SELECT  new com.sofrecom.backend.dtos.UserDto(u.id,u.firstname,u.lastname,u.email,u.image,u.job)  from User u WHERE " +
@@ -47,4 +48,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT count(*) FROM Book b WHERE b.owner.email = :email")
     Long numbreOfBooksByUser(@Param("email") String email);
+
+
+    @Query("SELECT new com.sofrecom.backend.dtos.Top5Dto(u.id, u.firstname, u.lastname, u.email, COUNT(b)) " +
+            "FROM Borrow b JOIN b.borrower u " +
+            "GROUP BY u.id, u.firstname, u.lastname, u.email " +
+            "ORDER BY COUNT(b) DESC")
+    List<Top5Dto> findTop5Borrowers(Pageable pageable);
+
+
 }

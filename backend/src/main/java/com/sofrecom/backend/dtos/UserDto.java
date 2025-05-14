@@ -1,8 +1,11 @@
 package com.sofrecom.backend.dtos;
 
+import com.sofrecom.backend.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 @AllArgsConstructor
 public class UserDto {
@@ -12,6 +15,18 @@ public class UserDto {
     private String email;
     private String image;
     private String job;
+    private Role role;
+
+    // Constructeur explicite
+    public UserDto(Long id, String firstname, String lastname, String email, String image, String job) {
+        this.id = id;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.image = image;
+        this.job = job;
+
+    }
 
 
 }
