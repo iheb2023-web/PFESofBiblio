@@ -56,6 +56,10 @@ import { Injectable } from "@angular/core";
       {
         return this._http.post(this.URL +`/hasSetPassword/${email}`, {})
       }
+
+      top5emprunteurs(){
+        return this._http.get(this.URL+ `/top5emprunteur`)
+      }
     
 
   }
