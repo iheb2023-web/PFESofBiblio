@@ -2,7 +2,9 @@ package com.sofrecom.backend.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 @AllArgsConstructor
 public class UserDto {

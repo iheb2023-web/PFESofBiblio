@@ -27,7 +27,7 @@ public class SecurityConfiguration {
                 .cors()
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/users/login","/users/**", "/books/**","/password-reset/**", "/borrows/**","/users", "/reviews/**","/preferences/**")
+                .requestMatchers("/users/login","/users/**", "/books/**","/password-reset/**", "/borrows/**","/users", "/reviews/**","/preferences/**","/swagger-ui/**","/swagger-ui.html","/v3/api-docs/**","/v3/api-docs.yaml")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
