@@ -1,18 +1,15 @@
 import 'dart:convert';
+import 'package:app/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/book.dart';
 import 'package:app/services/auth_service.dart';
 
 class BookService {
-  static const String baseUrl = 'http://10.0.2.2:8080/books';
-  static const String googleBooksUrl =
-      'https://www.googleapis.com/books/v1/volumes';
-
   static Future<List<Book>> getAllBooks() async {
     http.Response? response; // Déclarer response en dehors du try
     try {
       response = await http.get(
-        Uri.parse(baseUrl),
+        Uri.parse(AppConfig.apiBaseUrl),
         headers: {...await AuthService.getHeaders(), 'Accept-Charset': 'utf-8'},
       );
 
@@ -42,7 +39,9 @@ class BookService {
     http.Response? response;
     try {
       // Construire l'URL avec le paramètre email
-      final uri = Uri.parse('$baseUrl/allBookWithinEmailOwner/$email');
+      final uri = Uri.parse(
+        '${AppConfig.apiBaseUrl}/allBookWithinEmailOwner/$email',
+      );
 
       response = await http.get(
         uri,
@@ -86,7 +85,7 @@ class BookService {
         ...await AuthService.getHeaders(),
         'Accept-Charset': 'utf-8', // Ajout du charset
       };
-      final url = '$baseUrl/user/$userId';
+      final url = '${AppConfig.apiBaseUrl}/user/$userId';
       response = await http.get(Uri.parse(url), headers: headers);
       if (response.statusCode == 200) {
         try {
@@ -120,7 +119,7 @@ class BookService {
       }
 
       final response = await http.get(
-        Uri.parse('$googleBooksUrl?q=$queryString&maxResults=1'),
+        Uri.parse('${AppConfig.googleBooksUrl}?q=$queryString&maxResults=1'),
       );
 
       if (response.statusCode == 200) {
@@ -180,7 +179,7 @@ class BookService {
   static Future<bool> deleteBook(int bookId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/$bookId'),
         headers: await AuthService.getHeaders(),
       );
 
@@ -202,7 +201,7 @@ class BookService {
   ) async {
     try {
       final response = await http.patch(
-        Uri.parse('$baseUrl/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/$bookId'),
         headers: {
           ...await AuthService.getHeaders(),
           'Content-Type': 'application/json',
@@ -225,7 +224,7 @@ class BookService {
   static Future<Map<String, dynamic>?> getBookOwner(int bookId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/getBookOwner/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/getBookOwner/$bookId'),
         headers: await AuthService.getHeaders(),
       );
 

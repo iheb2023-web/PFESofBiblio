@@ -6,7 +6,6 @@ import 'package:app/services/storage_service.dart';
 
 class AuthService {
   static final StorageService _storageService = StorageService();
-  static const String baseUrl = 'http://10.0.2.2:8080';
 
   static Future<Map<String, String>> getHeaders() async {
     final token = await _storageService.getAuthToken();
@@ -18,7 +17,9 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> requestPasswordReset(String email) async {
-    final Uri url = Uri.parse('$baseUrl/password-reset/request?email=$email');
+    final Uri url = Uri.parse(
+      '${AppConfig.apiBaseUrl}/password-reset/request?email=$email',
+    );
 
     try {
       final response = await http.post(url);
@@ -59,7 +60,7 @@ class AuthService {
     final headers = await getHeaders();
 
     final response = await http.post(
-      Uri.parse('$baseUrl/users/login'),
+      Uri.parse('${AppConfig.apiBaseUrl}/users/login'),
       headers: headers,
       body: json.encode({'email': email, 'password': password}),
     );
@@ -75,7 +76,7 @@ class AuthService {
       await _storageService.saveAuthToken(token);
 
       final userResponse = await http.get(
-        Uri.parse('$baseUrl/users/usermininfo/$email'),
+        Uri.parse('${AppConfig.apiBaseUrl}/users/usermininfo/$email'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -122,7 +123,7 @@ class AuthService {
       await _storageService.clearSession();
       try {
         final response = await http.post(
-          Uri.parse('$baseUrl/users/logout'),
+          Uri.parse('${AppConfig.apiBaseUrl}/users/logout'),
           headers: await getHeaders(),
         );
 
@@ -137,7 +138,7 @@ class AuthService {
     try {
       final headers = await getHeaders();
       final response = await http.patch(
-        Uri.parse('$baseUrl/users/$userId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/users/$userId'),
         headers: headers,
         body: json.encode(userData),
       );
@@ -158,7 +159,7 @@ class AuthService {
     try {
       final headers = await getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/users/$id'),
+        Uri.parse('${AppConfig.apiBaseUrl}/users/$id'),
         headers: headers,
       );
 
@@ -182,7 +183,7 @@ class AuthService {
     String newPassword,
   ) async {
     final Uri url = Uri.parse(
-      '$baseUrl/password-reset/changePassword?email=$email&password=$newPassword',
+      '${AppConfig.apiBaseUrl}/password-reset/changePassword?email=$email&password=$newPassword',
     );
     try {
       final response = await http.put(url, headers: await getHeaders());
@@ -208,7 +209,7 @@ class AuthService {
     try {
       final headers = await getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/users/numberOfBorrows/$email'),
+        Uri.parse('${AppConfig.apiBaseUrl}/users/numberOfBorrows/$email'),
         headers: headers,
       );
 
@@ -231,7 +232,7 @@ class AuthService {
     try {
       final headers = await getHeaders();
       final response = await http.get(
-        Uri.parse('$baseUrl/users/numberOfBooks/$email'),
+        Uri.parse('${AppConfig.apiBaseUrl}/users/numberOfBooks/$email'),
         headers: headers,
       );
 

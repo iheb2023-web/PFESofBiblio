@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -27,8 +28,6 @@ public class UserController {
     private final IUserService userService;
     private final AuthenticationService authenticationService;
     private final CloudinaryService cloudinaryService;
-
-
 
     @Operation(summary = "Add user", description = "Add new user")
     @PostMapping("")
@@ -108,6 +107,13 @@ public class UserController {
     public ResponseEntity<Boolean> hasSetPassword(@PathVariable String email) {
         return this.userService.hasSetPassword(email);
     }
+    @Operation(summary = "Top 5 des emprunteurs", description = "Retourne les 5 utilisateurs ayant effectué le plus d'emprunts")
+    @GetMapping("/top5emprunteur")
+    public ResponseEntity<List<Top5Dto>> getTop5Borrowers() {
+        List<Top5Dto> top5Borrowers = userService.getTop5Borrowers();
+        return ResponseEntity.ok(top5Borrowers);
+    }
+
 
 
 

@@ -21,6 +21,37 @@ class BorrowController extends GetxController {
     loadOwnerRequests();
   }
 
+  Future<void> returnBook(int borrowId) async {
+    try {
+      isLoading.value = true;
+      error.value = '';
+      await _borrowService.markAsReturned(borrowId);
+      await loadAllBorrows();
+      Get.snackbar(
+        'Succès',
+        'Livre retourné avec succès',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(8),
+        borderRadius: 8,
+      );
+    } catch (e) {
+      error.value = e.toString();
+      Get.snackbar(
+        'Erreur',
+        'Impossible de retourner le livre',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+        colorText: AppTheme.errorColor,
+        margin: const EdgeInsets.all(8),
+        borderRadius: 8,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> loadOwnerRequests() async {
     isLoading.value = true;
     try {
@@ -55,26 +86,8 @@ class BorrowController extends GetxController {
       error.value = '';
       await _borrowService.acceptBorrowRequest(borrowId);
       await loadOwnerRequests();
-      Get.snackbar(
-        'Succès',
-        'Demande d\'emprunt acceptée',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: AppTheme.successColor.withOpacity(0.1),
-        colorText: AppTheme.successColor,
-        margin: const EdgeInsets.all(8),
-        borderRadius: 8,
-      );
     } catch (e) {
       error.value = e.toString();
-      Get.snackbar(
-        'Erreur',
-        'Impossible d\'accepter la demande',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
-        colorText: AppTheme.errorColor,
-        margin: const EdgeInsets.all(8),
-        borderRadius: 8,
-      );
     } finally {
       isLoading.value = false;
     }

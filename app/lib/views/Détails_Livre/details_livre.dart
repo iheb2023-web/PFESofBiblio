@@ -1,4 +1,7 @@
 import 'package:app/models/book.dart';
+import 'package:app/models/user_model.dart';
+import 'package:app/services/auth_service.dart';
+import 'package:app/services/book_service.dart';
 import 'package:app/views/Emprunter/emprunter_livre.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,6 +22,7 @@ class _DetailsLivreState extends State<DetailsLivre>
     with SingleTickerProviderStateMixin {
   final TextEditingController _commentController = TextEditingController();
   int _rating = 0;
+  String? proprietaire;
   late AnimationController _animationController;
   bool _isRotating = false;
   final ReviewController _reviewController = Get.find<ReviewController>();
@@ -42,11 +46,21 @@ class _DetailsLivreState extends State<DetailsLivre>
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
     _reviewController.loadReviewsForBook(widget.book.id!);
+    _loadOwner();
+  }
+
+  Future<void> _loadOwner() async {
+    final propritaire = await AuthService.getUserById(8);
+    final propritaireName = _formatUserName(propritaire);
+    setState(() {
+      proprietaire = propritaireName;
+    });
   }
 
   @override
@@ -619,6 +633,45 @@ class _DetailsLivreState extends State<DetailsLivre>
               const SizedBox(height: 24),
 
               // État et nombre d'emprunts
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: Row(
+              //     children: [
+              //       Container(
+              //         padding: const EdgeInsets.symmetric(
+              //           horizontal: 12,
+              //           vertical: 6,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: Colors.green.withOpacity(0.1),
+              //           borderRadius: BorderRadius.circular(16),
+              //         ),
+              //         child: const Row(
+              //           children: [
+              //             Icon(
+              //               Icons.check_circle,
+              //               color: Colors.green,
+              //               size: 16,
+              //             ),
+              //             SizedBox(width: 4),
+              //             Text(
+              //               "Disponible",
+              //               style: TextStyle(
+              //                 color: Colors.green,
+              //                 fontWeight: FontWeight.w500,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //       const SizedBox(width: 16),
+              //       const Text(
+              //         "Emprunté 3 fois",
+              //         style: TextStyle(color: Colors.grey),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
@@ -654,6 +707,16 @@ class _DetailsLivreState extends State<DetailsLivre>
                     const Text(
                       "Emprunté 3 fois",
                       style: TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        'Propriétaire : $proprietaire',
+                        style: const TextStyle(
+                          color: Colors.teal,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -963,6 +1026,14 @@ class _DetailsLivreState extends State<DetailsLivre>
         ],
       ),
     );
+  }
+
+  String _formatUserName(Map<String, dynamic>? userData) {
+    return (userData != null &&
+            userData['firstname'] != null &&
+            userData['lastname'] != null)
+        ? '${userData['firstname']} ${userData['lastname']}'
+        : 'un utilisateur';
   }
 }
 

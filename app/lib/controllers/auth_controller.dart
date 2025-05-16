@@ -206,45 +206,6 @@ class AuthController extends GetxController {
     }
   }
 
-  // Future<void> requestPasswordReset(String email) async {
-  //   try {
-  //     isLoading.value = true;
-  //     errorMessage.value = '';
-
-  //     final result = await _authService.requestPasswordReset(email);
-
-  //     if (result['success'] == true) {
-  //       Get.snackbar(
-  //         'Succès',
-  //         result['message'] ?? 'Un email de réinitialisation a été envoyé',
-  //         snackPosition: SnackPosition.BOTTOM,
-  //         backgroundColor: Colors.green,
-  //         colorText: Colors.white,
-  //       );
-  //       Get.back();
-  //     } else {
-  //       errorMessage.value = result['message'] ?? 'Une erreur est survenue';
-  //       Get.snackbar(
-  //         'Erreur',
-  //         'Vérifier votre email',
-  //         snackPosition: SnackPosition.BOTTOM,
-  //         backgroundColor: Colors.red,
-  //         colorText: Colors.white,
-  //       );
-  //     }
-  //   } catch (e) {
-  //     errorMessage.value = e.toString();
-  //     Get.snackbar(
-  //       'Erreur Exception',
-  //       errorMessage.value,
-  //       snackPosition: SnackPosition.BOTTOM,
-  //       backgroundColor: Colors.red,
-  //       colorText: Colors.white,
-  //     );
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
   Future<void> requestPasswordReset(String email) async {
     try {
       isLoading.value = true;

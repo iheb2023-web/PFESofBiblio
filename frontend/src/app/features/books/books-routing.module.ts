@@ -12,6 +12,7 @@ import { AuthGuard } from 'src/app/core/guards/auth-guard.guard';
 import { ColabGuard } from 'src/app/core/guards/colab-guard.guard';
 import { ProfileComponent } from '../shared/profile/profile.component';
 import { UpdateUserComponent } from '../users/update-user/update-user.component';
+import { StatComponent } from '../users/stat/stat.component';
 
 const routes: Routes = [
   {path:"", component : BookListComponent, canActivate: [AuthGuard,ColabGuard]},

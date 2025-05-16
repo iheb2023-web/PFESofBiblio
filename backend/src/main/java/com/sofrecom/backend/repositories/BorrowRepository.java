@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface BorrowRepository extends JpaRepository<Borrow, Long> {
 
-    @Query("SELECT b FROM Borrow b WHERE b.book.owner.email = :email AND b.BorrowStatus IN ('PENDING', 'IN_PROGRESS')")
+    @Query("SELECT b FROM Borrow b WHERE b.book.owner.email = :email AND b.BorrowStatus IN ('PENDING', 'IN_PROGRESS', 'APPROVED')")
     List<Borrow> findBorrowDemandsByOwnerEmail(@Param("email") String email);
 
     @Query("SELECT  b FROM Borrow b WHERE b.borrower.email = :email")

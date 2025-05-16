@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app/config/app_config.dart';
 import 'package:app/models/borrow.dart';
 import 'package:app/models/book.dart';
 import 'package:app/enums/borrow_status.dart';
@@ -8,7 +9,6 @@ import 'package:http/http.dart' as http;
 
 class BorrowService extends GetxService {
   final StorageService _storageService = Get.find<StorageService>();
-  static const String baseUrl = 'http://10.0.2.2:8080';
 
   Future<Map<String, String>> getHeaders() async {
     final token = await _storageService.getAuthToken();
@@ -23,11 +23,28 @@ class BorrowService extends GetxService {
     return this;
   }
 
+  Future<void> markAsReturned(int borrowId) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/markAsReturned/$borrowId'),
+        headers: await getHeaders(),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Erreur lors du retour de l\'emprunt: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Récupérer les demandes d'emprunt pour un propriétaire
   Future<List<Borrow>> getRequestsForOwner(String ownerEmail) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/borrows/demands/$ownerEmail'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/demands/$ownerEmail'),
         headers: await getHeaders(),
       );
 
@@ -52,7 +69,7 @@ class BorrowService extends GetxService {
   Future<Borrow> acceptBorrowRequest(int borrowId) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/borrows/$borrowId/accept'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/$borrowId/accept'),
         headers: await getHeaders(),
       );
 
@@ -73,7 +90,7 @@ class BorrowService extends GetxService {
   Future<Borrow> rejectBorrowRequest(int borrowId) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/borrows/$borrowId/reject'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/$borrowId/reject'),
         headers: await getHeaders(),
       );
 
@@ -109,7 +126,7 @@ class BorrowService extends GetxService {
       };
 
       final response = await http.post(
-        Uri.parse('$baseUrl/borrows'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows'),
         headers: await getHeaders(),
         body: jsonEncode(requestBody),
       );
@@ -176,7 +193,7 @@ class BorrowService extends GetxService {
   Future<List<Borrow>> getAllBorrows() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/borrows'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows'),
         headers: await getHeaders(),
       );
       if (response.statusCode == 200) {
@@ -209,7 +226,7 @@ class BorrowService extends GetxService {
         'Accept-Charset': 'utf-8', // Ajout du charset pour la requête
       };
 
-      final url = '$baseUrl/borrows/demands/$email';
+      final url = '${AppConfig.apiBaseUrl}/borrows/demands/$email';
       response = await http.get(Uri.parse(url), headers: headers);
 
       if (response.statusCode == 200) {
@@ -249,7 +266,7 @@ class BorrowService extends GetxService {
         'Accept-Charset': 'utf-8', // Ajout du charset
       };
 
-      final url = '$baseUrl/borrows/requests/$userEmail';
+      final url = '${AppConfig.apiBaseUrl}/borrows/requests/$userEmail';
 
       response = await http.get(Uri.parse(url), headers: headers);
 
@@ -284,7 +301,9 @@ class BorrowService extends GetxService {
   Future<Borrow> processBorrowRequest(Borrow borrow, bool isApproved) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/borrows/approved/${isApproved.toString()}'),
+        Uri.parse(
+          '${AppConfig.apiBaseUrl}/borrows/approved/${isApproved.toString()}',
+        ),
         headers: await getHeaders(),
         body: jsonEncode(borrow.toJson()),
       );
@@ -305,7 +324,7 @@ class BorrowService extends GetxService {
   Future<List<DateTime>> getOccupiedDatesByBookId(int bookId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/borrows/BookOccupiedDates/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/BookOccupiedDates/$bookId'),
         headers: await getHeaders(),
       );
 
@@ -342,7 +361,7 @@ class BorrowService extends GetxService {
   Future<Borrow> getBorrowById(int borrowId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/borrows/$borrowId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/$borrowId'),
         headers: await getHeaders(),
       );
 
@@ -362,7 +381,9 @@ class BorrowService extends GetxService {
   Future<void> cancelWhileInProgress(int borrowId) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/borrows/cancelWhileInProgress/$borrowId'),
+        Uri.parse(
+          '${AppConfig.apiBaseUrl}/borrows/cancelWhileInProgress/$borrowId',
+        ),
         headers: await getHeaders(),
       );
 
@@ -379,7 +400,9 @@ class BorrowService extends GetxService {
   Future<void> cancelPendingOrApproved(int borrowId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/borrows/cancelPendingOrApproved/$borrowId'),
+        Uri.parse(
+          '${AppConfig.apiBaseUrl}/borrows/cancelPendingOrApproved/$borrowId',
+        ),
         headers: await getHeaders(),
       );
 
@@ -400,7 +423,7 @@ class BorrowService extends GetxService {
     try {
       final response = await http.get(
         Uri.parse(
-          '$baseUrl/borrows/getBookOccupiedDatesUpdatedBorrow/$bookId/$borrowId',
+          '${AppConfig.apiBaseUrl}/borrows/getBookOccupiedDatesUpdatedBorrow/$bookId/$borrowId',
         ),
         headers: await getHeaders(),
       );
@@ -438,7 +461,7 @@ class BorrowService extends GetxService {
   Future<Borrow> updateBorrowWhilePending(Borrow borrow) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/borrows/updateBorrowWhilePending'),
+        Uri.parse('${AppConfig.apiBaseUrl}/borrows/updateBorrowWhilePending'),
         headers: await getHeaders(),
         body: jsonEncode(borrow.toJson()),
       );
