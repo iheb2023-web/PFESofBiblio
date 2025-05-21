@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("java:S7027")
 @Data
 @Builder
 @NoArgsConstructor

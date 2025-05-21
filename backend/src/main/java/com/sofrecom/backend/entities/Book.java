@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+@SuppressWarnings("java:S7027")
 @Data
 @Builder
 @NoArgsConstructor
