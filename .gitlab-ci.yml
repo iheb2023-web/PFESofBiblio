@@ -112,7 +112,6 @@ security_scan_trivy:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - echo "Scan de sécurité pour validation"
     - trivy fs --severity HIGH,CRITICAL backend/pom.xml || echo "Aucune vulnérabilité critique trouvée dans pom.xml"
