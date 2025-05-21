@@ -1,6 +1,6 @@
 package com.sofrecom.backend.dtos;
 
-import com.sofrecom.backend.enums.Role;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

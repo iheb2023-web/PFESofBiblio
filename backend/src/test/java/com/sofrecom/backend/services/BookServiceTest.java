@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.sofrecom.backend.dtos.BookOwerDto;
 import com.sofrecom.backend.dtos.BookUpdateDto;
-import com.sofrecom.backend.dtos.UserDto;
 import com.sofrecom.backend.entities.Book;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.BookRepository;

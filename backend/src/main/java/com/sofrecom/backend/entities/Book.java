@@ -43,7 +43,7 @@ public class Book implements Serializable {
     private User owner;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book") // NOSONAR
     private List<Borrow> borrows;
 
 

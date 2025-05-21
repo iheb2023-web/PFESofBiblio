@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -68,7 +67,7 @@ class SocketIOServiceTest {
         // Arrange
         String bookDetails = "Book updated details";
         when(server.getBroadcastOperations()).thenReturn(broadcastOperations);
-        doNothing().when(broadcastOperations).sendEvent(eq("bookUpdated"), eq(bookDetails));
+        doNothing().when(broadcastOperations).sendEvent("bookUpdated", bookDetails);
 
         // Act
         socketIOService.sendBookUpdateNotification(bookDetails);
@@ -83,7 +82,7 @@ class SocketIOServiceTest {
         // Arrange
         Long borrowId = 1L;
         when(server.getBroadcastOperations()).thenReturn(broadcastOperations);
-        doNothing().when(broadcastOperations).sendEvent(eq("processBorrowRequest"), eq(borrowId));
+        doNothing().when(broadcastOperations).sendEvent("processBorrowRequest", borrowId);
 
         // Act
         socketIOService.sendProcessBorrowRequestNotification(borrowId);
@@ -98,7 +97,7 @@ class SocketIOServiceTest {
         // Arrange
         Long borrowId = 1L;
         when(server.getBroadcastOperations()).thenReturn(broadcastOperations);
-        doNothing().when(broadcastOperations).sendEvent(eq("processDemand"), eq(borrowId));
+        doNothing().when(broadcastOperations).sendEvent("processDemand", borrowId);
 
         // Act
         socketIOService.sendDemandNotification(borrowId);
@@ -113,7 +112,7 @@ class SocketIOServiceTest {
         // Arrange
         Long reviewId = 1L;
         when(server.getBroadcastOperations()).thenReturn(broadcastOperations);
-        doNothing().when(broadcastOperations).sendEvent(eq("addReview"), eq(reviewId));
+        doNothing().when(broadcastOperations).sendEvent("addReview", reviewId);
 
         // Act
         socketIOService.sendAddReviewNotification(reviewId);

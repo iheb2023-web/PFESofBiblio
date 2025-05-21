@@ -4,6 +4,7 @@ import com.sofrecom.backend.config.JwtService;
 import com.sofrecom.backend.dtos.*;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.exceptions.EmailAlreadyExistsException;
+import com.sofrecom.backend.exceptions.EmailSendingException;
 import com.sofrecom.backend.exceptions.ResourceNotFoundException;
 import com.sofrecom.backend.repositories.UserRepository;
 import jakarta.mail.MessagingException;
@@ -59,17 +60,14 @@ public class IUserServiceImp implements IUserService {
         try {
             emailService.sendEmail(request.getEmail(), "Default password", password);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send registration email. Please try again later.", e);
-        }
+            throw new EmailSendingException("Failed to send registration email. Please try again later.", e);
+            }
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .build();
     }
 
-  /* @Override
-    public Page<UserDto> getUsers(Pageable pageable) {
-        return userRepository.findAllUsers(pageable);
-    } */
+
 
     @Override
     public Page<UserDto> getUsers(Pageable pageable, String searchTerm) {

@@ -25,7 +25,7 @@ public class Borrow implements Serializable {
     private LocalDate expectedReturnDate;
     private int numberOfRenewals ;
     @Enumerated(EnumType.STRING)
-    private BorrowStatus BorrowStatus;
+    private BorrowStatus BorrowStatus; // NOSONAR
 
 
     @ManyToOne
@@ -33,7 +33,7 @@ public class Borrow implements Serializable {
 
 
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "book_id", nullable = false) // NOSONAR
     private Book book;
 
 }

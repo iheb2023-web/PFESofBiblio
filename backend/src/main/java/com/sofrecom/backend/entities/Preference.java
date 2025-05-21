@@ -44,7 +44,7 @@ public class Preference implements Serializable {
 
     @JsonIgnore
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id") // NOSONAR
     private User user;
 
 

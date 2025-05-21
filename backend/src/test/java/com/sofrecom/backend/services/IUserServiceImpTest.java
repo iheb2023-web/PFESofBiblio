@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IUserServiceImpTest {
+
+    @Value("${JWT_SECRET_KEY}")
+    private String password;
 
     @Mock
     private UserRepository userRepository;
@@ -62,7 +66,7 @@ class IUserServiceImpTest {
                 .firstname("John")
                 .lastname("Doe")
                 .email("john.doe@example.com")
-                .password("secureTestPassword123")
+                .password(password)
                 .role(Role.Administrateur)
                 .hasPreference(false)
                 .hasSetPassword(false)

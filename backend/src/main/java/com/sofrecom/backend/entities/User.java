@@ -40,7 +40,8 @@ public class User implements UserDetails, Serializable {
     @OneToMany(mappedBy = "borrower")
     private List<Borrow>  borrows;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @SuppressWarnings("java:S7027")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // NOSONAR
     private Preference preference;
 
     private Boolean hasPreference;

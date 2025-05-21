@@ -164,9 +164,10 @@ class ReviewsServiceTest {
         Reviews updatedReview = new Reviews();
         when(reviewsRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        AssertionError exception = assertThrows(AssertionError.class, () ->
-                reviewsService.updateReviews(1L, updatedReview));
+        // Act
+        assertThrows(AssertionError.class, () -> reviewsService.updateReviews(1L, updatedReview));
+
+        // Assert
         verify(reviewsRepository).findById(1L);
         verify(reviewsRepository, never()).save(any());
     }
