@@ -119,7 +119,6 @@ security_scan_trivy:
     - trivy fs --severity HIGH,CRITICAL frontend/package.json || echo "Aucune vulnérabilité critique trouvée dans package.json"
     - trivy fs --severity HIGH,CRITICAL backend/target/*.jar || echo "Scan JAR terminé"
     - trivy fs --severity HIGH,CRITICAL frontend/dist/ || echo "Scan dist terminé"
-    - trivy fs --severity HIGH,CRITICAL app/build/app/outputs/flutter-apk/app-release.apk || echo "Scan APK terminé"
   allow_failure: true
   only:
     - main
@@ -136,7 +135,6 @@ analyze_metrics:
     - echo "Analyse des métriques de build"
     - du -sh backend/target/*.jar > metrics.txt
     - du -sh frontend/dist/ >> metrics.txt
-    - du -sh app/build/app/outputs/flutter-apk/app-release.apk >> metrics.txt
     - cat metrics.txt
   artifacts:
     paths:
@@ -157,7 +155,6 @@ package_artifacts:
     - mkdir -p release
     - cp backend/target/*.jar release/backend.jar
     - cp -r frontend/dist/ release/frontend
-    - cp app/build/app/outputs/flutter-apk/app-release.apk release/app.apk
     - ls -lhR release/
   artifacts:
     paths:
@@ -173,12 +170,11 @@ deploy:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
+    
   script:
     - echo "Déploiement simulé pour validation"
     - ls -lh backend/target/*.jar
     - ls -lhR frontend/dist/
-    - ls -lh app/build/app/outputs/flutter-apk/app-release.apk
     - echo "Déploiement du backend, frontend et Flutter terminé avec succès"
   only:
     - main
