@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("java:S00115")
 @RequiredArgsConstructor
 public enum Role {
     Administrateur(
