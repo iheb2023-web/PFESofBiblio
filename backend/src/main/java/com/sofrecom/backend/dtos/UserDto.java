@@ -3,9 +3,9 @@ package com.sofrecom.backend.dtos;
 import com.sofrecom.backend.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Setter
+@NoArgsConstructor
 @Getter
 @AllArgsConstructor
 public class UserDto {
