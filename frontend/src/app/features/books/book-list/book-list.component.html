@@ -1,23 +1,22 @@
 <section class="pt-0">
 	<div class="container">
-		<!-- Tabs and alert START -->
+		<!-- Onglets et alerte DÉBUT -->
 		<div class="row mb-4">
 			<div class="col-12">
-				
 
-				<!-- Buttons -->
+				<!-- Boutons -->
 				<div class="hstack gap-3 justify-content-between justify-content-md-end">
-					<!-- Filter offcanvas button -->
+					<!-- Bouton filtre offcanvas -->
 					<button class="btn btn-primary-soft btn-primary-check mb-0 d-xl-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
-						<i class="fa-solid fa-sliders-h me-1"></i> Show filters
+						<i class="fa-solid fa-sliders-h me-1"></i> Afficher les filtres
 					</button>
-					<!-- tabs -->
+					<!-- onglets -->
 					<ul class="nav nav-pills nav-pills-dark" id="tour-pills-tab" role="tablist">
-						<!-- Tab item -->
+						<!-- Élément d'onglet -->
 						<li class="nav-item">
 							<a class="nav-link rounded-start rounded-0 mb-0 " routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" routerLink="/home/books"><i class="bi fa-fw bi-list-ul"></i></a>
 						</li>
-						<!-- Tab item -->
+						<!-- Élément d'onglet -->
 						<li class="nav-item">
 							<a class="nav-link rounded-end rounded-0 mb-0"  routerLink="/home/books/grid"><i class="bi fa-fw bi-grid-fill"></i></a>
 						</li>
@@ -25,169 +24,170 @@
 				</div>
 			</div>
 		</div>
-		<!-- Tabs and alert END -->
+		<!-- Onglets et alerte FIN -->
 
 		<div class="row">
-			<!-- Left sidebar START -->
+			<!-- Barre latérale gauche DÉBUT -->
 			<aside class="col-xl-4 col-xxl-3">
-				<!-- Responsive offcanvas body START -->
+				<!-- Corps offcanvas responsive DÉBUT -->
 				<div class="offcanvas-xl offcanvas-end" tabindex="-1" id="offcanvasSidebar" aria-labelledby="offcanvasSidebarLabel">
 					<div class="offcanvas-header">
-						<h5 class="offcanvas-title" id="offcanvasSidebarLabel">Advance Filters</h5>
-						<button  type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Close"></button>
+						<h5 class="offcanvas-title" id="offcanvasSidebarLabel">Filtres avancés</h5>
+						<button  type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#offcanvasSidebar" aria-label="Fermer"></button>
 					</div>
 					<div class="offcanvas-body flex-column p-3 p-xl-0">
 						<form class="rounded-3 shadow">
-							<!-- Hotel type START -->
+							<!-- Type de livre DÉBUT -->
 							<div class="card card-body rounded-0 rounded-top p-4"> 
-                                <!-- Title -->
-                                <h6 class="mb-2">Book Category</h6>
-                                <!-- Book Category group -->
+                                <!-- Titre -->
+                                <h6 class="mb-2">Catégorie de livre</h6>
+                                <!-- Groupe catégorie de livre -->
                                 <div class="col-12">
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory1">
-                                        <label class="form-check-label" for="bookCategory1">All</label>
+                                        <label class="form-check-label" for="bookCategory1">Tous</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory2">
                                         <label class="form-check-label" for="bookCategory2">Fiction</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory3">
                                         <label class="form-check-label" for="bookCategory3">Non-Fiction</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory4">
-                                        <label class="form-check-label" for="bookCategory4">Science Fiction</label>
+                                        <label class="form-check-label" for="bookCategory4">Science-fiction</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory5">
-                                        <label class="form-check-label" for="bookCategory5">Fantasy</label>
+                                        <label class="form-check-label" for="bookCategory5">Fantastique</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="bookCategory6">
-                                        <label class="form-check-label" for="bookCategory6">Mystery</label>
+                                        <label class="form-check-label" for="bookCategory6">Mystère</label>
                                     </div>
                                     
-                                    <!-- Collapse body -->
+                                    <!-- Corps du collapse -->
                                     <div class="multi-collapse collapse" id="bookCategory">
-                                        <!-- Checkbox -->
+                                        <!-- Case à cocher -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="bookCategory7">
                                             <label class="form-check-label" for="bookCategory7">Thriller</label>
                                         </div>
-                                        <!-- Checkbox -->
+                                        <!-- Case à cocher -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="bookCategory8">
-                                            <label class="form-check-label" for="bookCategory8">Biography</label>
+                                            <label class="form-check-label" for="bookCategory8">Biographie</label>
                                         </div>
-                                        <!-- Checkbox -->
+                                        <!-- Case à cocher -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="bookCategory9">
-                                            <label class="form-check-label" for="bookCategory9">History</label>
+                                            <label class="form-check-label" for="bookCategory9">Histoire</label>
                                         </div>
-                                        <!-- Checkbox -->
+                                        <!-- Case à cocher -->
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" value="" id="bookCategory10">
-                                            <label class="form-check-label" for="bookCategory10">Self-Help</label>
+                                            <label class="form-check-label" for="bookCategory10">Développement personnel</label>
                                         </div>
                                     </div>
-                                    <!-- Collapse button -->
+                                    <!-- Bouton collapse -->
                                     <a class="p-0 mb-0 mt-2 btn-more d-flex align-items-center collapsed" data-bs-toggle="collapse" href="#bookCategory" role="button" aria-expanded="false" aria-controls="bookCategory">
-                                        See <span class="see-more ms-1">more</span><span class="see-less ms-1">less</span><i class="fa-solid fa-angle-down ms-2"></i>
+                                        Voir <span class="see-more ms-1">plus</span><span class="see-less ms-1">moins</span><i class="fa-solid fa-angle-down ms-2"></i>
                                     </a>
                                 </div>
                             </div>
                             
-							<!-- Hotel type END -->
+							<!-- Type de livre FIN -->
 
-							<hr class="my-0"> <!-- Divider -->
+							<hr class="my-0"> <!-- Séparateur -->
 
-							<!-- Price range START -->
+							<!-- Gamme de pages DÉBUT -->
 							<div class="card card-body rounded-0 p-4">
-                                <!-- Title -->
-                                <h6 class="mb-2">Number of Pages</h6>
-                                <!-- Number of Pages group -->
+                                <!-- Titre -->
+                                <h6 class="mb-2">Nombre de pages</h6>
+                                <!-- Groupe nombre de pages -->
                                 <div class="col-12">
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="pageRange1">
-                                        <label class="form-check-label" for="pageRange1">Up to 100 pages</label>
+                                        <label class="form-check-label" for="pageRange1">Jusqu'à 100 pages</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="pageRange2">
                                         <label class="form-check-label" for="pageRange2">100 - 300 pages</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="pageRange3">
                                         <label class="form-check-label" for="pageRange3">300 - 500 pages</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="pageRange4">
                                         <label class="form-check-label" for="pageRange4">500 - 700 pages</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="pageRange5">
-                                        <label class="form-check-label" for="pageRange5">700+ pages</label>
+                                        <label class="form-check-label" for="pageRange5">Plus de 700 pages</label>
                                     </div>
                                 </div>
                             </div>
-							<!-- Price range END -->
+							<!-- Gamme de pages FIN -->
 
-							<hr class="my-0"> <!-- Divider -->
+							<hr class="my-0"> <!-- Séparateur -->
 
-							<!-- Popular type START -->
+							<!-- Langue populaire DÉBUT -->
 							<div class="card card-body rounded-0 p-4">
-                                <!-- Title -->
-                                <h6 class="mb-2">Language</h6>
-                                <!-- Language group -->
+                                <!-- Titre -->
+                                <h6 class="mb-2">Langue</h6>
+                                <!-- Groupe langue -->
                                 <div class="col-12">
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="language1">
-                                        <label class="form-check-label" for="language1">English</label>
+                                        <label class="form-check-label" for="language1">Anglais</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="language2">
-                                        <label class="form-check-label" for="language2">French</label>
+                                        <label class="form-check-label" for="language2">Français</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="language3">
-                                        <label class="form-check-label" for="language3">Spanish</label>
+                                        <label class="form-check-label" for="language3">Espagnol</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="language4">
-                                        <label class="form-check-label" for="language4">German</label>
+                                        <label class="form-check-label" for="language4">Allemand</label>
                                     </div>
-                                    <!-- Checkbox -->
+                                    <!-- Case à cocher -->
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value="" id="language5">
-                                        <label class="form-check-label" for="language5">Chinese</label>
+                                        <label class="form-check-label" for="language5">Chinois</label>
                                     </div>
                                 </div>
                             </div>
-							<!-- Popular type END -->
+							<!-- Langue populaire FIN -->
+
 
 							<hr class="my-0"> <!-- Divider -->
 
 							<!-- Customer Rating START -->
 							<div class="card card-body rounded-0 p-4">
 								<!-- Title -->
-								<h6 class="mb-2">Rating</h6>
-								<!-- Customer Rating group -->
+                <h6 class="mb-2">Évaluation</h6>
+                								<!-- Customer Rating group -->
 								<ul class="list-inline mb-0 g-3">
 									<!-- Item -->
 									<li class="list-inline-item mb-0">
@@ -218,8 +218,8 @@
 							<!-- Rating Star START -->
 							<div class="card card-body rounded-0 p-4">
 								<!-- Title -->
-								<h6 class="mb-2">Rating Star</h6>
-								<!-- Rating Star group -->
+                <h6 class="mb-2">Étoiles de notation</h6>
+                								<!-- Rating Star group -->
 								<ul class="list-inline mb-0 g-3">
 									<!-- Item -->
 									<li class="list-inline-item mb-0">
@@ -257,8 +257,8 @@
 					</div>
 					<!-- Buttons -->
 					<div class="d-flex justify-content-between p-2 p-xl-0 mt-xl-4">
-						<button class="btn btn-link p-0 mb-0">Clear all</button>
-						<button class="btn btn-primary mb-0">Filter Result</button>
+						<button class="btn btn-link p-0 mb-0">Tout effacer</button>
+<button class="btn btn-primary mb-0">Filtrer</button>
 					</div>
 				</div>
 				<!-- Responsive offcanvas body END -->
@@ -311,7 +311,7 @@
                                           <li><a class="dropdown-item" href="#"><i class="fab fa-twitter-square me-2"></i>Twitter</a></li>
                                           <li><a class="dropdown-item" href="#"><i class="fab fa-facebook-square me-2"></i>Facebook</a></li>
                                           <li><a class="dropdown-item" href="#"><i class="fab fa-linkedin me-2"></i>LinkedIn</a></li>
-                                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-copy me-2"></i>Copy link</a></li>
+                                          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-copy me-2"></i>Copier lien</a></li>
                                         </ul>
                                       </li>
                                     </ul>
