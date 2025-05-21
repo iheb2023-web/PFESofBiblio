@@ -10,7 +10,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class EmailServiceTest {
+class EmailServiceTest {
 
     private JavaMailSender mailSender;
     private EmailService emailService;
@@ -22,7 +22,7 @@ public class EmailServiceTest {
     }
 
     @Test
-    public void testSendEmail() throws MessagingException, IOException {
+    void testSendEmail() throws MessagingException, IOException {
         String toEmail = "recipient@example.com";
         String subject = "Password";
         String text = "Your temporary password is: 123456";

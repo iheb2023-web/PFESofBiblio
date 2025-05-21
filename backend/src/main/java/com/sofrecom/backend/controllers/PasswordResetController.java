@@ -15,7 +15,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/password-reset")
-@CrossOrigin(origins = "*")
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;

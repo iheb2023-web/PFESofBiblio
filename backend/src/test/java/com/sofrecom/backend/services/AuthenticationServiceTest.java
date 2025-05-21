@@ -39,11 +39,12 @@ class AuthenticationServiceTest {
     private AuthenticationRequest authRequest;
     private User user;
 
+    @SuppressWarnings("squid:S2068")
     @BeforeEach
     void setUp() {
         authRequest = new AuthenticationRequest();
         authRequest.setEmail("test@example.com");
-        authRequest.setPassword("password");
+        authRequest.setPassword("secureTestPassword123");
 
         user = new User();
         user.setId(1L);

@@ -54,6 +54,7 @@ class IUserServiceImpTest {
     private UserUpdateDto userUpdateDto;
     private Pageable pageable;
 
+    @SuppressWarnings("squid:S2068")
     @BeforeEach
     void setUp() {
         user = User.builder()
@@ -61,7 +62,7 @@ class IUserServiceImpTest {
                 .firstname("John")
                 .lastname("Doe")
                 .email("john.doe@example.com")
-                .password("encodedPassword")
+                .password("secureTestPassword123")
                 .role(Role.Administrateur)
                 .hasPreference(false)
                 .hasSetPassword(false)
