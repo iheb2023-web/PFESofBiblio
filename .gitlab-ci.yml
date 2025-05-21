@@ -53,9 +53,6 @@ build_frontend:
   only:
     - main
 
-# -------- BUILD DE L'APPLICATION MOBILE (FLUTTER) --------
-
-
 # -------- ANALYSE SONARQUBE --------
 build-sonar:
   stage: build-sonar
@@ -67,9 +64,9 @@ build-sonar:
       - "${SONAR_USER_HOME}/cache"
   script:
     - cd backend
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-      -Dsonar.host.url=$SONAR_HOST_URL
-      -Dsonar.token=$SONAR_TOKEN
+    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+      -Dsonar.host.url=$SONAR_HOST_URL \
+      -Dsonar.token=$SONAR_TOKEN \
       -Dsonar.projectKey=$SONAR_PROJECT_KEY
   allow_failure: true
   dependencies:
@@ -129,7 +126,6 @@ analyze_metrics:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - echo "Analyse des métriques de build"
     - du -sh backend/target/*.jar > metrics.txt
@@ -149,7 +145,6 @@ package_artifacts:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - mkdir -p release
     - cp backend/target/*.jar release/backend.jar
@@ -169,11 +164,10 @@ deploy:
   dependencies:
     - build_backend
     - build_frontend
-    
   script:
     - echo "Déploiement simulé pour validation"
     - ls -lh backend/target/*.jar
     - ls -lhR frontend/dist/
-    - echo "Déploiement du backend, frontend et Flutter terminé avec succès"
+    - echo "Déploiement du backend et frontend terminé avec succès"
   only:
     - main
