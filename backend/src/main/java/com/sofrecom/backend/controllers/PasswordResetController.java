@@ -8,16 +8,15 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.concurrent.ThreadLocalRandom;
-
-
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Optional;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/password-reset")
 @CrossOrigin(origins = "*")
 public class PasswordResetController {
-
 
     private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
@@ -27,36 +26,33 @@ public class PasswordResetController {
         Optional<User> user = userRepository.findByEmail(email);
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");
-        }else {
-            int randomNumber = ThreadLocalRandom.current().nextInt(1000, 10000);
-            String token = String.valueOf(randomNumber);
+        } else {
+            // Generate a secure token
+            SecureRandom secureRandom = new SecureRandom();
+            byte[] randomBytes = new byte[32];
+            secureRandom.nextBytes(randomBytes);
+            String token = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
             passwordResetService.createPasswordResetTokenForUser(user.get(), token);
             passwordResetService.sendPasswordResetEmail(email, token);
 
             return ResponseEntity.ok("Password reset email sent successfully");
-
         }
-
     }
 
     @GetMapping("/getTokenByEmail/{email}")
     public String getPasswordResetCode(@PathVariable("email") String email) {
-       return  this.passwordResetService.getTokenByEmail(email);
+        return this.passwordResetService.getTokenByEmail(email);
     }
 
     @PutMapping("/reset")
     public ResponseEntity<PasswordResetResponse> resetPassword(@RequestParam("token") String token,
                                                                @RequestParam("password") String newPassword) {
-        return ResponseEntity.ok(passwordResetService.resetPassword(token,newPassword));
+        return ResponseEntity.ok(passwordResetService.resetPassword(token, newPassword));
     }
-
 
     @PutMapping("/changePassword")
     public ResponseEntity<PasswordResetResponse> changePassword(@RequestParam("email") String email,
-                                                                @RequestParam("password") String newPassword)
-    {
-        return ResponseEntity.ok(passwordResetService.changePassword(email,newPassword));
+                                                                @RequestParam("password") String newPassword) {
+        return ResponseEntity.ok(passwordResetService.changePassword(email, newPassword));
     }
-
-
 }
