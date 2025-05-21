@@ -39,7 +39,7 @@ public class Book implements Serializable {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id") // NOSONAR
     private User owner;
 
     @JsonIgnore

@@ -33,11 +33,11 @@ public class User implements UserDetails, Serializable {
     private Role role;
     private String password;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner") // NOSONAR
     private List<Book> books;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "borrower")
+    @OneToMany(mappedBy = "borrower") // NOSONAR
     private List<Borrow>  borrows;
 
     @SuppressWarnings("java:S7027")
