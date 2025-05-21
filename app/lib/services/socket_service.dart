@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/config/app_config.dart';
 import 'package:app/imports.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -14,15 +15,15 @@ class SocketService {
 
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
-
-  static const String _wsUrlEmulator = 'http://10.0.2.2:9092';
-  static const String _wsUrlPhysical = 'http://192.168.1.100:9092';
   static const int _maxReconnectAttempts = 10;
 
   final String _wsUrl;
 
   SocketService({bool isPhysicalDevice = false})
-    : _wsUrl = isPhysicalDevice ? _wsUrlPhysical : _wsUrlEmulator;
+    : _wsUrl =
+          isPhysicalDevice
+              ? AppConfig.SocketwsUrlPhysical
+              : AppConfig.SocketUrlEmulator;
 
   // Getter pour l'état de connexion
   bool get isConnected => _isConnected.value;

@@ -20,6 +20,7 @@ const routes: Routes = [
     children : [
       { path: 'users', loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule) },
       { path: 'books', loadChildren: () => import('./features/books/books.module').then(m => m.BooksModule) },
+      {path: 'stat', loadChildren:() => import('./features/users/users.module').then(m=>m.UsersModule)}
     ]
   },
   { path: '**', component: NotfoundComponent },

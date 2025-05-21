@@ -7,13 +7,15 @@ import { SharedModule } from '../shared/shared.module';
 import { AddUserComponent } from './add-user/add-user.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UpdateUserComponent } from './update-user/update-user.component';
+import { StatComponent } from './stat/stat.component';
 
 
 @NgModule({
   declarations: [
     ListUserComponent,
     AddUserComponent,
-    UpdateUserComponent
+    UpdateUserComponent,
+    StatComponent
   ],
   imports: [
     CommonModule,

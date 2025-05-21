@@ -1,0 +1,45 @@
+<div class="kpi-grid">
+    <div class="kpi-card">
+      <h3>Collaborateurs Inscrits</h3>
+      <p>{{ totalUsers }}</p>
+    </div>
+      <div class="kpi-card">
+      <h3>Utilisateurs Actifs (30j)</h3>
+      <p>{{ totalUsers }}</p>
+    </div>
+      <div class="kpi-card">
+      <h3>Emprunts/Utilisateur</h3>
+      <p>{{8.7 }}</p>
+    </div>
+  </div>
+  
+  <div class="charts-row">
+    <div class="chart-container">
+      <h3>Rôles des Utilisateurs</h3>
+      <canvas #rolesChart></canvas>
+    </div>
+      <div class="chart-container">
+      <h3>Top 5 Emprunteurs</h3>
+      <canvas #topBorrowersChart></canvas>
+    </div>
+  </div>
+    <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Profession</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of recentUsers">
+        <td>
+            <span class="firstname">{{ user.firstname }}</span>
+            <span>{{ user.lastname }}</span>
+        </td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.job }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
