@@ -9,7 +9,7 @@ class BookService {
     http.Response? response; // Déclarer response en dehors du try
     try {
       response = await http.get(
-        Uri.parse(AppConfig.apiBaseUrl),
+        Uri.parse('${AppConfig.apiBaseUrl}/books'),
         headers: {...await AuthService.getHeaders(), 'Accept-Charset': 'utf-8'},
       );
 
@@ -40,7 +40,7 @@ class BookService {
     try {
       // Construire l'URL avec le paramètre email
       final uri = Uri.parse(
-        '${AppConfig.apiBaseUrl}/allBookWithinEmailOwner/$email',
+        '${AppConfig.apiBaseUrl}/books/allBookWithinEmailOwner/$email',
       );
 
       response = await http.get(
@@ -73,6 +73,7 @@ class BookService {
         print('Error response body: ${response.body}');
       }
       print('Error fetching books with owner email: $e');
+      print("email de user connecte est : $email");
       return [];
     }
   }
@@ -85,7 +86,7 @@ class BookService {
         ...await AuthService.getHeaders(),
         'Accept-Charset': 'utf-8', // Ajout du charset
       };
-      final url = '${AppConfig.apiBaseUrl}/user/$userId';
+      final url = '${AppConfig.apiBaseUrl}/books/user/$userId';
       response = await http.get(Uri.parse(url), headers: headers);
       if (response.statusCode == 200) {
         try {
@@ -179,7 +180,7 @@ class BookService {
   static Future<bool> deleteBook(int bookId) async {
     try {
       final response = await http.delete(
-        Uri.parse('${AppConfig.apiBaseUrl}/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/books/$bookId'),
         headers: await AuthService.getHeaders(),
       );
 
@@ -201,7 +202,7 @@ class BookService {
   ) async {
     try {
       final response = await http.patch(
-        Uri.parse('${AppConfig.apiBaseUrl}/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/books/$bookId'),
         headers: {
           ...await AuthService.getHeaders(),
           'Content-Type': 'application/json',
@@ -224,7 +225,7 @@ class BookService {
   static Future<Map<String, dynamic>?> getBookOwner(int bookId) async {
     try {
       final response = await http.get(
-        Uri.parse('${AppConfig.apiBaseUrl}/getBookOwner/$bookId'),
+        Uri.parse('${AppConfig.apiBaseUrl}/books/getBookOwner/$bookId'),
         headers: await AuthService.getHeaders(),
       );
 

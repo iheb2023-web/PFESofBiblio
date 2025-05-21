@@ -2,7 +2,8 @@
 <div aria-live="polite" aria-atomic="true" class="position-relative">
   <div class="toast-container top-0 end-0 p-3 position-fixed">
     <ng-container *ngFor="let toast of toasts">
-      <!-- Toast for Borrower (APPROVED or REJECTED) -->
+
+      <!-- Toast pour l'emprunteur (APPROUVÉ ou REJETÉ) -->
       <div
         *ngIf="toast.type === 'ProcessBorrowRequest' && toast.content.borrower?.email === email && (toast.content.borrowStatus === 'APPROVED' || toast.content.borrowStatus === 'REJECTED')"
         #toastRef
@@ -11,48 +12,60 @@
         aria-live="assertive"
         aria-atomic="true"
         [attr.data-toast-id]="toast.id"
-        [ngClass]="{'border-start border-4 border-success': toast.content.borrowStatus === 'APPROVED', 'border-start border-4 border-danger': toast.content.borrowStatus === 'REJECTED'}"
+        [ngClass]="{
+          'border-start border-4 border-success': toast.content.borrowStatus === 'APPROVED',
+          'border-start border-4 border-danger': toast.content.borrowStatus === 'REJECTED'
+        }"
       >
         <div class="toast-header bg-light">
-          <i 
-            class="me-2" 
-            [ngClass]="{'bi bi-check-circle-fill text-success': toast.content.borrowStatus === 'APPROVED', 'bi bi-x-circle-fill text-danger': toast.content.borrowStatus === 'REJECTED'}"
+          <i
+            class="me-2"
+            [ngClass]="{
+              'bi bi-check-circle-fill text-success': toast.content.borrowStatus === 'APPROVED',
+              'bi bi-x-circle-fill text-danger': toast.content.borrowStatus === 'REJECTED'
+            }"
           ></i>
-          <strong class="me-auto">Book Request {{ toast.content.borrowStatus }}</strong>
-          <small class="text-muted">Just now</small>
+          <strong class="me-auto">Demande de livre {{ toast.content.borrowStatus === 'APPROVED' ? 'Approuvée' : 'Rejetée' }}</strong>
+          <small class="text-muted">À l’instant</small>
           <button
             type="button"
             class="btn-close"
             (click)="removeToast(toast.id)"
-            aria-label="Close"
+            aria-label="Fermer"
           ></button>
         </div>
         <div class="toast-body d-flex align-items-center p-3">
           <div class="avatar-wrapper me-3">
             <img
               [src]="toast.content.owner?.profileImage || 'assets/images/avatar/10.jpg'"
-              alt="User Profile"
+              alt="Profil utilisateur"
               class="rounded-circle border shadow-sm"
               width="48"
               height="48"
             />
           </div>
           <div class="notification-content">
-            <p class="mb-1"><strong>{{ toast.content.owner?.firstname }} {{ toast.content.owner?.lastname }}</strong> has 
-              <span 
-                [ngClass]="{'text-success fw-bold': toast.content.borrowStatus === 'APPROVED', 'text-danger fw-bold': toast.content.borrowStatus === 'REJECTED'}"
-              >{{ toast.content.borrowStatus.toLowerCase() }}</span> 
-              your request for book:
+            <p class="mb-1">
+              <strong>{{ toast.content.owner?.firstname }} {{ toast.content.owner?.lastname }}</strong> a 
+              <span
+                [ngClass]="{
+                  'text-success fw-bold': toast.content.borrowStatus === 'APPROVED',
+                  'text-danger fw-bold': toast.content.borrowStatus === 'REJECTED'
+                }"
+              >
+                {{ toast.content.borrowStatus === 'APPROVED' ? 'approuvé' : 'rejeté' }}
+              </span> 
+              votre demande pour le livre :
             </p>
             <p class="mb-2 fw-bold">{{ toast.content.book.title }}</p>
             <a [routerLink]="['/home/books/library/requests']" class="btn btn-sm btn-outline-primary mt-1">
-              <i class="bi bi-arrow-right me-1"></i>View in library
+              <i class="bi bi-arrow-right me-1"></i>Voir dans la bibliothèque
             </a>
           </div>
         </div>
       </div>
 
-      <!-- Toast for Owner (Demand Notification) -->
+      <!-- Toast pour le propriétaire (Notification de demande) -->
       <div
         *ngIf="toast.type === 'ProcessDemand' && toast.content.owner?.email === email"
         #toastRef
@@ -64,79 +77,81 @@
       >
         <div class="toast-header bg-light">
           <i class="bi bi-bell-fill text-info me-2"></i>
-          <strong class="me-auto">New Book Request</strong>
-          <small class="text-muted">Just now</small>
+          <strong class="me-auto">Nouvelle demande de livre</strong>
+          <small class="text-muted">À l’instant</small>
           <button
             type="button"
             class="btn-close"
             (click)="removeToast(toast.id)"
-            aria-label="Close"
+            aria-label="Fermer"
           ></button>
         </div>
         <div class="toast-body d-flex align-items-center p-3">
           <div class="avatar-wrapper me-3">
             <img
               [src]="toast.content.borrower?.profileImage || 'assets/images/avatar/10.jpg'"
-              alt="User Profile"
+              alt="Profil utilisateur"
               class="rounded-circle border shadow-sm"
               width="48"
               height="48"
             />
           </div>
           <div class="notification-content">
-            <p class="mb-1"><strong>{{ toast.content.borrower.firstname }} {{ toast.content.borrower.lastname }}</strong> would like to borrow:</p>
+            <p class="mb-1">
+              <strong>{{ toast.content.borrower.firstname }} {{ toast.content.borrower.lastname }}</strong> souhaite emprunter :
+            </p>
             <p class="mb-2 fw-bold">{{ toast.content.book.title }}</p>
             <a [routerLink]="['/home/books/library/demands']" class="btn btn-sm btn-outline-primary mt-1">
-              <i class="bi bi-arrow-right me-1"></i>Respond to request
+              <i class="bi bi-arrow-right me-1"></i>Répondre à la demande
             </a>
           </div>
         </div>
       </div>
 
-    <!-- Toast for Owner (Reviews added on book Notification) -->
-<div
-*ngIf="toast.type === 'addReview' && toast.content.book.owner?.email === email"
-#toastRef
-class="toast shadow-lg border-0 border-start border-4 border-warning fade show"
-role="alert"
-aria-live="assertive"
-aria-atomic="true"
-[attr.data-toast-id]="toast.id"
->
-<div class="toast-header bg-light">
-  <i class="bi bi-star-fill text-warning me-2"></i>
-  <strong class="me-auto">New Book Review</strong>
-  <small class="text-muted">Just now</small>
-  <button
-    type="button"
-    class="btn-close"
-    (click)="removeToast(toast.id)"
-    aria-label="Close"
-  ></button>
-</div>
-<div class="toast-body d-flex align-items-center p-3">
-  <div class="avatar-wrapper me-3">
-    <img
-      [src]="toast.content.user?.profileImage || 'assets/images/avatar/10.jpg'"
-      alt="User Profile"
-      class="rounded-circle border shadow-sm"
-      width="48"
-      height="48"
-    />
-  </div>
-  <div class="notification-content">
-    <p class="mb-1">
-      <strong>{{ toast.content.user.firstname }} {{ toast.content.user.lastname }}</strong> 
-      has left a review on your book:
-    </p>
-    <p class="mb-2 fw-bold">{{ toast.content.book.title }}</p>
-    
-    <a [routerLink]="['/home/books/details', toast.content.book.id]" class="btn btn-sm btn-outline-warning mt-1">
-      <i class="bi bi-eye me-1"></i>View review
-    </a>
-  </div>
-</div>
-</div>
+      <!-- Toast pour le propriétaire (Notification d'ajout d'une critique) -->
+      <div
+        *ngIf="toast.type === 'addReview' && toast.content.book.owner?.email === email"
+        #toastRef
+        class="toast shadow-lg border-0 border-start border-4 border-warning fade show"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        [attr.data-toast-id]="toast.id"
+      >
+        <div class="toast-header bg-light">
+          <i class="bi bi-star-fill text-warning me-2"></i>
+          <strong class="me-auto">Nouvelle critique de livre</strong>
+          <small class="text-muted">À l’instant</small>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="removeToast(toast.id)"
+            aria-label="Fermer"
+          ></button>
+        </div>
+        <div class="toast-body d-flex align-items-center p-3">
+          <div class="avatar-wrapper me-3">
+            <img
+              [src]="toast.content.user?.profileImage || 'assets/images/avatar/10.jpg'"
+              alt="Profil utilisateur"
+              class="rounded-circle border shadow-sm"
+              width="48"
+              height="48"
+            />
+          </div>
+          <div class="notification-content">
+            <p class="mb-1">
+              <strong>{{ toast.content.user.firstname }} {{ toast.content.user.lastname }}</strong> 
+              a laissé une critique sur votre livre :
+            </p>
+            <p class="mb-2 fw-bold">{{ toast.content.book.title }}</p>
+            <a [routerLink]="['/home/books/details', toast.content.book.id]" class="btn btn-sm btn-outline-warning mt-1">
+              <i class="bi bi-eye me-1"></i>Voir la critique
+            </a>
+          </div>
+        </div>
+      </div>
+
     </ng-container>
   </div>
 </div>

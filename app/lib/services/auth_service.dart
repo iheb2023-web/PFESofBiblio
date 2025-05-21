@@ -18,7 +18,7 @@ class AuthService {
 
   Future<Map<String, dynamic>> requestPasswordReset(String email) async {
     final Uri url = Uri.parse(
-      '${AppConfig.apiBaseUrl}/password-reset/request?email=$email',
+      '${AppConfig.apiBaseUrl}/users/password-reset/request?email=$email',
     );
 
     try {
@@ -41,7 +41,7 @@ class AuthService {
     try {
       final response = await http.get(
         Uri.parse(
-          '${AppConfig.apiBaseUrl}/password-reset/getTokenByEmail/$email',
+          '${AppConfig.apiBaseUrl}/users/password-reset/getTokenByEmail/$email',
         ),
       );
 
@@ -183,7 +183,7 @@ class AuthService {
     String newPassword,
   ) async {
     final Uri url = Uri.parse(
-      '${AppConfig.apiBaseUrl}/password-reset/changePassword?email=$email&password=$newPassword',
+      '${AppConfig.apiBaseUrl}/users/password-reset/changePassword?email=$email&password=$newPassword',
     );
     try {
       final response = await http.put(url, headers: await getHeaders());

@@ -1,8 +1,5 @@
 import 'package:app/imports.dart';
-import 'package:get/get.dart';
 import 'package:app/models/book.dart';
-import 'package:app/services/book_service.dart';
-import 'package:app/controllers/auth_controller.dart';
 
 class BookController extends GetxController {
   final RxList<Book> allBooks = <Book>[].obs;
@@ -33,23 +30,6 @@ class BookController extends GetxController {
     });
   }
 
-  // Future<void> loadAllBooks() async {
-  //   final currentUserEmail = _authController.currentUser.value?.email;
-  //   try {
-  //     isLoading.value = true;
-  //     error.value = '';
-  //     final loadedBooks = await BookService.getAllBooksWithinEmailOwner(
-  //       currentUserEmail!,
-  //     );
-  //     allBooks.value = loadedBooks;
-  //     books.value = loadedBooks; // Remplit aussi la liste books
-  //     _updateSortedLists(); // Met à jour les listes triées
-  //   } catch (e) {
-  //     error.value = 'Error loading books: $e';
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
   Future<void> loadAllBooks() async {
     final currentUserEmail = _authController.currentUser.value?.email;
     if (currentUserEmail == null) return;

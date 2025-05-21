@@ -287,66 +287,95 @@ class MesDemandesPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            // Gestion des boutons en fonction du statut
+           // Gestion des boutons en fonction du statut
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (status == 'IN_PROGRESS' || status == 'APPROVED') ...[
+              Text(
+                status == 'IN_PROGRESS' 
+                    ? 'En cours d\'emprunt' 
+                    : 'Réservation approuvée',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: status == 'IN_PROGRESS' ? Colors.blue : Colors.green,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
             status == 'PENDING'
                 ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed:
-                          () => controller.handleBorrowRequest(borrow, true),
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppTheme.successColor.withOpacity(0.1),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => controller.handleBorrowRequest(borrow, true),
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppTheme.successColor.withOpacity(0.1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: const Text(
+                          'Accepter',
+                          style: TextStyle(color: AppTheme.successColor),
                         ),
                       ),
-                      child: const Text(
-                        'Accepter',
-                        style: TextStyle(color: AppTheme.successColor),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      onPressed:
-                          () => controller.handleBorrowRequest(borrow, false),
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppTheme.errorColor.withOpacity(0.1),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => controller.handleBorrowRequest(borrow, false),
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: const Text(
+                          'Refuser',
+                          style: TextStyle(color: AppTheme.errorColor),
                         ),
                       ),
-                      child: const Text(
-                        'Refuser',
-                        style: TextStyle(color: AppTheme.errorColor),
-                      ),
-                    ),
-                  ],
-                )
+                    ],
+                  )
                 : status == 'IN_PROGRESS'
-                ? Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => controller.returnBook(borrow.id!),
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                    ),
-                    child: const Text(
-                      'Marquer comme retourné',
-                      style: TextStyle(color: AppTheme.primaryColor),
-                    ),
-                  ),
-                )
-                : const SizedBox.shrink(), // Rien à afficher pour 'APPROVED'
+                    ? Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => controller.returnBook(borrow.id!),
+                          style: TextButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                          ),
+                          child: const Text(
+                            'Marquer comme retourné',
+                            style: TextStyle(color: AppTheme.primaryColor),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+            ],
+           ),
           ],
         ),
       ),
     );
   }
+  Color _getStatusColor(String status) {
+  switch (status) {
+    case 'PENDING':
+      return Colors.orange;
+    case 'IN_PROGRESS':
+      return Colors.blue;
+    case 'RETURNED':
+      return Colors.green;
+    case 'REJECTED':
+      return Colors.red;
+    default:
+      return Colors.blue;
+  }
+}
 }
