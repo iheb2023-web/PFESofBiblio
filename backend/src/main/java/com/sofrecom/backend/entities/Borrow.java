@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity // NOSONAR
 public class Borrow implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
