@@ -37,11 +37,13 @@ public class Book implements Serializable {
     @Transient
     private Long ownerId;
 
+    @SuppressWarnings("java:S7027")
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "owner_id") // NOSONAR
     private User owner;
 
+    @SuppressWarnings("java:S7027")
     @JsonIgnore
     @OneToMany(mappedBy = "book") // NOSONAR
     private List<Borrow> borrows;

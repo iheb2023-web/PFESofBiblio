@@ -29,10 +29,11 @@ public class Borrow implements Serializable {
     private BorrowStatus BorrowStatus; // NOSONAR
 
 
-    @ManyToOne
+    @SuppressWarnings("java:S7027")
+    @ManyToOne // NOSONAR
     private User borrower;
 
-
+    @SuppressWarnings("java:S7027")
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false) // NOSONAR
     private Book book;
