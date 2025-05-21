@@ -59,6 +59,7 @@ build_frontend:
 test_job:
   stage: test
   script:
+    - cd backend
     - echo "Exécution des tests sur $CI_COMMIT_BRANCH"
     - mvn test -e -X
   artifacts:
