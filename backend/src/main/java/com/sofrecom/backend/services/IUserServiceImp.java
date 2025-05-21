@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
@@ -58,7 +59,7 @@ public class IUserServiceImp implements IUserService {
         try {
             emailService.sendEmail(request.getEmail(), "Default password", password);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to send registration email. Please try again later.", e);
         }
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
@@ -137,10 +138,10 @@ public class IUserServiceImp implements IUserService {
 
     private String getPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        Random random = new Random();
-        StringBuilder password = new StringBuilder(8);
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(12);
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 12; i++) {
             password.append(chars.charAt(random.nextInt(chars.length())));
         }
         return password.toString();

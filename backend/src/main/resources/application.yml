@@ -1,32 +1,34 @@
 spring:
   application:
-    name: backend
+    name: ${SPRING_APPLICATION_NAME}
   datasource:
-    url: jdbc:mysql://localhost:3306/sofbiblio_db?createDatabaseIfNotExist=true
-    username: root
-    password:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+    show-sql: ${SPRING_JPA_SHOW_SQL}
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: ${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: noreply.sofbiblio@gmail.com
-    password: qvvgymsbqcghmbwr
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
           starttls:
-            enable: true
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+
 cloudinary:
-  cloud-name: db1corx7c
-  api-key: 579621484693214
-  api-secret: M7lvz20ofye74TLYSlyHO8j41Yw
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
 
-
+jwt:
+  secret-key: ${JWT_SECRET_KEY}

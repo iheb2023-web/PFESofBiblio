@@ -22,6 +22,9 @@ public class SecurityConfiguration {
     {
 
         http
+                // CSRF protection is disabled because the application uses stateless JWT-based authentication.
+                // No server-side sessions or cookies are used, eliminating the risk of CSRF attacks.
+                // The JwtAuthenticationFilter validates JWTs in the Authorization header for all protected requests.
                 .csrf()
                 .disable()
                 .cors()
