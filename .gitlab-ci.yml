@@ -142,7 +142,7 @@ security_scan_trivy:
 
 # -------- SCAN DES IMAGES DOCKER AVEC TRIVY --------
 security_scan_images:
-  stage: security_scan
+  stage: package
   image: aquasec/trivy:latest
   dependencies:
     - docker_build_backend
@@ -195,7 +195,7 @@ package_artifacts:
 
 # -------- CONSTRUCTION DE L'IMAGE DOCKER POUR LE BACKEND AVEC KANIKO --------
 docker_build_backend:
-  stage: build
+  stage: package
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -213,7 +213,7 @@ docker_build_backend:
 
 # -------- CONSTRUCTION DE L'IMAGE DOCKER POUR LE FRONTEND AVEC KANIKO --------
 docker_build_frontend:
-  stage: build
+  stage: package
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
