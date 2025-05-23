@@ -3,23 +3,23 @@ class TopBorrower {
   final String firstname;
   final String lastname;
   final String email;
-  final int borrowCount;
+  final int nbEmprunts; // Notez le nom correspondant à l'API ("nbEmprunts")
 
   TopBorrower({
     required this.id,
     required this.firstname,
     required this.lastname,
     required this.email,
-    required this.borrowCount,
+    required this.nbEmprunts,
   });
 
   factory TopBorrower.fromJson(Map<String, dynamic> json) {
     return TopBorrower(
-      id: json['id'],
+      id: json['id'] ?? 0,
       firstname: json['firstname'] ?? '',
       lastname: json['lastname'] ?? '',
       email: json['email'] ?? '',
-      borrowCount: json['borrowCount'] ?? 0, // adapte la clé si besoin
+      nbEmprunts: json['nbEmprunts'] ?? 0, // Correspond au champ de l'API
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app/models/top_borrower.dart';
 import 'package:app/views/Authentification/login/code_reset.dart';
 import 'package:app/views/NavigationMenu.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class AuthController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxBool isLoggedIn = false.obs;
   var hasSetPassword = false.obs;
+  var topBorrowers = <TopBorrower>[].obs;
 
   String get baseUrl => AppConfig.apiBaseUrl;
 
@@ -474,6 +476,27 @@ class AuthController extends GetxController {
         colorText: Colors.white,
       );
       return null;
+    }
+  }
+
+  Future<void> fetchTop10Borrowers() async {
+    try {
+      isLoading.value = true;
+      final borrowers = await _authService.getTop10Borrowers();
+      debugPrint('Emprunteurs récupérés: ${borrowers.length}');
+      topBorrowers.value = borrowers;
+    } catch (e) {
+      errorMessage.value = 'Erreur: $e';
+      debugPrint('Erreur fetchTop10Borrowers: $e');
+      Get.snackbar(
+        'Erreur',
+        'Impossible de récupérer les emprunteurs: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
     }
   }
 }

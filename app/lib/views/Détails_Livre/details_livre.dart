@@ -1,7 +1,5 @@
 import 'package:app/models/book.dart';
-import 'package:app/models/user_model.dart';
 import 'package:app/services/auth_service.dart';
-import 'package:app/services/book_service.dart';
 import 'package:app/views/Emprunter/emprunter_livre.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,7 +54,7 @@ class _DetailsLivreState extends State<DetailsLivre>
   }
 
   Future<void> _loadOwner() async {
-    final propritaire = await AuthService.getUserById(8);
+    final propritaire = await AuthService.getUserById(widget.book.ownerId!);
     final propritaireName = _formatUserName(propritaire);
     setState(() {
       proprietaire = propritaireName;
@@ -631,47 +629,6 @@ class _DetailsLivreState extends State<DetailsLivre>
               ),
 
               const SizedBox(height: 24),
-
-              // État et nombre d'emprunts
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //         padding: const EdgeInsets.symmetric(
-              //           horizontal: 12,
-              //           vertical: 6,
-              //         ),
-              //         decoration: BoxDecoration(
-              //           color: Colors.green.withOpacity(0.1),
-              //           borderRadius: BorderRadius.circular(16),
-              //         ),
-              //         child: const Row(
-              //           children: [
-              //             Icon(
-              //               Icons.check_circle,
-              //               color: Colors.green,
-              //               size: 16,
-              //             ),
-              //             SizedBox(width: 4),
-              //             Text(
-              //               "Disponible",
-              //               style: TextStyle(
-              //                 color: Colors.green,
-              //                 fontWeight: FontWeight.w500,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //       const SizedBox(width: 16),
-              //       const Text(
-              //         "Emprunté 3 fois",
-              //         style: TextStyle(color: Colors.grey),
-              //       ),
-              //     ],
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
