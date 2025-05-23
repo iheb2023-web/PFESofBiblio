@@ -49,8 +49,8 @@ public class Book implements Serializable {
     private List<Borrow> borrows;
 
 
-    public Long getOwnerId() {
+    /*public Long getOwnerId() {
         return owner != null ? owner.getId() : null;
-    }
+    }*/
 
 }
