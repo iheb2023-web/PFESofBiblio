@@ -143,7 +143,7 @@ security_scan_trivy:
 # -------- SCAN DES IMAGES DOCKER AVEC TRIVY --------
 security_scan_images:
   stage: package
-  image: aquasec/trivy:latest
+  image: registry.hub.docker.com/aquasec/trivy:latest
   dependencies:
     - docker_build_backend
     - docker_build_frontend
