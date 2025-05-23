@@ -113,7 +113,7 @@ sonarqube-vulnerability-report:
 # -------- SCAN DE SÉCURITÉ AVEC GITLEAKS --------
 security_scan:
   stage: security_scan
-  image: zricethezav/gitleaks:latest
+  image: registry.hub.docker.com/zricethezav/gitleaks:latest
   script:
     - gitleaks detect --source . -v --report-path gitleaks-report.json --exit-code 0
   artifacts:
