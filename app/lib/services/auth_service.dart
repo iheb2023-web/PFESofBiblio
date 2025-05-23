@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:app/config/app_config.dart';
+import 'package:app/models/top_borrower.dart';
 import 'package:http/http.dart' as http;
 import 'package:app/models/user_model.dart';
 import 'package:app/services/storage_service.dart';
@@ -245,6 +246,26 @@ class AuthService {
         throw Exception(
           'Échec de la récupération du user: ${response.statusCode}',
         );
+      }
+    } catch (e) {
+      throw Exception('Erreur réseau: $e');
+    }
+  }
+
+  /// Récupère le top 10 des emprunteurs
+  Future<List<TopBorrower>> getTop10Borrowers() async {
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiBaseUrl}/users/top10emprunteur'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => TopBorrower.fromJson(item)).toList();
+      } else {
+        throw Exception('Erreur serveur: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Erreur réseau: $e');

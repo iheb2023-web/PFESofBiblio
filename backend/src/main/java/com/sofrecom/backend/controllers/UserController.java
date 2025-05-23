@@ -114,6 +114,13 @@ public class UserController {
         return ResponseEntity.ok(top5Borrowers);
     }
 
+    @Operation(summary = "Top 10 des emprunteurs", description = "Retourne les 10 utilisateurs ayant effectué le plus d'emprunts")
+    @GetMapping("/top10emprunteur")
+    public ResponseEntity<List<Top5Dto>> getTop10Borrowers() {
+        List<Top5Dto> top5Borrowers = userService.getTop10Borrowers();
+        return ResponseEntity.ok(top5Borrowers);
+    }
+
 
 
 

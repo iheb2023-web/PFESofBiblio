@@ -27,6 +27,10 @@ public interface IUserService {
     Long numberOfBorrowsByUser(String email);
 
     List<Top5Dto> getTop5Borrowers();
+    List<Top5Dto> getTop10Borrowers();
+
+
+
 
 
 }

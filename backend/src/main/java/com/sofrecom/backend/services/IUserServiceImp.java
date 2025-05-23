@@ -181,5 +181,11 @@ public class IUserServiceImp implements IUserService {
         return userRepository.findTop5Borrowers(topFive);
     }
 
+    @Override
+    public List<Top5Dto> getTop10Borrowers() {
+        Pageable topFive = Pageable.ofSize(10);
+        return userRepository.findTop5Borrowers(topFive);
+    }
+
 
 }
