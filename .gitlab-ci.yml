@@ -148,13 +148,22 @@ security_scan_images:
     - docker_build_backend
     - docker_build_frontend
   script:
+    - echo "Vérification des fichiers image.tar dans le répertoire de travail"
+    - ls -lh $CI_PROJECT_DIR/backend/image.tar || echo "backend/image.tar non trouvé"
+    - ls -lh $CI_PROJECT_DIR/frontend/image.tar || echo "frontend/image.tar non trouvé"
+    - echo "Contenu complet du répertoire de travail"
+    - ls -lhR $CI_PROJECT_DIR/
     - echo "Scan de sécurité des images Docker"
-    - trivy image --input backend/image.tar --severity HIGH,CRITICAL --format table || echo "Scan de l'image backend terminé"
-    - trivy image --input frontend/image.tar --severity HIGH,CRITICAL --format table || echo "Scan de l'image frontend terminé"
+    - trivy image --input $CI_PROJECT_DIR/backend/image.tar --severity HIGH,CRITICAL --format json > $CI_PROJECT_DIR/backend-trivy-report.json || echo "Scan de l'image backend terminé"
+    - trivy image --input $CI_PROJECT_DIR/frontend/image.tar --severity HIGH,CRITICAL --format json > $CI_PROJECT_DIR/frontend-trivy-report.json || echo "Scan de l'image frontend terminé"
+  artifacts:
+    paths:
+      - backend-trivy-report.json
+      - frontend-trivy-report.json
+    expire_in: 1 week
   allow_failure: true
   only:
     - main
-
 # -------- ANALYSE DES MÉTRIQUES --------
 analyze_metrics:
   stage: analyze
@@ -202,8 +211,16 @@ docker_build_backend:
   dependencies:
     - build_backend
   script:
-    - cd backend
-    - /kaniko/executor --context $CI_PROJECT_DIR/backend --dockerfile $CI_PROJECT_DIR/backend/Dockerfile --no-push --destination my-spring-boot-app:$CI_COMMIT_SHA --tar-path image.tar
+    - echo "Vérification du Dockerfile et du contexte pour le backend"
+    - ls -lh $CI_PROJECT_DIR/backend/Dockerfile || echo "Dockerfile backend manquant"
+    - ls -lh $CI_PROJECT_DIR/backend/pom.xml || echo "pom.xml backend manquant"
+    - ls -lhR $CI_PROJECT_DIR/backend/src/ || echo "src backend manquant"
+    - ls -lh $CI_PROJECT_DIR/backend/target/*.jar || echo "JAR backend manquant"
+    - /kaniko/executor --context $CI_PROJECT_DIR/backend --dockerfile $CI_PROJECT_DIR/backend/Dockerfile --no-push --destination my-spring-boot-app:$CI_COMMIT_SHA --tar-path $CI_PROJECT_DIR/backend/image.tar
+    - echo "Vérification de l'image générée"
+    - ls -lh $CI_PROJECT_DIR/backend/image.tar || echo "image.tar backend non généré"
+    - echo "Contenu du répertoire backend"
+    - ls -lh $CI_PROJECT_DIR/backend/
   artifacts:
     paths:
       - backend/image.tar
@@ -220,8 +237,15 @@ docker_build_frontend:
   dependencies:
     - build_frontend
   script:
-    - cd frontend
-    - /kaniko/executor --context $CI_PROJECT_DIR/frontend --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile --no-push --destination my-frontend-app:$CI_COMMIT_SHA --tar-path image.tar
+    - echo "Vérification du Dockerfile et du contexte pour le frontend"
+    - ls -lh $CI_PROJECT_DIR/frontend/Dockerfile || echo "Dockerfile frontend manquant"
+    - ls -lh $CI_PROJECT_DIR/frontend/package.json || echo "package.json frontend manquant"
+    - ls -lhR $CI_PROJECT_DIR/frontend/ || echo "Contenu frontend manquant"
+    - /kaniko/executor --context $CI_PROJECT_DIR/frontend --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile --no-push --destination my-frontend-app:$CI_COMMIT_SHA --tar-path $CI_PROJECT_DIR/frontend/image.tar
+    - echo "Vérification de l'image générée"
+    - ls -lh $CI_PROJECT_DIR/frontend/image.tar || echo "image.tar frontend non généré"
+    - echo "Contenu du répertoire frontend"
+    - ls -lh $CI_PROJECT_DIR/frontend/
   artifacts:
     paths:
       - frontend/image.tar
