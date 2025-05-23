@@ -8,6 +8,7 @@ import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.services.IBookService;
 import com.sofrecom.backend.services.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping("/books")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class BookController {
     private final IBookService bookService;
@@ -33,25 +33,24 @@ public class BookController {
         return bookService.addNewBook(book,email);
     }
     
+
     @Operation(summary = "Add book", description = "Add new book")
     @PostMapping("")
-    public ResponseEntity<?> addBook(@RequestBody Book book) {
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
         if (book.getOwnerId() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("L'ownerId est obligatoire !");
+            throw new IllegalArgumentException("L'ownerId est obligatoire !");
         }
 
         User owner = userService.findById(book.getOwnerId());
         if (owner == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Utilisateur non trouvé avec l'ID : " + book.getOwnerId());
+            throw new EntityNotFoundException("Utilisateur non trouvé avec l'ID : " + book.getOwnerId());
         }
 
         book.setOwner(owner);
         Book response = bookService.addBook(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
     }
+
 
     @GetMapping("")
     public List<Book> getAllBooks() {
@@ -60,19 +59,16 @@ public class BookController {
 
     @Operation(summary = "Get user books", description = "Get all books owned by a specific user")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getBooksByUser(@PathVariable Long userId) {
-        try {
-            var userDto = userService.getUserById(userId);
-            if (userDto == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("User not found with id: " + userId);
-            }
-            return ResponseEntity.ok(this.bookService.getBooksByUser(userId));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error retrieving books: " + e.getMessage());
+    public ResponseEntity<List<Book>> getBooksByUser(@PathVariable Long userId) {
+        var userDto = userService.getUserById(userId);
+        if (userDto == null) {
+            throw new EntityNotFoundException("User not found with id: " + userId);
         }
+
+        List<Book> books = bookService.getBooksByUser(userId);
+        return ResponseEntity.ok(books);
     }
+
 
     @GetMapping("/checkOwnerBookByEmail/{email}/{id}")
     public boolean checkOwnerBookByEmail(@PathVariable String email, @PathVariable Long id) {

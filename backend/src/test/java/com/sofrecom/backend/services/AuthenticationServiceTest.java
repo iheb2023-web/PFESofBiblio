@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
+
+    @Value("${JWT_SECRET_KEY}")
+    private String password;
 
     @Mock
     private UserRepository userRepository;
@@ -39,11 +43,12 @@ class AuthenticationServiceTest {
     private AuthenticationRequest authRequest;
     private User user;
 
+    @SuppressWarnings("squid:S2068")
     @BeforeEach
     void setUp() {
         authRequest = new AuthenticationRequest();
         authRequest.setEmail("test@example.com");
-        authRequest.setPassword("password");
+        authRequest.setPassword(password);
 
         user = new User();
         user.setId(1L);

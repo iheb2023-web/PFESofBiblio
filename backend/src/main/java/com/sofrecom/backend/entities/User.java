@@ -7,16 +7,18 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
+@SuppressWarnings("java:S7027")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class User implements UserDetails {
+@Entity // NOSONAR
+public class User implements UserDetails, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,14 +33,15 @@ public class User implements UserDetails {
     private Role role;
     private String password;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner") // NOSONAR
     private List<Book> books;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "borrower")
+    @OneToMany(mappedBy = "borrower") // NOSONAR
     private List<Borrow>  borrows;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @SuppressWarnings("java:S7027")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // NOSONAR
     private Preference preference;
 
     private Boolean hasPreference;

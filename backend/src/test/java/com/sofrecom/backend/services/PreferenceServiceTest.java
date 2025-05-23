@@ -111,12 +111,10 @@ class PreferenceServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         when(preferenceRepository.save(any(Preference.class))).thenReturn(preferenceWithNullUser);
 
-        // Act
+
         Preference result = preferenceService.addPreference(preferenceDto);
 
-        // Assert
         assertNotNull(result);
-        //assertNull(result.getUser());
         verify(userRepository).findById(1L);
         verify(preferenceRepository).save(any(Preference.class));
     }

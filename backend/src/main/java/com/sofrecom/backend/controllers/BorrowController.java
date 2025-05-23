@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/borrows")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class BorrowController {
     private final IBorrowService borrowService;

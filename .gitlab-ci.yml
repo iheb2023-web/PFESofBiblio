@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - build-sonar
   - security_scan
   - sonarqube-vulnerability-report
@@ -7,7 +8,7 @@ stages:
   - package
   - deploy
 
-image: maven:3.8.5-eclipse-temurin-17
+image: registry.hub.docker.com/library/maven:latest
 
 variables:
   MYSQL_DATABASE: sofbiblio_db
@@ -54,39 +55,29 @@ build_frontend:
     - main
 
 # -------- BUILD DE L'APPLICATION MOBILE (FLUTTER) --------
-build_flutter:
-  stage: build
-  image: ghcr.io/cirruslabs/flutter:3.29.1
-  before_script:
-    - echo "Installation de Java 17..."
-    - export DEBIAN_FRONTEND=noninteractive
-    - apt-get update -y && apt-get install -y openjdk-17-jdk
-    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-    - export PATH=$JAVA_HOME/bin:$PATH
-    - java -version
+# Job de test
+test_job:
+  stage: test
   script:
-    - echo "Compilation de l'application mobile Flutter..."
-    - cd app
-    - flutter clean
-    - flutter pub get
-    - flutter build apk --release
+    - cd backend
+    - echo "Exécution des tests sur $CI_COMMIT_BRANCH"
+    - mvn test -e -X
   artifacts:
+    when: always
     paths:
-      - app/build/app/outputs/flutter-apk/app-release.apk
+      - target/surefire-reports/
+      - target/jacoco.exec
+      - target/*.log
+      - target/site/jacoco/
     expire_in: 1 week
-  cache:
-    key: flutter
-    paths:
-      - app/.pub-cache
-      - app/build
-  only:
-    - main
-  timeout: 1h
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  coverage: '/Total.*?([0-9]{1,3})%/'
 
 # -------- ANALYSE SONARQUBE --------
 build-sonar:
   stage: build-sonar
-  image: maven:3-eclipse-temurin-17
+  image: registry.hub.docker.com/sonarsource/sonar-scanner-cli:latest
   cache:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
@@ -122,7 +113,7 @@ sonarqube-vulnerability-report:
 # -------- SCAN DE SÉCURITÉ AVEC GITLEAKS --------
 security_scan:
   stage: security_scan
-  image: zricethezav/gitleaks:latest
+  image: registry.hub.docker.com/zricethezav/gitleaks:latest
   script:
     - gitleaks detect --source . -v --report-path gitleaks-report.json --exit-code 0
   artifacts:
@@ -139,14 +130,12 @@ security_scan_trivy:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - echo "Scan de sécurité pour validation"
     - trivy fs --severity HIGH,CRITICAL backend/pom.xml || echo "Aucune vulnérabilité critique trouvée dans pom.xml"
     - trivy fs --severity HIGH,CRITICAL frontend/package.json || echo "Aucune vulnérabilité critique trouvée dans package.json"
     - trivy fs --severity HIGH,CRITICAL backend/target/*.jar || echo "Scan JAR terminé"
     - trivy fs --severity HIGH,CRITICAL frontend/dist/ || echo "Scan dist terminé"
-    - trivy fs --severity HIGH,CRITICAL app/build/app/outputs/flutter-apk/app-release.apk || echo "Scan APK terminé"
   allow_failure: true
   only:
     - main
@@ -158,12 +147,10 @@ analyze_metrics:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - echo "Analyse des métriques de build"
     - du -sh backend/target/*.jar > metrics.txt
     - du -sh frontend/dist/ >> metrics.txt
-    - du -sh app/build/app/outputs/flutter-apk/app-release.apk >> metrics.txt
     - cat metrics.txt
   artifacts:
     paths:
@@ -179,12 +166,10 @@ package_artifacts:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - mkdir -p release
     - cp backend/target/*.jar release/backend.jar
     - cp -r frontend/dist/ release/frontend
-    - cp app/build/app/outputs/flutter-apk/app-release.apk release/app.apk
     - ls -lhR release/
   artifacts:
     paths:
@@ -200,12 +185,10 @@ deploy:
   dependencies:
     - build_backend
     - build_frontend
-    - build_flutter
   script:
     - echo "Déploiement simulé pour validation"
     - ls -lh backend/target/*.jar
     - ls -lhR frontend/dist/
-    - ls -lh app/build/app/outputs/flutter-apk/app-release.apk
     - echo "Déploiement du backend, frontend et Flutter terminé avec succès"
   only:
     - main

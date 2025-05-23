@@ -1,80 +1,84 @@
-<section class="position-relative">
-    <div class="container">
-      <div class="row g-4 g-lg-5 align-items-center">
-        <!-- Left column with form -->
-        <div class="col-lg-6 position-relative">
-          <h6 class="text-uppercase">📚 Add a New Book</h6>
-          <h1 class="mb-2">Enter Book Details</h1>
-          <p class="mb-4">Fill in the book details, and we will fetch additional information automatically.</p>
-  
-          <!-- Form START -->
+<section class="d-flex justify-content-center align-items-center min-vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10"> <!-- Ajustez cette valeur selon la largeur souhaitée -->
+        <div class="row g-4 g-lg-5 align-items-center">
+          <!-- Colonne gauche avec le formulaire -->
+          <div class="col-lg-12">
+            <div class="text-center text-lg-start"> <!-- Centré sur mobile, aligné à gauche sur desktop -->
+              <h6 class="text-uppercase">📚 Ajouter un nouveau livre</h6>
+              <h1 class="mb-2">Saisir les détails du livre</h1>
+              <p class="mb-4">Remplissez les informations du livre, nous récupérerons automatiquement les détails supplémentaires.</p>
+            </div>
+
+          <!-- Début du formulaire -->
           <form (ngSubmit)="onSubmit()" class="row g-4">
-            <!-- Title -->
+            <!-- Titre -->
             <div class="col-12">
-              <label class="small">Title</label>
+              <label class="small">Titre</label>
               <input type="text" [(ngModel)]="bookTitle" name="title" class="form-control"
-               placeholder="Enter book title" (ngModelChange)="onTitleOrAuthorChange()">
+              placeholder="Entrez le titre du livre" (ngModelChange)="onTitleOrAuthorChange()">
             </div>
-  
-            <!-- Author -->
+
+            <!-- Auteur -->
             <div class="col-12">
-              <label class="small">Author</label>
+              <label class="small">Auteur</label>
               <input type="text" [(ngModel)]="bookAuthor" name="author"
-               class="form-control" placeholder="Enter author name" (ngModelChange)="onTitleOrAuthorChange()">
+              class="form-control" placeholder="Entrez le nom de l'auteur" (ngModelChange)="onTitleOrAuthorChange()">
             </div>
-  
+
             <!-- Description -->
             <div class="col-12">
               <label class="small">Description</label>
-              <textarea [(ngModel)]="bookDescription" name="description" class="form-control" placeholder="Book description" readonly></textarea>
+              <textarea [(ngModel)]="bookDescription" name="description" class="form-control" placeholder="Description du livre" readonly></textarea>
             </div>
-  
-            <!-- Published Date -->
+
+            <!-- Date de publication -->
             <div class="col-md-6">
-              <label class="small">Published Date</label>
-              <input type="text" [(ngModel)]="publishedDate" name="publishedDate" class="form-control" placeholder="Published date" readonly>
+              <label class="small">Date de publication</label>
+              <input type="text" [(ngModel)]="publishedDate" name="publishedDate" class="form-control" placeholder="Date de publication" readonly>
             </div>
-  
+
             <!-- ISBN -->
             <div class="col-md-6">
               <label class="small">ISBN</label>
-              <input type="text" [(ngModel)]="isbn" name="isbn" class="form-control" placeholder="ISBN number" readonly>
+              <input type="text" [(ngModel)]="isbn" name="isbn" class="form-control" placeholder="Numéro ISBN" readonly>
             </div>
-  
-            <!-- Category -->
+
+            <!-- Catégorie -->
             <div class="col-md-6">
-              <label class="small">Category</label>
-              <input type="text" [(ngModel)]="category" name="category" class="form-control" placeholder="Category" readonly>
+              <label class="small">Catégorie</label>
+              <input type="text" [(ngModel)]="category" name="category" class="form-control" placeholder="Catégorie" readonly>
             </div>
-  
-            <!-- Page Count -->
+
+            <!-- Nombre de pages -->
             <div class="col-md-6">
-              <label class="small">Page Count</label>
-              <input type="number" [(ngModel)]="pageCount" name="pageCount" class="form-control" placeholder="Number of pages" readonly>
+              <label class="small">Nombre de pages</label>
+              <input type="number" [(ngModel)]="pageCount" name="pageCount" class="form-control" placeholder="Nombre de pages" readonly>
             </div>
-  
-            <!-- Language -->
+
+            <!-- Langue -->
             <div class="col-md-6">
-              <label class="small">Language</label>
-              <input type="text" [(ngModel)]="language" name="language" class="form-control" placeholder="Language" readonly>
+              <label class="small">Langue</label>
+              <input type="text" [(ngModel)]="language" name="language" class="form-control" placeholder="Langue" readonly>
             </div>
-  
-            <!-- Submit Button -->
+
+            <!-- Bouton d'envoi -->
             <div class="col-12">
-              <button type="submit" class="btn btn-primary w-100 mb-0">Add Book</button>
+              <button type="submit" class="btn btn-primary w-100 mb-0">Ajouter le livre</button>
             </div>
           </form>
-          <!-- Form END -->
+          <!-- Fin du formulaire -->
         </div>
-        
-        <!-- Right column with book cover image -->
-        <div class="col-lg-6 position-relative">
-          <div *ngIf="bookCover" class="text-center">
-            <img [src]="bookCover" alt="Book Cover" class="rounded" width="100%" height="100%">
-            
+
+        <!-- Colonne droite avec la couverture du livre -->
+        <div class="col-lg-6 text-center"> <!-- Centré pour toutes les tailles d'écran -->
+          <div *ngIf="bookCover" class="d-flex justify-content-center">
+            <img [src]="bookCover" alt="Couverture du livre" class="rounded" style="max-width: 100%; height: auto;">
           </div>
-         
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
+</section>

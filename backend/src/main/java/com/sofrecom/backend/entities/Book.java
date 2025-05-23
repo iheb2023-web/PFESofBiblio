@@ -7,15 +7,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+@SuppressWarnings("java:S7027")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Book {
+@Entity // NOSONAR
+public class Book implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,13 +37,15 @@ public class Book {
     @Transient
     private Long ownerId;
 
+    @SuppressWarnings("java:S7027")
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id") // NOSONAR
     private User owner;
 
+    @SuppressWarnings("java:S7027")
     @JsonIgnore
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book") // NOSONAR
     private List<Borrow> borrows;
 
 

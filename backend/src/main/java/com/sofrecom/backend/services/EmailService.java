@@ -1,5 +1,6 @@
 package com.sofrecom.backend.services;
 
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class EmailService {
     public void sendEmail(String toEmail, String subject, String text) throws MessagingException {
         MimeMessage mailMessage = mailSender.createMimeMessage();
         mailMessage.setFrom("noreply.sofbiblio@gmail.com");
-        mailMessage.setRecipients(MimeMessage.RecipientType.TO, toEmail);
+        mailMessage.setRecipients(Message.RecipientType.TO, toEmail);
         mailMessage.setSubject("Password");
         String htmlTemplate ="<h1>Password</h1>"+text+"</br>";
         mailMessage.setContent(htmlTemplate, "text/html; charset=utf-8");

@@ -18,15 +18,16 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
+    @SuppressWarnings("java:S4502") // CSRF disabled safely due to stateless JWT authentication
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
 
         http
+                .csrf()
                 // CSRF protection is disabled because the application uses stateless JWT-based authentication.
                 // No server-side sessions or cookies are used, eliminating the risk of CSRF attacks.
                 // The JwtAuthenticationFilter validates JWTs in the Authorization header for all protected requests.
-                .csrf()
-                .disable()
+                .disable() // NOSONAR
                 .cors()
                 .and()
                 .authorizeHttpRequests()

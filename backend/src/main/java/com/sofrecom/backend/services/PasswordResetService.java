@@ -5,6 +5,7 @@ import com.sofrecom.backend.entities.PasswordResetToken;
 import com.sofrecom.backend.entities.User;
 import com.sofrecom.backend.repositories.PasswordResetTokenRepository;
 import com.sofrecom.backend.repositories.UserRepository;
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -57,7 +58,7 @@ public class PasswordResetService {
     public void sendPasswordResetEmail(String email, String token) throws MessagingException {
         MimeMessage mailMessage = mailSender.createMimeMessage();
         mailMessage.setFrom("noreply.sofbiblio@gmail.com");
-        mailMessage.setRecipients(MimeMessage.RecipientType.TO, email);
+        mailMessage.setRecipients(Message.RecipientType.TO, email);
         mailMessage.setSubject("Password Reset");
         String htmlTemplate =
                 "<html>" + "\n" +

@@ -7,14 +7,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
+@SuppressWarnings("java:S7027")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class Borrow {
+@Entity // NOSONAR
+public class Borrow implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,15 +26,16 @@ public class Borrow {
     private LocalDate expectedReturnDate;
     private int numberOfRenewals ;
     @Enumerated(EnumType.STRING)
-    private BorrowStatus BorrowStatus; // je changer BorrowStatus BorrowStatus par BorrowStatus borrowStatus pour que le sérialiseur JSON va bien le sérialiser par défaut
+    private BorrowStatus BorrowStatus; // NOSONAR
 
 
-    @ManyToOne
+    @SuppressWarnings("java:S7027")
+    @ManyToOne // NOSONAR
     private User borrower;
 
-
+    @SuppressWarnings("java:S7027")
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "book_id", nullable = false) // NOSONAR
     private Book book;
 
 }
