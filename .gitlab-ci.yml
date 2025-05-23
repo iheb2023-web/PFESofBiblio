@@ -147,17 +147,35 @@ security_scan_images:
   dependencies:
     - docker_build_backend
     - docker_build_frontend
+  needs:
+    - docker_build_backend
+    - docker_build_frontend
   script:
+    
+    - echo "Attente des fichiers image.tar..."
+    - |
+      for i in $(seq 1 60); do
+        if [ -f "$CI_PROJECT_DIR/image-backend.tar" ] && [ -f "$CI_PROJECT_DIR/image-frontend.tar" ]; then
+          echo "Les deux fichiers sont présents !"
+          break
+        fi
+        echo "Attente... ($i/60)"
+        sleep 5
+      done
+      if [ ! -f "$CI_PROJECT_DIR/image-backend.tar" ] || [ ! -f "$CI_PROJECT_DIR/image-frontend.tar" ]; then
+        echo "Erreur : fichiers image-backend.tar ou image-frontend.tar manquants après 5 minutes"
+        exit 1
+      fi
     - echo "Vérification des fichiers image.tar"
-    - ls -lh $CI_PROJECT_DIR/image-backend.tar || echo "image-backend.tar non trouvé"
-    - ls -lh $CI_PROJECT_DIR/image-frontend.tar || echo "image-frontend.tar non trouvé"
+    - ls -lh "$CI_PROJECT_DIR/"
     - echo "Contenu complet du répertoire de travail"
-    - ls -lhR $CI_PROJECT_DIR/ || echo "Répertoire vide"
+    - ls -lhR "$CI_PROJECT_DIR/" || echo "Répertoire vide"
     - echo "Recherche de fichiers .tar"
-    - find $CI_PROJECT_DIR -name "*.tar" || echo "Aucun .tar trouvé"
+    - find "$CI_PROJECT_DIR" -name "*.tar" || echo "Aucun .tar trouvé"
     - echo "Scan de sécurité des images Docker"
-    - trivy image --input $CI_PROJECT_DIR/image-backend.tar --severity HIGH,CRITICAL --format json > $CI_PROJECT_DIR/backend-trivy-report.json || echo "Scan de l'image backend terminé"
-    - trivy image --input $CI_PROJECT_DIR/image-frontend.tar --severity HIGH,CRITICAL --format json > $CI_PROJECT_DIR/frontend-trivy-report.json || echo "Scan de l'image frontend terminé"
+    - trivy image --input "$CI_PROJECT_DIR/image-backend.tar" --severity HIGH,CRITICAL --format json > "$CI_PROJECT_DIR/backend-trivy-report.json" || echo "Scan de l'image backend terminé"
+    - trivy image --input "$CI_PROJECT_DIR/image-frontend.tar" --severity HIGH,CRITICAL --format json > "$CI_PROJECT_DIR/frontend-trivy-report.json" || echo "Scan de l'image frontend terminé"
+    
   artifacts:
     paths:
       - backend-trivy-report.json
@@ -166,7 +184,6 @@ security_scan_images:
   allow_failure: true
   only:
     - main
-    
 # -------- ANALYSE DES MÉTRIQUES --------
 analyze_metrics:
   stage: analyze
