@@ -77,7 +77,7 @@ test_job:
 # -------- ANALYSE SONARQUBE --------
 build-sonar:
   stage: build-sonar
-  image: maven:3-eclipse-temurin-17
+  image: registry.hub.docker.com/sonarsource/sonar-scanner-cli:latest
   cache:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
