@@ -3,7 +3,6 @@ stages:
   - test
   - build-sonar
   - security_scan
-  - sonarqube-vulnerability-report
   - analyze
   - package
   - deploy
@@ -77,7 +76,7 @@ test_job:
 # -------- ANALYSE SONARQUBE --------
 build-sonar:
   stage: build-sonar
-  image: registry.hub.docker.com/sonarsource/sonar-scanner-cli:latest
+  image: maven:3.9.6-eclipse-temurin-17
   cache:
     policy: pull-push
     key: "sonar-cache-$CI_COMMIT_REF_SLUG"
@@ -97,7 +96,7 @@ build-sonar:
 
 # -------- RAPPORT DE VULNÉRABILITÉS SONARQUBE --------
 sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
+  stage: build-sonar
   image: alpine:latest
   script:
     - apk add curl
@@ -140,6 +139,48 @@ security_scan_trivy:
   only:
     - main
 
+# -------- SCAN DES IMAGES DOCKER AVEC TRIVY --------
+security_scan_images:
+  stage: package
+  image: aquasec/trivy:latest
+  dependencies:
+    - docker_build_backend
+    - docker_build_frontend
+  needs:
+    - docker_build_backend
+    - docker_build_frontend
+  script:
+    - echo "Attente des fichiers image.tar..."
+    - |
+      for i in $(seq 1 60); do
+        if [ -f "$CI_PROJECT_DIR/image-backend.tar" ] && [ -f "$CI_PROJECT_DIR/image-frontend.tar" ]; then
+          echo "Les deux fichiers sont présents !"
+          break
+        fi
+        echo "Attente... ($i/60)"
+        sleep 5
+      done
+      if [ ! -f "$CI_PROJECT_DIR/image-backend.tar" ] || [ ! -f "$CI_PROJECT_DIR/image-frontend.tar" ]; then
+        exit 1
+      fi
+    - echo "Vérification des fichiers image.tar"
+    - ls -lh "$CI_PROJECT_DIR/"
+    - echo "Contenu complet du répertoire de travail"
+    - ls -lhR "$CI_PROJECT_DIR/" || echo "Répertoire vide"
+    - echo "Recherche de fichiers .tar"
+    - find "$CI_PROJECT_DIR" -name "*.tar" || echo "Aucun .tar trouvé"
+    - echo "Scan de sécurité des images Docker"
+    - trivy image --scanners vuln --input "$CI_PROJECT_DIR/image-backend.tar" --severity HIGH,CRITICAL --format json > "$CI_PROJECT_DIR/backend-trivy-report.json" || echo "Scan de l'image backend terminé"
+    - trivy image --scanners vuln --input "$CI_PROJECT_DIR/image-frontend.tar" --severity HIGH,CRITICAL --format json > "$CI_PROJECT_DIR/frontend-trivy-report.json" || echo "Scan de l'image frontend terminé"
+    
+  artifacts:
+    paths:
+      - backend-trivy-report.json
+      - frontend-trivy-report.json
+    expire_in: 1 week
+  allow_failure: true
+  only:
+    - main
 # -------- ANALYSE DES MÉTRIQUES --------
 analyze_metrics:
   stage: analyze
@@ -174,6 +215,56 @@ package_artifacts:
   artifacts:
     paths:
       - release/
+    expire_in: 1 week
+  only:
+    - main
+# -------- CONSTRUCTION DE L'IMAGE DOCKER POUR LE BACKEND AVEC KANIKO --------
+docker_build_backend:
+  stage: package
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  dependencies:
+    - build_backend
+  script:
+    - echo "Vérification du Dockerfile et du contexte pour le backend"
+    - ls -lh $CI_PROJECT_DIR/backend/Dockerfile || echo "Dockerfile backend manquant"
+    - ls -lh $CI_PROJECT_DIR/backend/pom.xml || echo "pom.xml backend manquant"
+    - ls -lhR $CI_PROJECT_DIR/backend/src/ || echo "src backend manquant"
+    - ls -lh $CI_PROJECT_DIR/backend/target/*.jar || echo "JAR backend manquant"
+    - /kaniko/executor --context $CI_PROJECT_DIR/backend --dockerfile $CI_PROJECT_DIR/backend/Dockerfile --no-push --destination my-spring-boot-app:$CI_COMMIT_SHA --tar-path $CI_PROJECT_DIR/image-backend.tar
+    - echo "Vérification de l'image générée"
+    - ls -lh $CI_PROJECT_DIR/image-backend.tar || echo "image-backend.tar non généré"
+    - echo "Contenu du répertoire racine avant upload"
+    - ls -lh $CI_PROJECT_DIR/
+  artifacts:
+    paths:
+      - image-backend.tar
+    expire_in: 1 week
+  only:
+    - main
+
+# -------- CONSTRUCTION DE L'IMAGE DOCKER POUR LE FRONTEND AVEC KANIKO --------
+docker_build_frontend:
+  stage: package
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  dependencies:
+    - build_frontend
+  script:
+    - echo "Vérification du Dockerfile et du contexte pour le frontend"
+    - ls -lh $CI_PROJECT_DIR/frontend/Dockerfile || echo "Dockerfile frontend manquant"
+    - ls -lh $CI_PROJECT_DIR/frontend/package.json || echo "package.json frontend manquant"
+    - ls -lhR $CI_PROJECT_DIR/frontend/dist/ || echo "dist frontend manquant"
+    - /kaniko/executor --context $CI_PROJECT_DIR/frontend --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile --no-push --destination my-frontend-app:$CI_COMMIT_SHA --tar-path $CI_PROJECT_DIR/image-frontend.tar
+    - echo "Vérification de l'image générée"
+    - ls -lh $CI_PROJECT_DIR/image-frontend.tar || echo "image-frontend.tar non généré"
+    - echo "Contenu du répertoire racine avant upload"
+    - ls -lh $CI_PROJECT_DIR/
+  artifacts:
+    paths:
+      - image-frontend.tar
     expire_in: 1 week
   only:
     - main

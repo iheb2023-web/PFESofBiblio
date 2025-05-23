@@ -32,7 +32,7 @@ public class BookController {
     public Book addNewBook(@RequestBody Book book, @PathVariable String email) {
         return bookService.addNewBook(book,email);
     }
-    
+
 
     @Operation(summary = "Add book", description = "Add new book")
     @PostMapping("")
