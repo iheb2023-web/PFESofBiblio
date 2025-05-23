@@ -3,7 +3,6 @@ stages:
   - test
   - build-sonar
   - security_scan
-  - sonarqube-vulnerability-report
   - analyze
   - package
   - deploy
@@ -97,7 +96,7 @@ build-sonar:
 
 # -------- RAPPORT DE VULNÉRABILITÉS SONARQUBE --------
 sonarqube-vulnerability-report:
-  stage: sonarqube-vulnerability-report
+  stage: build-sonar
   image: alpine:latest
   script:
     - apk add curl
